@@ -1,9 +1,8 @@
 Method 0 
 
-  private ClientResponse makeRemoteCall(Action action, int serviceUrlIndex) throws Throwable {
+  private ClientResponse makeRemoteCall(Action action, String serviceUrl) throws Throwable {
     String urlPath = null;
     Stopwatch tracer = null;
-    String serviceUrl = eurekaServiceUrls.get().get(serviceUrlIndex);
     ClientResponse response = null;
     logger.debug("Discovery Client talking to the server {}", serviceUrl);
     try {
@@ -86,18 +85,8 @@ Method 0
       }
     } catch (Throwable t) {
       closeResponse(response);
-      String msg = "Can't get a response from " + serviceUrl + urlPath;
-      if (eurekaServiceUrls.get().size() > (++serviceUrlIndex)) {
-        logger.warn(msg, t);
-        logger.warn("Trying backup: " + eurekaServiceUrls.get().get(serviceUrlIndex));
-        SERVER_RETRY_COUNTER.increment();
-        return makeRemoteCall(action, serviceUrlIndex);
-      } else {
-        ALL_SERVER_FAILURE_COUNT.increment();
-        logger.error(
-            msg + "\nCan't contact any eureka nodes - possibly a security group issue?", t);
-        throw t;
-      }
+      logger.warn("Can't get a response from " + serviceUrl + urlPath, t);
+      throw t;
     } finally {
       if (tracer != null) {
         tracer.stop();
@@ -114,21 +103,15 @@ Method 0
 Method 1 
 
   @Override
-  public String toString() {
-    Node<K, V>[] t;
-    int f = (t = table) == null ? NUM : t.length;
-    Traverser<K, V> it = new Traverser<K, V>(t, f, NUM, f);
+  public final String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append(STR);
-    Node<K, V> p;
-    if ((p = it.advance()) != null) {
+    Iterator<E> it = iterator();
+    if (it.hasNext()) {
       for (; ; ) {
-        K k = p.key;
-        V v = p.val;
-        sb.append(k == this ? STR : k);
-        sb.append(STR);
-        sb.append(v == this ? STR : v);
-        if ((p = it.advance()) == null) {
+        Object e = it.next();
+        sb.append(e == this ? STR : e);
+        if (!it.hasNext()) {
           break;
         }
         sb.append(STR).append(STR);
@@ -145,8 +128,9 @@ Method 1
 
 Method 2 
 
+  @Deprecated
   public int getTileSize() {
-    return tileSize;
+    return Math.max(tileHeight, tileWidth);
   }
 
 
@@ -158,7 +142,7 @@ Method 2
 Method 3 
 
   public Collection<OsmPrimitive> getSelected() {
-    return new ArrayList<OsmPrimitive>(selectedPrimitives);
+    return Collections.unmodifiableSet(selectedPrimitives);
   }
 
 
@@ -169,24 +153,23 @@ Method 3
 
 Method 4 
 
-  public String toInstantiationType(Property p) {
-    if (p instanceof MapProperty) {
-      MapProperty ap = (MapProperty) p;
-      Property additionalProperties2 = ap.getAdditionalProperties();
-      String type = additionalProperties2.getType();
+  public String toInstantiationType(Schema schema) {
+    if (ModelUtils.isMapSchema(schema)) {
+      Schema additionalProperties = (Schema) schema.getAdditionalProperties();
+      String type = additionalProperties.getType();
       if (null == type) {
         LOGGER.error(
             "No Type defined for Additional Property "
-                + additionalProperties2
+                + additionalProperties
                 + "\n" //
                 + "\tIn Property: "
-                + p);
+                + schema);
       }
-      String inner = getSwaggerType(additionalProperties2);
+      String inner = getSchemaType(additionalProperties);
       return instantiationTypes.get("map") + "<String, " + inner + ">";
-    } else if (p instanceof ArrayProperty) {
-      ArrayProperty ap = (ArrayProperty) p;
-      String inner = getSwaggerType(ap.getItems());
+    } else if (ModelUtils.isArraySchema(schema)) {
+      ArraySchema arraySchema = (ArraySchema) schema;
+      String inner = getSchemaType(arraySchema.getItems());
       return instantiationTypes.get("array") + "<" + inner + ">";
     } else {
       return null;
@@ -201,38 +184,40 @@ Method 4
 
 Method 5 
 
-  public int track(IProgressMonitor monitor) throws CoreException {
+  public int track(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
     long currentTime = System.currentTimeMillis();
     long totalTime = currentTime + timeout;
-    CloudFoundryApplicationModule appModule =
-        cloudServer.getBehaviour().updateModuleWithAllCloudInfo(appName, monitor);
+    CloudFoundryServerBehaviour behaviour = cloudServer.getBehaviour();
+    String appName = appModule.getDeployedApplicationName();
     printlnToConsole(
         NLS.bind(Messages.ApplicationInstanceStartingTracker_STARTING_TRACKING, appName),
         appModule);
-    int state = appModule.getState();
+    int state = IServer.STATE_UNKNOWN;
     while (state != IServer.STATE_STARTED
         && state != IServer.STATE_STOPPED
         && currentTime < totalTime) {
-      appModule = cloudServer.getBehaviour().updateModuleWithAllCloudInfo(appName, monitor);
-      if (appModule == null || appModule.getApplication() == null) {
-        printlnToConsole(
-            NLS.bind(Messages.ApplicationInstanceStartingTracker_APPLICATION_NOT_EXISTS, appName),
-            appModule);
-        return IServer.STATE_UNKNOWN;
-      }
       if (monitor != null && monitor.isCanceled()) {
-        printlnToConsole(
+        String error =
             NLS.bind(
-                Messages.ApplicationInstanceStartingTracker_APPLICATION_CHECK_CANCELED, appName),
-            appModule);
-        return IServer.STATE_UNKNOWN;
+                Messages.ApplicationInstanceStartingTracker_APPLICATION_CHECK_CANCELED, appName);
+        printlnToConsole(error, appModule);
+        throw new OperationCanceledException(error);
       }
-      state = appModule.getState();
-      try {
-        Thread.sleep(WAIT_TIME);
-      } catch (InterruptedException e) {
+      CloudApplication cloudApp = behaviour.getCloudApplication(appName, monitor);
+      ApplicationStats applicationStats = behaviour.getApplicationStats(appName, monitor);
+      if (cloudApp == null) {
+        String error =
+            NLS.bind(Messages.ApplicationInstanceStartingTracker_APPLICATION_NOT_EXISTS, appName);
+        printlnToConsole(error, appModule);
+        throw CloudErrorUtil.toCoreException(error);
+      } else {
+        state = CloudFoundryApplicationModule.getCloudState(cloudApp, applicationStats);
+        try {
+          Thread.sleep(WAIT_TIME);
+        } catch (InterruptedException e) {
+        }
+        currentTime = System.currentTimeMillis();
       }
-      currentTime = System.currentTimeMillis();
     }
     String runningStateMessage =
         state == IServer.STATE_STARTED
@@ -251,8 +236,8 @@ Method 5
 
 Method 6 
 
-  public TestSuite getSuite() {
-    return this.testSuite;
+  public List<TestSuite> getSuite() {
+    return this.testSuites;
   }
 
 
@@ -263,8 +248,13 @@ Method 6
 
 Method 7 
 
-  public static QName getXSIType(TypeEntry te) {
+  public static QName getXSIType(Parameter param) {
+    if (param.getMIMEType() != null) {
+      return getMIMETypeQName(param.getMIMEType());
+    }
+
     QName xmlType = null;
+    TypeEntry te = param.getType();
 
     // If the TypeEntry describes an Element, get
     // the referenced Type.
@@ -297,17 +287,16 @@ Method 7
 
 Method 8 
 
-  public String getTypeDeclaration(Property p) {
-    if (p instanceof ArrayProperty) {
-      ArrayProperty ap = (ArrayProperty) p;
-      Property inner = ap.getItems();
+  public String getTypeDeclaration(Schema p) {
+    if (ModelUtils.isArraySchema(p)) {
+      ArraySchema ap = (ArraySchema) p;
+      Schema inner = ap.getItems();
       return getTypeDeclaration(inner) + "[]";
-    } else if (p instanceof MapProperty) {
-      MapProperty mp = (MapProperty) p;
-      Property inner = mp.getAdditionalProperties();
+    } else if (ModelUtils.isMapSchema(p)) {
+      Schema inner = (Schema) p.getAdditionalProperties();
       // TODO not sure if the following map/hash declaration is correct
       return "{String, " + getTypeDeclaration(inner) + "}";
-    } else if (!languageSpecificPrimitives.contains(getSwaggerType(p))) {
+    } else if (!languageSpecificPrimitives.contains(getSchemaType(p))) {
       return packageName + ".Model." + super.getTypeDeclaration(p);
     }
     return super.getTypeDeclaration(p);
@@ -322,7 +311,10 @@ Method 8
 Method 9 
 
   public float getX() {
-    return center[NUM];
+    if (left == null) {
+      calculateLeft();
+    }
+    return left.floatValue();
   }
 
 
@@ -333,8 +325,8 @@ Method 9
 
 Method 10 
 
-  protected boolean useGzipWhenAccepted() {
-    return false;
+  protected boolean useGzipWhenAccepted(Response r) {
+    return r.getMimeType() != null && r.getMimeType().toLowerCase().contains("text/");
   }
 
 
@@ -345,18 +337,18 @@ Method 10
 
 Method 11 
 
-  public InternalPortletPreference[] getStoredPreferences(
+  public Map<String, InternalPortletPreference> getStoredPreferences(
       PortletWindow portletWindow, PortletRequest request) throws PortletContainerException {
     String key = getFormattedKey(portletWindow, request);
-    InternalPortletPreference[] preferences = storage.get(key);
+    Map<String, InternalPortletPreference> preferences = storage.get(key);
     if (preferences == null) {
       if (LOG.isDebugEnabled()) {
         LOG.debug("No portlet preferences found for: " + key);
       }
-      return new InternalPortletPreference[0];
+      return Collections.emptyMap();
     } else {
       if (LOG.isDebugEnabled()) {
-        LOG.debug("Got " + preferences.length + " stored preferences.");
+        LOG.debug("Got " + preferences.size() + " stored preferences.");
       }
       return clonePreferences(preferences);
     }
@@ -372,7 +364,7 @@ Method 12
 
   public static Criterion fromRawSelection(final String selection, final String[] selectionArgs) {
     if (TextUtils.isEmpty(selection)) {
-      return Criterion.all;
+      return null;
     }
     return new Criterion(null) {
 
@@ -397,10 +389,10 @@ Method 12
 
 Method 13 
 
-  private boolean searchForButton(String search, int matches) {
+  private boolean searchForButton(String regex, int matches) {
     sleeper.sleep();
     inst.waitForIdleSync();
-    Pattern p = Pattern.compile(search);
+    Pattern p = Pattern.compile(regex);
     Matcher matcher;
     ArrayList<Button> buttonList = viewFetcher.getCurrentViews(Button.class);
     if (matches == 0) matches = 1;
@@ -416,10 +408,10 @@ Method 13
     }
 
     if (scroller.scroll(Scroller.Direction.DOWN)) {
-      return searchForButton(search, matches);
+      return searchForButton(regex, matches);
     } else {
       if (countMatches > 0)
-        Log.d(LOG_TAG, " There are only " + countMatches + " matches of " + search);
+        Log.d(LOG_TAG, " There are only " + countMatches + " matches of " + regex);
       countMatches = 0;
       return false;
     }
@@ -433,8 +425,8 @@ Method 13
 
 Method 14 
 
-  public RuleSet getRuleSet() {
-    return this.ruleSet;
+  public Package getRuleSet() {
+    return this.pkg;
   }
 
 
@@ -445,8 +437,8 @@ Method 14
 
 Method 15 
 
-  public boolean searchText(String search, int matches) {
-    boolean found = searcher.searchText(search, matches, true);
+  public boolean searchText(String regex, int matches) {
+    boolean found = searcher.searchText(regex, matches, true);
     return found;
   }
 
@@ -458,27 +450,27 @@ Method 15
 
 Method 16 
 
-  public static int getModeValue(String mode) {
-    if (mode == null) return -NUM;
+  public static ImportMode getModeValue(String mode) {
+    if (mode == null) return null;
     mode = mode.trim().toLowerCase();
     if (mode.indexOf(STR) == -NUM) {
       if (STR.equals(mode)) {
-        return MODE_INSERT;
+        return ImportMode.insert;
       } else if (STR.equals(mode)) {
-        return MODE_UPDATE;
+        return ImportMode.update;
       } else {
-        return -NUM;
+        return null;
       }
     } else {
       List l = StringUtil.stringToList(mode, STR);
       String first = (String) l.get(NUM);
       String second = (String) l.get(NUM);
       if (STR.equals(first) && STR.equals(second)) {
-        return MODE_INSERT_UPDATE;
+        return ImportMode.insertUpdate;
       } else if (STR.equals(first) && STR.equals(second)) {
-        return MODE_UPDATE_INSERT;
+        return ImportMode.updateInsert;
       } else {
-        return -NUM;
+        return null;
       }
     }
   }
@@ -492,7 +484,7 @@ Method 16
 Method 17 
 
   public boolean isBoolean() {
-    return arg.equals("true") || arg.equals("false");
+    return raw.equals("true") || raw.equals("false");
   }
 
 
@@ -503,12 +495,12 @@ Method 17
 
 Method 18 
 
-  public int compareTo(ReadablePartial instant) {
-    if (instant == null) {
+  public int compareTo(ReadablePartial partial) {
+    if (partial == null) {
       throw new IllegalArgumentException("The instant must not be null");
     }
     int thisValue = get();
-    int otherValue = instant.get(getField());
+    int otherValue = partial.get(getFieldType());
     if (thisValue < otherValue) {
       return -1;
     } else if (thisValue > otherValue) {
@@ -527,7 +519,11 @@ Method 18
 Method 19 
 
   public float getX() {
-    return center[0];
+    if (left == null) {
+      calculateLeft();
+    }
+
+    return left.floatValue();
   }
 
 

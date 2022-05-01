@@ -1,35 +1,39 @@
 Method 0 
 
-  protected String getExample(Property property) {
-    if (property.getExample() != null) {
-      return property.getExample().toString();
-    } else if (property instanceof DateTimeProperty) {
+  protected String getExample(Schema schema) {
+    if (schema.getExample() != null) {
+      return schema.getExample().toString();
+    } else if (ModelUtils.isDateTimeSchema(schema)) {
       return "2000-01-23T04:56:07.000Z";
-    } else if (property instanceof DateProperty) {
+    } else if (ModelUtils.isDateSchema(schema)) {
       return "2000-01-23";
-    } else if (property instanceof BooleanProperty) {
+    } else if (ModelUtils.isBooleanSchema(schema)) {
       return "true";
-    } else if (property instanceof LongProperty) {
-      return "123456789";
-    } else if (property
-        instanceof DoubleProperty) { // derived from DecimalProperty so make sure this is first
-      return "3.149";
-    } else if (property instanceof DecimalProperty) {
-      return "1.3579";
-    } else if (property instanceof PasswordProperty) {
+    } else if (ModelUtils.isNumberSchema(schema)) {
+      if (ModelUtils.isFloatSchema(schema)) { // float
+        return "1.3579";
+      } else { // double
+        return "3.149";
+      }
+    } else if (ModelUtils.isPasswordSchema(schema)) {
       return "********";
-    } else if (property instanceof UUIDProperty) {
+    } else if (ModelUtils.isUUIDSchema(schema)) {
       return "046b6c7f-0b8a-43b9-b35d-6489e6daee91";
       // do these last in case the specific types above are derived from these classes
-    } else if (property instanceof StringProperty) {
+    } else if (ModelUtils.isStringSchema(schema)) {
       return "aeiou";
-    } else if (property instanceof BaseIntegerProperty) {
-      return "123";
-    } else if (property instanceof AbstractNumericProperty) {
-      return "1.23";
+    } else if (ModelUtils.isIntegerSchema(schema)) {
+      if (ModelUtils.isLongSchema(schema)) { // long
+        return "123456789";
+      } else { // integer
+        return "123";
+      }
+    } else {
+      LOGGER.debug(
+          "default example value not implemented for {}. Default to UNDEFINED_EXAMPLE_VALUE",
+          schema);
+      return "UNDEFINED_EXAMPLE_VALUE";
     }
-    LOGGER.warn("default example value not implemented for " + property);
-    return "";
   }
 
 
@@ -40,83 +44,73 @@ Method 0
 
 Method 1 
 
-  public static String normalizeDateString(String s, Date docdate) {
-    // TODO [pengqi]: still need to handle relative dates ("å»å¹´") and temporal references
-    // ("å½æ¶")
-    // TODO [pengqi]: need to handle irregular years ("81å¹´")
+  public static String normalizeDateString(String s, Date ctxdate) {
     // TODO [pengqi]: need to handle basic localization ("å¨ä¸æäºæ¥å°[å
 «æ¥]é´")
-    Pattern p = Pattern.compile(BASIC_YYYYMMDD_PATTERN);
+    // TODO [pengqi]: need to handle literal numeral dates (usually used in events, e.g. "ä¸ä¸äº"
+    // for 03-15)
+    // TODO [pengqi]: might need to add a pattern for centuries ("ä¸ä¸çºª90å¹´ä»£")?
+    String ctxyear = new SimpleDateFormat("yyyy").format(ctxdate);
+    String ctxmonth = new SimpleDateFormat("MM").format(ctxdate);
+    String ctxday = new SimpleDateFormat("dd").format(ctxdate);
+
+    Pattern p = Pattern.compile("^" + BASIC_YYYYMMDD_PATTERN + "$");
     Matcher m = p.matcher(s);
 
     if (m.find() && m.groupCount() == 3) {
       StringBuilder res = new StringBuilder();
-      String year = m.group(1);
-      for (int i = 0; i < year.length(); i++) {
-        String t = "" + year.charAt(i);
-        if (CHINESE_LITERAL_DECIMAL_PATTERN.matcher(t).matches()) {
-          if (wordsToValues.containsKey(t)) res.append((int) wordsToValues.getCount(t));
-          else
-            // something unexpected happened
-            return null;
-        } else res.append(t);
-      }
 
+      res.append(normalizeYear(m.group(1), ctxyear));
       res.append("-");
-      res.append(normalizeMonthOrDay(m.group(2)));
+      res.append(normalizeMonthOrDay(m.group(2), ctxmonth));
       res.append("-");
-      res.append(normalizeMonthOrDay(m.group(3)));
+      res.append(normalizeMonthOrDay(m.group(3), ctxday));
 
       return res.toString();
     }
 
-    p = Pattern.compile(BASIC_MMDD_PATTERN);
+    p = Pattern.compile("^" + BASIC_MMDD_PATTERN + "$");
     m = p.matcher(s);
 
     if (m.find() && m.groupCount() == 2) {
       StringBuilder res = new StringBuilder();
-      String year = new SimpleDateFormat("yyyy").format(docdate);
 
-      res.append(year);
+      res.append(ctxyear);
       res.append("-");
-      res.append(normalizeMonthOrDay(m.group(1)));
+      res.append(normalizeMonthOrDay(m.group(1), ctxmonth));
       res.append("-");
-      res.append(normalizeMonthOrDay(m.group(2)));
+      res.append(normalizeMonthOrDay(m.group(2), ctxday));
 
       return res.toString();
     }
 
-    p = Pattern.compile(BASIC_DD_PATTERN);
+    p = Pattern.compile("^" + BASIC_DD_PATTERN + "$");
     m = p.matcher(s);
 
     if (m.find() && m.groupCount() == 1) {
       StringBuilder res = new StringBuilder();
-      String year = new SimpleDateFormat("yyyy").format(docdate);
-      String month = new SimpleDateFormat("MM").format(docdate);
 
-      res.append(year);
+      res.append(ctxyear);
       res.append("-");
-      res.append(month);
+      res.append(ctxmonth);
       res.append("-");
-      res.append(normalizeMonthOrDay(m.group(1)));
+      res.append(normalizeMonthOrDay(m.group(1), ctxday));
 
       return res.toString();
     }
 
-    p = Pattern.compile(ENGLISH_MMDDYYYY_PATTERN);
+    p = Pattern.compile("^" + ENGLISH_MMDDYYYY_PATTERN + "$");
     m = p.matcher(s);
 
     if (m.find() && m.groupCount() == 3) {
       StringBuilder res = new StringBuilder();
 
-      String year = new SimpleDateFormat("yyyy").format(docdate);
-
-      if (m.group(3) == null) res.append(year);
-      else res.append(m.group(3));
+      if (m.group(3) == null) res.append(ctxyear);
+      else res.append(normalizeYear(m.group(3), ctxyear));
       res.append("-");
-      res.append(normalizeMonthOrDay(m.group(1)));
+      res.append(normalizeMonthOrDay(m.group(1), ctxmonth));
       res.append("-");
-      res.append(normalizeMonthOrDay(m.group(2)));
+      res.append(normalizeMonthOrDay(m.group(2), ctxday));
 
       return res.toString();
     }
@@ -133,8 +127,8 @@ Method 1
 Method 2 
 
   @SuppressWarnings(STR)
-  public double getReal(final int i) {
-    return (double) getFirstValue(i);
+  public double getReal() {
+    return (double) getFirstValue();
   }
 
 
@@ -145,8 +139,8 @@ Method 2
 
 Method 3 
 
-  public boolean isFlagSet(int flag) {
-    return (flags & flag) != 0;
+  public boolean isFlagSet(int flagsToCheck) {
+    return (flags & flagsToCheck) != 0;
   }
 
 
@@ -157,7 +151,7 @@ Method 3
 
 Method 4 
 
-  public static final TokenStream of(TokenStream... streams) {
+  public static final TwitterTokenStream of(TwitterTokenStream... streams) {
     return new TokenStreamAggregator(streams);
   }
 
@@ -169,7 +163,7 @@ Method 4
 
 Method 5 
 
-  public T bothV() {
+  public GremlinPipeline<S, Vertex> bothV() {
     return this.add(new BothVerticesPipe());
   }
 
@@ -182,25 +176,13 @@ Method 5
 Method 6 
 
   private File[] getProjectFiles(File directory) {
-    File[] files =
-        directory.listFiles(
-            new FileFilter() {
+    return directory.listFiles(
+        new FileFilter() {
 
-              public boolean accept(File file) {
-                return (file.isFile() && file.getName().endsWith(STR));
-              }
-            });
-    switch (explorerTableSortColumn) {
-      case NUM:
-      case NUM:
-      case NUM:
-      default:
-    }
-    selectedFile = -NUM;
-    if (getProject() != null)
-      for (int n = NUM; n < files.length; n++)
-        if (getProject().getFile().equals(files[n])) selectedFile = n;
-    return files;
+          public boolean accept(File file) {
+            return (file.isFile() && file.getName().endsWith(STR));
+          }
+        });
   }
 
 
@@ -211,28 +193,17 @@ Method 6
 
 Method 7 
 
-  public List<Set<?>> getProjectInfo(AbstractProject context) {
+  public SubProjectData getProjectInfo(AbstractProject context) {
 
-    Comparator customComparator =
-        new Comparator<AbstractProject>() {
-          public int compare(AbstractProject abstractProject1, AbstractProject abstractProject2) {
-            return abstractProject1.getFullName().compareTo(abstractProject2.getFullName());
-          }
-        };
+    SubProjectData subProjectData = new SubProjectData();
 
-    Set<AbstractProject> dynamicProject = new TreeSet<AbstractProject>(customComparator);
-    Set<AbstractProject> staticProject = new TreeSet<AbstractProject>(customComparator);
-    Set<AbstractProject> triggeredProject = new TreeSet<AbstractProject>(customComparator);
-    Set<String> unresolvedProject = new TreeSet<String>();
-
-    iterateBuilds(
-        context, projects, dynamicProject, staticProject, triggeredProject, unresolvedProject);
+    iterateBuilds(context, projects, subProjectData);
 
     // We don't want to show a project twice
-    triggeredProject.removeAll(dynamicProject);
-    triggeredProject.removeAll(staticProject);
+    subProjectData.getTriggered().removeAll(subProjectData.getDynamic());
+    subProjectData.getTriggered().removeAll(subProjectData.getFixed());
 
-    return Arrays.asList(staticProject, dynamicProject, triggeredProject, unresolvedProject);
+    return subProjectData;
   }
 
 
@@ -243,23 +214,22 @@ Method 7
 
 Method 8 
 
-  File getBaseDir(File base, File file) {
-    if (base == null) {
-      return file.getParentFile().getAbsoluteFile();
-    } else {
-      Iterator bases = getParents(base).iterator();
-      Iterator fileParents = getParents(file.getAbsoluteFile()).iterator();
-      File result = null;
-      while (bases.hasNext() && fileParents.hasNext()) {
-        File next = (File) bases.next();
-        if (next.equals(fileParents.next())) {
-          result = next;
-        } else {
-          break;
-        }
-      }
-      return result;
+  File getBaseDir(final File file1, final File file2) {
+    if (file1 == null || file2 == null) {
+      return null;
     }
+    final Iterator bases = getParents(file1).iterator();
+    final Iterator fileParents = getParents(file2.getAbsoluteFile()).iterator();
+    File result = null;
+    while (bases.hasNext() && fileParents.hasNext()) {
+      File next = (File) bases.next();
+      if (next.equals(fileParents.next())) {
+        result = next;
+      } else {
+        break;
+      }
+    }
+    return result;
   }
 
 
@@ -274,7 +244,11 @@ Method 9
       JTextArea view, String header, int start, int end) {
     validateView(view);
     validateHeader(header);
-    validateStartEnd(start, end, view.getDocument().getLength());
+    validateStartEnd(start, end);
+
+    if (!isValidStartEndForLength(start, end, view.getDocument().getLength())) {
+      return INVALID_POSITION;
+    }
 
     int excessChars = 0;
     int pos = 0;
@@ -305,7 +279,8 @@ Method 9
 Method 10 
 
   public static boolean exceedsMaxCount() {
-    return mTestCount >= MAX_TEST_COUNT;
+    final long maxTestCount = HostConfig.getMaxTestCount();
+    return (maxTestCount > NUM) && (mTestCount >= maxTestCount);
   }
 
 
@@ -318,12 +293,12 @@ Method 11
 
   private ComponentAdapter prepRES_lifecycleManagerHonorsInstantiationSequence(
       MutablePicoContainer picoContainer) {
-    picoContainer.component(RecordingLifecycle.One.class);
+    picoContainer.addComponent(RecordingLifecycle.One.class);
     PoolingComponentAdapter poolingComponentAdapter =
         new PoolingComponentAdapter(
             new ConstructorInjectionComponentAdapter(
                 RecordingLifecycle.Recorder.class, RecordingLifecycle.Two.class));
-    return picoContainer.adapter(poolingComponentAdapter).lastCA();
+    return picoContainer.addAdapter(poolingComponentAdapter).lastCA();
   }
 
 
@@ -335,9 +310,22 @@ Method 11
 Method 12 
 
   private int updateRedundancy() {
+    int desiredRedundancy = this.pRegion.getRedundantCopies();
     int numBucketHosts = getNumInitializedBuckets();
-    if (!isClosed()) {
-      redundancyTracker.updateStatistics(numBucketHosts);
+    if (isClosed()) {
+      return numBucketHosts;
+    }
+    int actualRedundancy = numBucketHosts - 1;
+    this.redundancy = actualRedundancy;
+    if (this.redundancySatisfied && numBucketHosts > 0 && actualRedundancy < desiredRedundancy) {
+      incLowRedundancyBucketCount(1);
+      this.redundancySatisfied = false;
+    } else if (!this.redundancySatisfied
+        && numBucketHosts > 0
+        && actualRedundancy >= desiredRedundancy) {
+      incLowRedundancyBucketCount(-1);
+      this.redundancySatisfied = true;
+      this.redundancyEverSatisfied = true;
     }
     return numBucketHosts;
   }
@@ -350,7 +338,7 @@ Method 12
 
 Method 13 
 
-  public android.telecomm.Connection.VideoProvider getVideoProvider() {
+  public android.telecom.Connection.VideoProvider getVideoProvider() {
     return mVideoProvider;
   }
 
@@ -370,7 +358,9 @@ Method 14
       return false;
     }
     ReadableInterval other = (ReadableInterval) readableInterval;
-    return (getStartMillis() == other.getStartMillis() && getEndMillis() == other.getEndMillis());
+    return (getStartMillis() == other.getStartMillis()
+        && getEndMillis() == other.getEndMillis()
+        && getChronology() == other.getChronology());
   }
 
 
@@ -381,12 +371,13 @@ Method 14
 
 Method 15 
 
-  protected String determineSegmentColumnName(Properties params, Dialect dialect) {
-    final ObjectNameNormalizer normalizer =
-        (ObjectNameNormalizer) params.get(IDENTIFIER_NORMALIZER);
+  protected String determineSegmentColumnName(Properties params, JdbcEnvironment jdbcEnvironment) {
     final String name =
         ConfigurationHelper.getString(SEGMENT_COLUMN_PARAM, params, DEF_SEGMENT_COLUMN);
-    return normalizer.toDatabaseIdentifierText(name);
+    return jdbcEnvironment
+        .getIdentifierHelper()
+        .toIdentifier(name)
+        .render(jdbcEnvironment.getDialect());
   }
 
 
@@ -398,7 +389,7 @@ Method 15
 Method 16 
 
   public double getRotY() {
-    return mOrientation.getRotationY();
+    return Math.toDegrees(mOrientation.getRotationY());
   }
 
 
@@ -409,10 +400,24 @@ Method 16
 
 Method 17 
 
-  public String createText(MilStd2525TacticalGraphic graphic) {
+  public String[] createText(MilStd2525TacticalGraphic graphic) {
+    String[] result;
+
     String functionId = graphic.getFunctionId();
-    if (CircularFireSupportArea.FUNCTION_ID_TARGET.equals(functionId)) return graphic.getText();
-    else return createDateRangeText(graphic, functionId);
+    if (CircularFireSupportArea.FUNCTION_ID_TARGET.equals(functionId)) {
+      result = new String[] {graphic.getText()};
+    } else {
+      boolean useSeparateTimeLabel = this.isShowSeparateTimeLabel(functionId);
+      String mainText = this.createMainText(graphic, functionId, !useSeparateTimeLabel);
+
+      if (useSeparateTimeLabel) {
+        String timeText = this.createTimeRangeText(graphic);
+        result = new String[] {mainText, timeText};
+      } else {
+        result = new String[] {mainText};
+      }
+    }
+    return result;
   }
 
 
@@ -423,12 +428,20 @@ Method 17
 
 Method 18 
 
-  public static DdlParsingMode parse(String value, String defaultValue) {
-    DdlParsingMode mode = parse(value);
-    if (mode == null && defaultValue != null) {
-      mode = parse(defaultValue);
+  public static EventProcessingFailureHandlingMode parse(String value) {
+    if (value == null) {
+      return null;
     }
-    return mode;
+
+    value = value.trim();
+
+    for (EventProcessingFailureHandlingMode option : EventProcessingFailureHandlingMode.values()) {
+      if (option.getValue().equalsIgnoreCase(value)) {
+        return option;
+      }
+    }
+
+    return null;
   }
 
 
@@ -439,12 +452,11 @@ Method 18
 
 Method 19 
 
-  public static Ct.TimestampedEntry parseTimestampedEntry(InputStream in) {
-    Ct.TimestampedEntry.Builder timestampedEntry = Ct.TimestampedEntry.newBuilder();
-    long timestamp = readNumber(in, CTConstants.TIMESTAMP_LENGTH);
-    timestampedEntry.setTimestamp(timestamp);
+  public static TimestampedEntry parseTimestampedEntry(InputStream in) {
+    TimestampedEntry timestampedEntry = new TimestampedEntry();
+    timestampedEntry.timestamp = readNumber(in, CTConstants.TIMESTAMP_LENGTH);
     int entryType = (int) readNumber(in, CTConstants.LOG_ENTRY_TYPE_LENGTH);
-    timestampedEntry.setEntryType(Ct.LogEntryType.valueOf(entryType));
+    timestampedEntry.entryType = Ct.LogEntryType.valueOf(entryType);
     Ct.SignedEntry.Builder signedEntryBuilder = Ct.SignedEntry.newBuilder();
     if (entryType == Ct.LogEntryType.X509_ENTRY_VALUE) {
       int length = (int) readNumber(in, NUM);
@@ -462,9 +474,8 @@ Method 19
     } else {
       throw new SerializationException(String.format(STR, entryType));
     }
-    signedEntryBuilder.build();
-    timestampedEntry.setSignedEntry(signedEntryBuilder);
-    return timestampedEntry.build();
+    timestampedEntry.signedEntry = signedEntryBuilder.build();
+    return timestampedEntry;
   }
 
 

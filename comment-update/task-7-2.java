@@ -1,10 +1,10 @@
 Method 0 
 
-  public ScaleAnimationBuilder animateScale(float scale) {
+  public AnimationBuilder animateScale(float scale) {
     if (!isImageReady()) {
       return null;
     }
-    return new ScaleAnimationBuilder(scale);
+    return new AnimationBuilder(scale);
   }
 
 
@@ -16,10 +16,11 @@ Method 0
 Method 1 
 
   public static BroadcasterFactory buildAndReplaceDefaultfactory(
-      Class<? extends Broadcaster> clazz, BroadcasterConfig config)
+      Class<? extends Broadcaster> clazz, AtmosphereServlet.AtmosphereConfig c)
       throws InstantiationException, IllegalAccessException {
 
     factory = new DefaultBroadcasterFactory(clazz);
+    config = c;
     return factory;
   }
 
@@ -31,8 +32,8 @@ Method 1
 
 Method 2 
 
-  public boolean searchText(String search) {
-    boolean found = searcher.searchText(search, 0, true);
+  public boolean searchText(String regex) {
+    boolean found = searcher.searchText(regex, 0, true);
     return found;
   }
 
@@ -44,7 +45,7 @@ Method 2
 
 Method 3 
 
-  public boolean removeActiveMessage() {
+  public int removeActiveMessage() {
     return removeMessage(currentPage);
   }
 
@@ -58,17 +59,16 @@ Method 4
 
   protected Configuration doConfigure(InputStream stream, String resourceName)
       throws HibernateException {
-
-    org.dom4j.Document doc;
     try {
       List errors = new ArrayList();
-      doc =
+      Document document =
           xmlHelper
               .createSAXReader(resourceName, errors, entityResolver)
               .read(new InputSource(stream));
       if (errors.size() != 0) {
         throw new MappingException("invalid configuration", (Throwable) errors.get(0));
       }
+      doConfigure(document);
     } catch (DocumentException e) {
       throw new HibernateException("Could not parse configuration: " + resourceName, e);
     } finally {
@@ -78,8 +78,7 @@ Method 4
         log.warn("could not close input stream for: " + resourceName, ioe);
       }
     }
-
-    return doConfigure(doc);
+    return this;
   }
 
 
@@ -90,17 +89,8 @@ Method 4
 
 Method 5 
 
-  public static int nextPowerOfTwo(int value) {
-    if (!isPowerOfTwo(value)) {
-      value--;
-      value |= value >> NUM;
-      value |= value >> NUM;
-      value |= value >> NUM;
-      value |= value >> NUM;
-      value |= value >> NUM;
-      value++;
-    }
-    return value;
+  public static int nextPowerOfTwo(final int value) {
+    return NUM << (NUM - Integer.numberOfLeadingZeros(value - NUM));
   }
 
 
@@ -111,8 +101,8 @@ Method 5
 
 Method 6 
 
-  public boolean getExtraBoolean(String key) {
-    return mExtraData.optBoolean(key);
+  public boolean getExtraBoolean(String key) throws JSONException {
+    return mExtraData.getBoolean(key);
   }
 
 
@@ -125,7 +115,13 @@ Method 7
 
   protected Object convertTimestampToEpochMillisAsDate(
       Column column, Field fieldDefn, Object data) {
-    if (data == null) return null;
+    if (data == null) {
+      data = fieldDefn.schema().defaultValue();
+    }
+    if (data == null) {
+      if (column.isOptional()) return null;
+      return new java.util.Date(0L); // return epoch
+    }
     try {
       return new java.util.Date(Timestamp.toEpochMillis(data));
     } catch (IllegalArgumentException e) {
@@ -142,9 +138,7 @@ Method 7
 Method 8 
 
   public static Blob generateProxy(InputStream stream, long length) {
-    return (Blob)
-        Proxy.newProxyInstance(
-            getProxyClassLoader(), PROXY_INTERFACES, new BlobProxy(stream, length));
+    return new BlobProxy(stream, length);
   }
 
 
@@ -155,55 +149,57 @@ Method 8
 
 Method 9 
 
-  protected CompletableFuture<ExecutionResult> completeValueForList(
+  protected FieldValueInfo completeValueForList(
       ExecutionContext executionContext,
       ExecutionStrategyParameters parameters,
       Iterable<Object> iterableValues) {
 
+    Collection<Object> values = FpKit.toCollection(iterableValues);
     ExecutionTypeInfo typeInfo = parameters.getTypeInfo();
     GraphQLList fieldType = typeInfo.castType(GraphQLList.class);
     GraphQLFieldDefinition fieldDef = parameters.getTypeInfo().getFieldDefinition();
 
     InstrumentationFieldCompleteParameters instrumentationParams =
         new InstrumentationFieldCompleteParameters(
-            executionContext,
-            parameters,
-            fieldDef,
-            fieldTypeInfo(parameters, fieldDef),
-            iterableValues);
+            executionContext, parameters, fieldDef, fieldTypeInfo(parameters, fieldDef), values);
     Instrumentation instrumentation = executionContext.getInstrumentation();
 
     InstrumentationContext<ExecutionResult> completeListCtx =
         instrumentation.beginFieldListComplete(instrumentationParams);
 
-    CompletableFuture<List<ExecutionResult>> resultsFuture =
-        Async.each(
-            iterableValues,
-            (item, index) -> {
-              ExecutionPath indexedPath = parameters.getPath().segment(index);
+    List<FieldValueInfo> fieldValueInfos = new ArrayList<>();
+    int index = 0;
+    for (Object item : values) {
+      ExecutionPath indexedPath = parameters.getPath().segment(index);
 
-              ExecutionTypeInfo wrappedTypeInfo =
-                  ExecutionTypeInfo.newTypeInfo()
-                      .parentInfo(typeInfo)
-                      .type(fieldType.getWrappedType())
+      ExecutionTypeInfo wrappedTypeInfo =
+          ExecutionTypeInfo.newTypeInfo()
+              .parentInfo(typeInfo)
+              .type(fieldType.getWrappedType())
+              .path(indexedPath)
+              .fieldDefinition(fieldDef)
+              .build();
+
+      NonNullableFieldValidator nonNullableFieldValidator =
+          new NonNullableFieldValidator(executionContext, wrappedTypeInfo);
+
+      int finalIndex = index;
+      ExecutionStrategyParameters newParameters =
+          parameters.transform(
+              builder ->
+                  builder
+                      .typeInfo(wrappedTypeInfo)
+                      .nonNullFieldValidator(nonNullableFieldValidator)
+                      .listSize(values.size())
+                      .currentListIndex(finalIndex)
                       .path(indexedPath)
-                      .fieldDefinition(fieldDef)
-                      .build();
+                      .source(item));
+      fieldValueInfos.add(completeValue(executionContext, newParameters));
+      index++;
+    }
 
-              NonNullableFieldValidator nonNullableFieldValidator =
-                  new NonNullableFieldValidator(executionContext, wrappedTypeInfo);
-
-              ExecutionStrategyParameters newParameters =
-                  parameters.transform(
-                      builder ->
-                          builder
-                              .typeInfo(wrappedTypeInfo)
-                              .nonNullFieldValidator(nonNullableFieldValidator)
-                              .path(indexedPath)
-                              .source(item));
-
-              return completeValue(executionContext, newParameters);
-            });
+    CompletableFuture<List<ExecutionResult>> resultsFuture =
+        Async.each(fieldValueInfos, (item, i) -> item.getFieldValue());
 
     CompletableFuture<ExecutionResult> overallResult = new CompletableFuture<>();
     completeListCtx.onDispatched(overallResult);
@@ -224,7 +220,11 @@ Method 9
           overallResult.complete(executionResult);
         });
     overallResult.whenComplete(completeListCtx::onCompleted);
-    return overallResult;
+
+    return FieldValueInfo.newFieldValueInfo(LIST)
+        .fieldValue(overallResult)
+        .fieldValueInfos(fieldValueInfos)
+        .build();
   }
 
 
@@ -235,8 +235,8 @@ Method 9
 
 Method 10 
 
-  public UpdateUserOper body(User user) {
-    reqSpec.setBody(user);
+  public UpdateUserOper body(User body) {
+    reqSpec.setBody(body);
     return this;
   }
 
@@ -249,28 +249,20 @@ Method 10
 Method 11 
 
   public static String getMessageId(SipRequest request) {
-    // Read ID from Message-Id header
-    ExtensionHeader messageIdHeader =
-        (ExtensionHeader) request.getHeader(ImdnUtils.HEADER_IMDN_MSG_ID);
-    if (messageIdHeader != null) {
-      return messageIdHeader.getValue();
-    }
-
-    // Read ID from multipart content
+    String result = null;
     try {
+      // Read ID from multipart content
       String content = request.getContent();
       int index = content.indexOf(ImdnUtils.HEADER_IMDN_MSG_ID);
       if (index != -1) {
         index = index + ImdnUtils.HEADER_IMDN_MSG_ID.length() + 1;
         String part = content.substring(index);
-        String msgId = part.substring(0, part.indexOf(SipUtils.CRLF));
-        return msgId.trim();
+        String msgId = part.substring(0, part.indexOf(CRLF));
+        result = msgId.trim();
       }
     } catch (Exception e) {
     }
-
-    // No message id
-    return null;
+    return result;
   }
 
 
@@ -282,7 +274,11 @@ Method 11
 Method 12 
 
   public float getY() {
-    return center[1];
+    if (top == null) {
+      calculateTop();
+    }
+
+    return top.floatValue();
   }
 
 
@@ -293,22 +289,22 @@ Method 12
 
 Method 13 
 
-  public ChannelContentSource removeContentSource(ContentSource contentSource) {
-    if ((this.channelContentSources == null) || (contentSource == null)) {
+  public RepoContentSource removeContentSource(ContentSource contentSource) {
+    if ((this.repoContentSources == null) || (contentSource == null)) {
       return null;
     }
 
-    ChannelContentSource doomed = null;
+    RepoContentSource doomed = null;
 
-    for (ChannelContentSource ccs : this.channelContentSources) {
-      if (contentSource.equals(ccs.getChannelContentSourcePK().getContentSource())) {
+    for (RepoContentSource ccs : this.repoContentSources) {
+      if (contentSource.equals(ccs.getRepoContentSourcePK().getContentSource())) {
         doomed = ccs;
         break;
       }
     }
 
     if (doomed != null) {
-      this.channelContentSources.remove(doomed);
+      this.repoContentSources.remove(doomed);
     }
 
     return doomed;
@@ -322,16 +318,21 @@ Method 13
 
 Method 14 
 
-  private static synchronized Supplier<Annotator> getOrCreate(
-      String name, Properties props, Supplier<Annotator> annotator) {
-    StanfordCoreNLP.AnnotatorSignature key =
-        new StanfordCoreNLP.AnnotatorSignature(name, PropertiesUtils.getSignature(name, props));
-    customAnnotators.register(
-        name,
-        props,
-        StanfordCoreNLP.GLOBAL_ANNOTATOR_CACHE.computeIfAbsent(
-            key, (sig) -> Lazy.cache(annotator)));
-    return () -> customAnnotators.get(name);
+  private static synchronized Supplier<Annotator> getOrCreate(AnnotatorFactory factory) {
+    return () -> {
+      Annotator rtn = customAnnotators.get(factory.signature());
+      if (rtn == null) {
+        // Create the annotator
+        rtn = factory.create();
+        // Register the annotator
+        customAnnotators.put(factory.signature(), factory.create());
+        // Clean up memory if needed
+        while (customAnnotators.size() > 10) {
+          customAnnotators.keySet().iterator().remove();
+        }
+      }
+      return rtn;
+    };
   }
 
 
@@ -342,23 +343,22 @@ Method 14
 
 Method 15 
 
-  File getBaseDir(File base, File file) {
-    if (base == null) {
-      return file.getParentFile().getAbsoluteFile();
-    } else {
-      Iterator bases = getParents(base).iterator();
-      Iterator fileParents = getParents(file.getAbsoluteFile()).iterator();
-      File result = null;
-      while (bases.hasNext() && fileParents.hasNext()) {
-        File next = (File) bases.next();
-        if (next.equals(fileParents.next())) {
-          result = next;
-        } else {
-          break;
-        }
-      }
-      return result;
+  File getBaseDir(final File file1, final File file2) {
+    if (file1 == null || file2 == null) {
+      return null;
     }
+    final Iterator file1Parents = getParents(file1).iterator();
+    final Iterator file2Parents = getParents(file2.getAbsoluteFile()).iterator();
+    File result = null;
+    while (file1Parents.hasNext() && file2Parents.hasNext()) {
+      File next = (File) file1Parents.next();
+      if (next.equals(file2Parents.next())) {
+        result = next;
+      } else {
+        break;
+      }
+    }
+    return result;
   }
 
 
@@ -369,9 +369,8 @@ Method 15
 
 Method 16 
 
-  public static RequestQueue newRequestQueue(
-      ImplRestConnection implRestConnection, int threadPoolSize) {
-    return newRequestQueue(HttpRestParser.getInstance(implRestConnection), threadPoolSize);
+  public static RequestQueue newRequestQueue(IRestProtocol implRestConnection, int threadPoolSize) {
+    return newRequestQueue(RestParser.getInstance(implRestConnection), threadPoolSize);
   }
 
 
@@ -383,27 +382,31 @@ Method 16
 Method 17 
 
   @Processor
-  @Inject
   @OAuthProtected
   @OAuthInvalidateAccessTokenOn(exception = OAuthTokenExpiredException.class)
-  public List<CalendarList> getCalendarList(
-      MuleMessage message,
-      @Optional @Default("100") int maxResults,
-      @Optional String pageToken,
-      @Optional @Default("false") boolean showHidden)
+  @Paged
+  public PagingDelegate<CalendarList> getCalendarList(
+      final @Optional @Default("false") boolean showHidden,
+      final PagingConfiguration pagingConfiguration)
       throws IOException {
 
-    com.google.api.services.calendar.Calendar.CalendarList.List calendars =
-        this.client.calendarList().list();
-    com.google.api.services.calendar.model.CalendarList list =
-        calendars
-            .setMaxResults(maxResults)
-            .setPageToken(pageToken)
-            .setShowHidden(showHidden)
-            .execute();
+    return new TokenBasedPagingDelegate<CalendarList>() {
 
-    this.saveNextPageToken(list, message);
-    return CalendarList.valueOf(list.getItems(), CalendarList.class);
+      @Override
+      public List<CalendarList> doGetPage() throws IOException {
+        com.google.api.services.calendar.Calendar.CalendarList.List calendars =
+            client.calendarList().list();
+        com.google.api.services.calendar.model.CalendarList list =
+            calendars
+                .setMaxResults(pagingConfiguration.getFetchSize())
+                .setPageToken(this.getPageToken())
+                .setShowHidden(showHidden)
+                .execute();
+
+        setPageToken(list.getNextPageToken());
+        return CalendarList.valueOf(list.getItems(), CalendarList.class);
+      }
+    };
   }
 
 
@@ -414,8 +417,19 @@ Method 17
 
 Method 18 
 
-  public Annotation readUndelimited(InputStream is) throws IOException {
-    return fromProto(CoreNLPProtos.Document.parseDelimitedFrom(is));
+  public Annotation readUndelimited(File in) throws IOException {
+    FileInputStream delimited = new FileInputStream(in);
+    FileInputStream undelimited = new FileInputStream(in);
+    CoreNLPProtos.Document doc;
+    try {
+      doc = CoreNLPProtos.Document.parseFrom(delimited);
+    } catch (Exception e) {
+      doc = CoreNLPProtos.Document.parseDelimitedFrom(undelimited);
+    } finally {
+      delimited.close();
+      undelimited.close();
+    }
+    return fromProto(doc);
   }
 
 
@@ -426,10 +440,12 @@ Method 18
 
 Method 19 
 
-  private int terminalToShowWhenClosing(int terminalClosing) {
-    if (terminalClosing > 0) return terminalClosing - 1;
-    else if (terminalClosing + 1 < getTerminalCount()) return terminalClosing + 1;
-    else return -1;
+  private String terminalToShowWhenClosing(String handle) {
+    int terminalClosing = terminals_.indexOfTerminal(handle);
+    if (terminalClosing > 0) return terminals_.terminalHandleAtIndex(terminalClosing - 1);
+    else if (terminalClosing + 1 < terminals_.terminalCount())
+      return terminals_.terminalHandleAtIndex(terminalClosing + 1);
+    else return null;
   }
 
 
