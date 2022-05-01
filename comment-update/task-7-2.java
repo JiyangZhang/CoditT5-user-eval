@@ -1,79 +1,79 @@
 /** Method 0 */
 
-/** @return {@link ScaleAnimationBuilder} instance. Call {@link com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.ScaleAnimationBuilder#start()} to start the anim. */
-  public ScaleAnimationBuilder animateScale(float scale) {
+/** updated comment */
+  public AnimationBuilder animateScale(float scale) {
     if (!isImageReady()) {
       return null;
     }
-    return new ScaleAnimationBuilder(scale);
+    return new AnimationBuilder(scale);
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 1 */
 
-/** @param config An instance of  BroadcasterConfig */
+/** updated comment */
   public static BroadcasterFactory buildAndReplaceDefaultfactory(
-      Class<? extends Broadcaster> clazz, BroadcasterConfig config)
+      Class<? extends Broadcaster> clazz, AtmosphereServlet.AtmosphereConfig c)
       throws InstantiationException, IllegalAccessException {
 
     factory = new DefaultBroadcasterFactory(clazz);
+    config = c;
     return factory;
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 2 */
 
-/** @param search the string to be searched. The parameter will be interpreted as a regular expression. */
-  public boolean searchText(String search) {
-    boolean found = searcher.searchText(search, 0, true);
+/** updated comment */
+  public boolean searchText(String regex) {
+    boolean found = searcher.searchText(regex, 0, true);
     return found;
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 3 */
 
-/** @return true if a message was removed, false otherwise. */
-  public boolean removeActiveMessage() {
+/** updated comment */
+  public int removeActiveMessage() {
     return removeMessage(currentPage);
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 4 */
 
-/** @return A configuration configured via the stream */
+/** updated comment */
   protected Configuration doConfigure(InputStream stream, String resourceName)
       throws HibernateException {
-
-    org.dom4j.Document doc;
     try {
       List errors = new ArrayList();
-      doc =
+      Document document =
           xmlHelper
               .createSAXReader(resourceName, errors, entityResolver)
               .read(new InputSource(stream));
       if (errors.size() != 0) {
         throw new MappingException("invalid configuration", (Throwable) errors.get(0));
       }
+      doConfigure(document);
     } catch (DocumentException e) {
       throw new HibernateException("Could not parse configuration: " + resourceName, e);
     } finally {
@@ -83,57 +83,53 @@
         log.warn("could not close input stream for: " + resourceName, ioe);
       }
     }
-
-    return doConfigure(doc);
+    return this;
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 5 */
 
-/** @return the next power of two that is larger than the specified int value. */
-  public static int nextPowerOfTwo(int value) {
-    if (!isPowerOfTwo(value)) {
-      value--;
-      value |= value >> NUM;
-      value |= value >> NUM;
-      value |= value >> NUM;
-      value |= value >> NUM;
-      value |= value >> NUM;
-      value++;
-    }
-    return value;
+/** updated comment */
+  public static int nextPowerOfTwo(final int value) {
+    return NUM << (NUM - Integer.numberOfLeadingZeros(value - NUM));
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 6 */
 
-/** @return The stored value or null if it doesn't exist in specified form. */
-  public boolean getExtraBoolean(String key) {
-    return mExtraData.optBoolean(key);
+/** updated comment */
+  public boolean getExtraBoolean(String key) throws JSONException {
+    return mExtraData.getBoolean(key);
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 7 */
 
-/** @return the converted value, or null if the conversion could not be made */
+/** updated comment */
   protected Object convertTimestampToEpochMillisAsDate(
       Column column, Field fieldDefn, Object data) {
-    if (data == null) return null;
+    if (data == null) {
+      data = fieldDefn.schema().defaultValue();
+    }
+    if (data == null) {
+      if (column.isOptional()) return null;
+      return new java.util.Date(0L); // return epoch
+    }
     try {
       return new java.util.Date(Timestamp.toEpochMillis(data));
     } catch (IllegalArgumentException e) {
@@ -143,77 +139,77 @@
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 8 */
 
-/** @return The generated proxy. */
+/** updated comment */
   public static Blob generateProxy(InputStream stream, long length) {
-    return (Blob)
-        Proxy.newProxyInstance(
-            getProxyClassLoader(), PROXY_INTERFACES, new BlobProxy(stream, length));
+    return new BlobProxy(stream, length);
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 9 */
 
-/** @return an  ExecutionResult */
-  protected CompletableFuture<ExecutionResult> completeValueForList(
+/** updated comment */
+  protected FieldValueInfo completeValueForList(
       ExecutionContext executionContext,
       ExecutionStrategyParameters parameters,
       Iterable<Object> iterableValues) {
 
+    Collection<Object> values = FpKit.toCollection(iterableValues);
     ExecutionTypeInfo typeInfo = parameters.getTypeInfo();
     GraphQLList fieldType = typeInfo.castType(GraphQLList.class);
     GraphQLFieldDefinition fieldDef = parameters.getTypeInfo().getFieldDefinition();
 
     InstrumentationFieldCompleteParameters instrumentationParams =
         new InstrumentationFieldCompleteParameters(
-            executionContext,
-            parameters,
-            fieldDef,
-            fieldTypeInfo(parameters, fieldDef),
-            iterableValues);
+            executionContext, parameters, fieldDef, fieldTypeInfo(parameters, fieldDef), values);
     Instrumentation instrumentation = executionContext.getInstrumentation();
 
     InstrumentationContext<ExecutionResult> completeListCtx =
         instrumentation.beginFieldListComplete(instrumentationParams);
 
-    CompletableFuture<List<ExecutionResult>> resultsFuture =
-        Async.each(
-            iterableValues,
-            (item, index) -> {
-              ExecutionPath indexedPath = parameters.getPath().segment(index);
+    List<FieldValueInfo> fieldValueInfos = new ArrayList<>();
+    int index = 0;
+    for (Object item : values) {
+      ExecutionPath indexedPath = parameters.getPath().segment(index);
 
-              ExecutionTypeInfo wrappedTypeInfo =
-                  ExecutionTypeInfo.newTypeInfo()
-                      .parentInfo(typeInfo)
-                      .type(fieldType.getWrappedType())
+      ExecutionTypeInfo wrappedTypeInfo =
+          ExecutionTypeInfo.newTypeInfo()
+              .parentInfo(typeInfo)
+              .type(fieldType.getWrappedType())
+              .path(indexedPath)
+              .fieldDefinition(fieldDef)
+              .build();
+
+      NonNullableFieldValidator nonNullableFieldValidator =
+          new NonNullableFieldValidator(executionContext, wrappedTypeInfo);
+
+      int finalIndex = index;
+      ExecutionStrategyParameters newParameters =
+          parameters.transform(
+              builder ->
+                  builder
+                      .typeInfo(wrappedTypeInfo)
+                      .nonNullFieldValidator(nonNullableFieldValidator)
+                      .listSize(values.size())
+                      .currentListIndex(finalIndex)
                       .path(indexedPath)
-                      .fieldDefinition(fieldDef)
-                      .build();
+                      .source(item));
+      fieldValueInfos.add(completeValue(executionContext, newParameters));
+      index++;
+    }
 
-              NonNullableFieldValidator nonNullableFieldValidator =
-                  new NonNullableFieldValidator(executionContext, wrappedTypeInfo);
-
-              ExecutionStrategyParameters newParameters =
-                  parameters.transform(
-                      builder ->
-                          builder
-                              .typeInfo(wrappedTypeInfo)
-                              .nonNullFieldValidator(nonNullableFieldValidator)
-                              .path(indexedPath)
-                              .source(item));
-
-              return completeValue(executionContext, newParameters);
-            });
+    CompletableFuture<List<ExecutionResult>> resultsFuture =
+        Async.each(fieldValueInfos, (item, i) -> item.getFieldValue());
 
     CompletableFuture<ExecutionResult> overallResult = new CompletableFuture<>();
     completeListCtx.onDispatched(overallResult);
@@ -234,95 +230,95 @@
           overallResult.complete(executionResult);
         });
     overallResult.whenComplete(completeListCtx::onCompleted);
-    return overallResult;
+
+    return FieldValueInfo.newFieldValueInfo(LIST)
+        .fieldValue(overallResult)
+        .fieldValueInfos(fieldValueInfos)
+        .build();
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 10 */
 
-/** @param user (User) Updated user object (required) */
-  public UpdateUserOper body(User user) {
-    reqSpec.setBody(user);
+/** updated comment */
+  public UpdateUserOper body(User body) {
+    reqSpec.setBody(body);
     return this;
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 11 */
 
-/** Returns the message id header value of a SIP request */
+/** updated comment */
   public static String getMessageId(SipRequest request) {
-    // Read ID from Message-Id header
-    ExtensionHeader messageIdHeader =
-        (ExtensionHeader) request.getHeader(ImdnUtils.HEADER_IMDN_MSG_ID);
-    if (messageIdHeader != null) {
-      return messageIdHeader.getValue();
-    }
-
-    // Read ID from multipart content
+    String result = null;
     try {
+      // Read ID from multipart content
       String content = request.getContent();
       int index = content.indexOf(ImdnUtils.HEADER_IMDN_MSG_ID);
       if (index != -1) {
         index = index + ImdnUtils.HEADER_IMDN_MSG_ID.length() + 1;
         String part = content.substring(index);
-        String msgId = part.substring(0, part.indexOf(SipUtils.CRLF));
-        return msgId.trim();
+        String msgId = part.substring(0, part.indexOf(CRLF));
+        result = msgId.trim();
       }
     } catch (Exception e) {
     }
-
-    // No message id
-    return null;
+    return result;
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 12 */
 
-/** Get the y location of the center of this circle */
+/** updated comment */
   public float getY() {
-    return center[1];
+    if (top == null) {
+      calculateTop();
+    }
+
+    return top.floatValue();
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 13 */
 
-/** Removes the content source from this channel, if it exists. */
-  public ChannelContentSource removeContentSource(ContentSource contentSource) {
-    if ((this.channelContentSources == null) || (contentSource == null)) {
+/** updated comment */
+  public RepoContentSource removeContentSource(ContentSource contentSource) {
+    if ((this.repoContentSources == null) || (contentSource == null)) {
       return null;
     }
 
-    ChannelContentSource doomed = null;
+    RepoContentSource doomed = null;
 
-    for (ChannelContentSource ccs : this.channelContentSources) {
-      if (contentSource.equals(ccs.getChannelContentSourcePK().getContentSource())) {
+    for (RepoContentSource ccs : this.repoContentSources) {
+      if (contentSource.equals(ccs.getRepoContentSourcePK().getContentSource())) {
         doomed = ccs;
         break;
       }
     }
 
     if (doomed != null) {
-      this.channelContentSources.remove(doomed);
+      this.repoContentSources.remove(doomed);
     }
 
     return doomed;
@@ -330,131 +326,151 @@
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 14 */
 
-/** @return An annotator as specified by the given name and properties. */
-  private static synchronized Supplier<Annotator> getOrCreate(
-      String name, Properties props, Supplier<Annotator> annotator) {
-    StanfordCoreNLP.AnnotatorSignature key =
-        new StanfordCoreNLP.AnnotatorSignature(name, PropertiesUtils.getSignature(name, props));
-    customAnnotators.register(
-        name,
-        props,
-        StanfordCoreNLP.GLOBAL_ANNOTATOR_CACHE.computeIfAbsent(
-            key, (sig) -> Lazy.cache(annotator)));
-    return () -> customAnnotators.get(name);
+/** updated comment */
+  private static synchronized Supplier<Annotator> getOrCreate(AnnotatorFactory factory) {
+    return () -> {
+      Annotator rtn = customAnnotators.get(factory.signature());
+      if (rtn == null) {
+        // Create the annotator
+        rtn = factory.create();
+        // Register the annotator
+        customAnnotators.put(factory.signature(), factory.create());
+        // Clean up memory if needed
+        while (customAnnotators.size() > 10) {
+          customAnnotators.keySet().iterator().remove();
+        }
+      }
+      return rtn;
+    };
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 15 */
 
-/** Returns the common base directory between a current base directory and a given file. */
-  File getBaseDir(File base, File file) {
-    if (base == null) {
-      return file.getParentFile().getAbsoluteFile();
-    } else {
-      Iterator bases = getParents(base).iterator();
-      Iterator fileParents = getParents(file.getAbsoluteFile()).iterator();
-      File result = null;
-      while (bases.hasNext() && fileParents.hasNext()) {
-        File next = (File) bases.next();
-        if (next.equals(fileParents.next())) {
-          result = next;
-        } else {
-          break;
-        }
-      }
-      return result;
+/** updated comment */
+  File getBaseDir(final File file1, final File file2) {
+    if (file1 == null || file2 == null) {
+      return null;
     }
+    final Iterator file1Parents = getParents(file1).iterator();
+    final Iterator file2Parents = getParents(file2.getAbsoluteFile()).iterator();
+    File result = null;
+    while (file1Parents.hasNext() && file2Parents.hasNext()) {
+      File next = (File) file1Parents.next();
+      if (next.equals(file2Parents.next())) {
+        result = next;
+      } else {
+        break;
+      }
+    }
+    return result;
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 16 */
 
-/** Create a new request queue, using NoHttp default request executor  HttpRestConnection and default response parser  HttpRestParser. */
-  public static RequestQueue newRequestQueue(
-      ImplRestConnection implRestConnection, int threadPoolSize) {
-    return newRequestQueue(HttpRestParser.getInstance(implRestConnection), threadPoolSize);
+/** updated comment */
+  public static RequestQueue newRequestQueue(IRestProtocol implRestConnection, int threadPoolSize) {
+    return newRequestQueue(RestParser.getInstance(implRestConnection), threadPoolSize);
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 17 */
 
-/** Returns an instance of  org.mule.module.google.calendar.model.CalendarList listing the calendars of the user that owns the OAuth access token. */
+/** updated comment */
   @Processor
-  @Inject
   @OAuthProtected
   @OAuthInvalidateAccessTokenOn(exception = OAuthTokenExpiredException.class)
-  public List<CalendarList> getCalendarList(
-      MuleMessage message,
-      @Optional @Default("100") int maxResults,
-      @Optional String pageToken,
-      @Optional @Default("false") boolean showHidden)
+  @Paged
+  public PagingDelegate<CalendarList> getCalendarList(
+      final @Optional @Default("false") boolean showHidden,
+      final PagingConfiguration pagingConfiguration)
       throws IOException {
 
-    com.google.api.services.calendar.Calendar.CalendarList.List calendars =
-        this.client.calendarList().list();
-    com.google.api.services.calendar.model.CalendarList list =
-        calendars
-            .setMaxResults(maxResults)
-            .setPageToken(pageToken)
-            .setShowHidden(showHidden)
-            .execute();
+    return new TokenBasedPagingDelegate<CalendarList>() {
 
-    this.saveNextPageToken(list, message);
-    return CalendarList.valueOf(list.getItems(), CalendarList.class);
+      @Override
+      public List<CalendarList> doGetPage() throws IOException {
+        com.google.api.services.calendar.Calendar.CalendarList.List calendars =
+            client.calendarList().list();
+        com.google.api.services.calendar.model.CalendarList list =
+            calendars
+                .setMaxResults(pagingConfiguration.getFetchSize())
+                .setPageToken(this.getPageToken())
+                .setShowHidden(showHidden)
+                .execute();
+
+        setPageToken(list.getNextPageToken());
+        return CalendarList.valueOf(list.getItems(), CalendarList.class);
+      }
+    };
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 18 */
 
-/** @param is The input stream to read from. This should contain a single protocol buffer and nothing else. */
-  public Annotation readUndelimited(InputStream is) throws IOException {
-    return fromProto(CoreNLPProtos.Document.parseDelimitedFrom(is));
+/** updated comment */
+  public Annotation readUndelimited(File in) throws IOException {
+    FileInputStream delimited = new FileInputStream(in);
+    FileInputStream undelimited = new FileInputStream(in);
+    CoreNLPProtos.Document doc;
+    try {
+      doc = CoreNLPProtos.Document.parseFrom(delimited);
+    } catch (Exception e) {
+      doc = CoreNLPProtos.Document.parseDelimitedFrom(undelimited);
+    } finally {
+      delimited.close();
+      undelimited.close();
+    }
+    return fromProto(doc);
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 19 */
 
-/** Index of terminal to show after closing indicated terminal index */
-  private int terminalToShowWhenClosing(int terminalClosing) {
-    if (terminalClosing > 0) return terminalClosing - 1;
-    else if (terminalClosing + 1 < getTerminalCount()) return terminalClosing + 1;
-    else return -1;
+/** updated comment */
+  private String terminalToShowWhenClosing(String handle) {
+    int terminalClosing = terminals_.indexOfTerminal(handle);
+    if (terminalClosing > 0) return terminals_.terminalHandleAtIndex(terminalClosing - 1);
+    else if (terminalClosing + 1 < terminals_.terminalCount())
+      return terminals_.terminalHandleAtIndex(terminalClosing + 1);
+    else return null;
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
