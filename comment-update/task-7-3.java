@@ -1,63 +1,58 @@
 /** Method 0 */
 
-/** Return a list of all selected objects. */
+/** updated comment */
   public Collection<OsmPrimitive> getSelected() {
-    // It would be nice to have this be a copy-on-write list
-    // or an Collections.unmodifiableList().  It would be
-    // much faster for large selections.  May users just
-    // call this, and only check the .size().
-    return new ArrayList<OsmPrimitive>(selectedPrimitives);
+    return Collections.unmodifiableSet(selectedPrimitives);
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 1 */
 
-/** Returns a one dimensional array from an sql query. */
-  public <T> List<T> querySimpleList(
-      Class<T> c, String sqlCmd, Connection conn) { // Execute the  Statement
-    if (checkOpen() == false) return null;
-    // Debug
+/** updated comment */
+  public <T> int querySimpleList(
+      Class<T> c, String sqlCmd, Connection conn, Collection<T> result) { // Check status
+    if (checkOpen() == false) return -1;
+    // Start query
     ResultSet rs = null;
-    try { // Check Open
-      if (checkOpen() == false) return null;
-      // Debug
+    try { // Log performance
       long start = System.currentTimeMillis();
       if (log.isInfoEnabled()) log.info("executing: " + sqlCmd);
       // Get the next Value
       rs = driver.executeQuery(sqlCmd, null, false, conn);
       if (rs == null) { // Error
         error(driver);
-        return null;
+        return -1;
       }
       // Check Result
-      List<T> result = new ArrayList<T>();
+      int count = 0;
       while (rs.next()) {
         T item = ObjectUtils.convert(c, rs.getObject(1));
         result.add(item);
+        count++;
       }
       // No Value
       if (log.isInfoEnabled())
         log.info(
             "querySimpleList retured "
-                + String.valueOf(result.size())
+                + String.valueOf(count)
                 + " items. Query completed in "
                 + String.valueOf(System.currentTimeMillis() - start)
                 + " ms");
       clearError();
-      return result;
+      return count;
     } catch (ClassCastException e) {
       log.error("querySingleValue cast exception: ", e);
       error(Errors.Exception, e);
-      return null;
+      return -1;
     } catch (SQLException e) {
       log.error("querySimpleList exception: ", e);
       error(DBErrors.QueryFailed, e);
-      return null;
+      return -1;
     } finally { // Cleanup
       closeResultSet(rs);
     }
@@ -65,214 +60,143 @@
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 2 */
 
-/** @return the current time in ms */
+/** updated comment */
   private long now() {
-    return mMonotonicClock == null ? SystemClock.uptimeMillis() : mMonotonicClock.now();
+    return SystemClock.uptimeMillis();
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 3 */
 
-/** Marshall JSON metadata into a new Widget instance */
-  public static Widget getWidget(String metadata, String shindig) throws Exception {
+/** updated comment */
+  public static W3CWidget getWidget(String metadata, String shindig) throws Exception {
     JSONObject gadget = null;
-    Widget widget = null;
     JSONObject response = new JSONObject(metadata);
     JSONArray gadgets = response.getJSONArray("gadgets");
-    if (gadgets.length() > 0) {
-      gadget = gadgets.getJSONObject(0);
-      if (gadget.has("errors")) throw new Exception("Invalid gadget - Shindig error");
-
-      widget = new Widget();
-      // Defaults
-      String title = "Untitled Gadget";
-      int height = 200;
-      int width = 320;
-      String author = "Unknown Author";
-      String description = "Google Gadget";
-      String icon = DEFAULT_ICON;
-
-      if (!gadget.has("url")) throw new Exception("Invalid gadget - URL missing");
-      if (gadget.getString("url") == null || gadget.getString("url").equals(""))
-        throw new Exception("Invalid gadget - Invalid URL");
-      try {
-        @SuppressWarnings("unused")
-        URL url = new URL(gadget.getString("url"));
-      } catch (Exception e) {
-        throw new Exception("Invalid gadget - invalid URL");
-      }
-
-      // Use the URL as the GUID
-      widget.setGuid(gadget.getString("url"));
-
-      // We should be able to use the "iframeUrl" property here, but
-      // it isn't very reliable at generating a usable value, so we construct
-      // a very basic URL instead
-      StartFile sf = new StartFile();
-      sf.setWidget(widget);
-      // FIXME we need to use real locales in these URLs
-      sf.setUrl(
-          shindig + "/gadgets/ifr?url=" + gadget.getString("url") + "&amp;lang=en&amp;country=UK");
-
-      if (gadget.has("height")) if (gadget.getInt("height") != 0) height = gadget.getInt("height");
-      if (gadget.has("width")) if (gadget.getInt("width") != 0) width = gadget.getInt("width");
-
-      if (gadget.has("author")) {
-        if (gadget.getString("author") != null) {
-          if (!(gadget.getString("author").trim()).equals("")) {
-            author = gadget.getString("author");
-          }
-        }
-      }
-
-      if (gadget.has("title")) {
-        if (gadget.getString("title") != null) {
-          if (!(gadget.getString("title").trim()).equals("")) {
-            title = gadget.getString("title");
-          }
-        }
-      }
-
-      // Override the title with directory title if present (this is intended for gallery use)
-      if (gadget.has("directory_title")) {
-        if (gadget.getString("directory_title") != null) {
-          if (!(gadget.getString("directory_title").trim()).equals("")) {
-            title = gadget.getString("directory_title");
-          }
-        }
-      }
-
-      if (gadget.has("description")) {
-        if (gadget.getString("description") != null) {
-          if (!(gadget.getString("description").trim()).equals("")) {
-            title = gadget.getString("description");
-          }
-        }
-      }
-
-      if (gadget.has("thumbnail")) {
-        if (gadget.getString("thumbnail") != null) {
-          if (!(gadget.getString("thumbnail").trim()).equals("")) {
-            icon = gadget.getString("thumbnail");
-          }
-        }
-      }
-
-      widget.setMaximize(false);
-      widget.setHeight(height);
-      widget.setWidth(width);
-      Name name = new Name();
-      name.setWidget(widget);
-      name.setName(title);
-      Description desc = new Description();
-      desc.setWidget(widget);
-      desc.setContent(description);
-      WidgetIcon wicon = new WidgetIcon();
-      wicon.setSrc(icon);
-      wicon.setWidget(widget);
-      widget.setWidgetAuthor(author);
-
-      widget.save();
-      sf.save();
-      name.save();
-      wicon.save();
-      desc.save();
-    }
-    return widget;
+    if (gadgets.length() == 0) return null;
+    gadget = gadgets.getJSONObject(0);
+    return new GadgetAdapter(gadget, shindig);
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 4 */
 
-/** @return Returns the charset. */
+/** updated comment */
   public String getCharset() {
-    return charset;
+    if (charset != null) {
+      return charset.name();
+    }
+    return DEFAULT_CHARSET;
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 5 */
 
-/** @return the list of KDCs */
-  public String getKDCList(String realm) {
+/** updated comment */
+  public String getKDCList(String realm) throws KrbException {
     if (realm == null) {
       realm = getDefaultRealm();
     }
+    Exception cause = null;
     String kdcs = getDefault(STR, realm);
     if (kdcs == null) {
-      return null;
+      kdcs =
+          java.security.AccessController.doPrivileged(
+              new java.security.PrivilegedAction<String>() {
+
+                @Override
+                public String run() {
+                  String osname = System.getProperty(STR);
+                  if (osname.startsWith(STR)) {
+                    String logonServer = System.getenv(STR);
+                    if (logonServer != null && logonServer.startsWith(STR)) {
+                      logonServer = logonServer.substring(NUM);
+                    }
+                    return logonServer;
+                  }
+                  return null;
+                }
+              });
+    }
+    if (kdcs == null) {
+      KrbException ke = new KrbException(STR);
+      if (cause != null) {
+        ke.initCause(cause);
+      }
+      throw ke;
     }
     return kdcs;
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 6 */
 
-/** Checks if this persistent resource's underlying entity is sharable. */
+/** updated comment */
   private boolean isShareable() {
-    return getRequestScope().getDictionary().isSharable(obj.getClass());
+    return getRequestScope().getDictionary().isShareable(obj.getClass());
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 7 */
 
-/** @param operator operator */
-  public static BooleanOperation predicate(Operator operator, Expression<?>... args) {
-    return new BooleanOperation(operator, args);
+/** updated comment */
+  public static BooleanOperation predicate(Operator operation, Expression<?>... args) {
+    return new BooleanOperation(operation, args);
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 8 */
 
-/** @return red value in given position */
-  public short getRed(final int i) {
-    return data[get1DIndex(i)];
+/** updated comment */
+  public short getRed() {
+    return data[getFirst1DIndex()];
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 9 */
 
-/** Invoke the proprietary  CometSupport */
+/** updated comment */
   public Action doCometSupport(AtmosphereRequest req, AtmosphereResponse res)
       throws IOException, ServletException {
     req.setAttribute(BROADCASTER_FACTORY, broadcasterFactory);
@@ -300,9 +224,9 @@
           req.body(body);
         }
 
-        a = cometSupport.service(req, res);
+        a = asyncSupport.service(req, res);
       } else {
-        return cometSupport.service(req, res);
+        return asyncSupport.service(req, res);
       }
     } catch (IllegalStateException ex) {
       if (ex.getMessage() != null
@@ -311,13 +235,13 @@
         if (!isFilter) {
           logger.warn(
               "Failed using comet support: {}, error: {} Is the Nio or Apr Connector enabled?",
-              cometSupport.getClass().getName(),
+              asyncSupport.getClass().getName(),
               ex.getMessage());
           logger.warn("Using BlockingIOCometSupport.");
         }
         logger.trace(ex.getMessage(), ex);
 
-        cometSupport = new BlockingIOCometSupport(config);
+        asyncSupport = new BlockingIOCometSupport(config);
         doCometSupport(req, res);
       } else {
         logger.error("AtmosphereServlet exception", ex);
@@ -334,15 +258,15 @@
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 10 */
 
-/** Get the  edu.stanford.nlp.international.Language object corresponding to the given language string. */
-  private Language getLanguage(String languageStr) {
-    for (Language l : Language.values()) {
+/** updated comment */
+  private Languages.Language getLanguage(String languageStr) {
+    for (Languages.Language l : Languages.Language.values()) {
       if (l.name().equalsIgnoreCase(languageStr)) return l;
     }
     return null;
@@ -350,120 +274,161 @@
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 11 */
 
-/** @return the validated collection (never {@code null} for method chaining) */
-  public static <T extends Collection<?>> T validIndex(final T collection, final int index) {
+/** updated comment */
+  public static <T extends CharSequence> T validIndex(final T chars, final int index) {
     return validIndex(
-        collection, index, DEFAULT_VALID_INDEX_COLLECTION_EX_MESSAGE, Integer.valueOf(index));
+        chars, index, DEFAULT_VALID_INDEX_CHAR_SEQUENCE_EX_MESSAGE, Integer.valueOf(index));
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 12 */
 
-/** Searches an array of methods for a match against the given operation */
-  public static Method findMethod(Operation<?> operation, Method[] methods) {
-    for (Method method : methods) {
-      if (match(operation, method)) {
-        return method;
-      }
-    }
-    return null;
+/** updated comment */
+  public static <T> Method findMethod(Class<?> implClass, Operation<T> operation)
+      throws NoSuchMethodException {
+    String name = operation.getName();
+    Class<?>[] paramTypes = getPhysicalTypes(operation);
+    return implClass.getMethod(name, paramTypes);
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 13 */
 
-/** Removes a converter from the set of converters, by index. */
-  public InstantConverter removeInstantConverter(int index) throws SecurityException {
+/** updated comment */
+  public InstantConverter removeInstantConverter(InstantConverter converter)
+      throws SecurityException {
+
     checkAlterInstantConverters();
+    if (converter == null) {
+      return null;
+    }
     InstantConverter[] removed = new InstantConverter[1];
-    iInstantConverters = iInstantConverters.remove(index, removed);
+    iInstantConverters = iInstantConverters.remove(converter, removed);
     return removed[0];
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 14 */
 
-/** Convenient replacement of  #startProfilingCPU(long) with  ProfilingModes#CPU_TRACING for the mode. */
-  public static YourKitContext startProfile(GiraphConfiguration conf) {
-    Controller controller = null;
+/** updated comment */
+  public static YourKitContext startProfile(
+      boolean enableStackTelemetry,
+      boolean enableCPUProfilling,
+      boolean enableAllocationRecording) {
+    Controller controller;
     try {
       controller = new Controller();
-      controller.enableStackTelemetry();
-      controller.startCPUProfiling(ProfilingModes.CPU_SAMPLING, Controller.DEFAULT_FILTERS);
-      LOG.debug("Started YourKit profiling CPU");
       // CHECKSTYLE: stop IllegalCatch
     } catch (Exception e) {
       // CHECKSTYLE: resume IllegalCatch
-      LOG.debug("Failed to start YourKit CPU profiling", e);
+      LOG.info("Failed to set up YourKit controller", e);
+      return null;
     }
+
+    try {
+      if (enableStackTelemetry) {
+        controller.enableStackTelemetry();
+        LOG.info("Enabled Yourkit stack telemetry");
+      }
+      // CHECKSTYLE: stop IllegalCatch
+    } catch (Exception e) {
+      // CHECKSTYLE: resume IllegalCatch
+      LOG.info("Failed to enable YourKit stack telemetry", e);
+    }
+
+    try {
+      if (enableCPUProfilling) {
+        controller.startCPUProfiling(
+            ProfilingModes.CPU_SAMPLING,
+            Controller.DEFAULT_FILTERS,
+            Controller.DEFAULT_WALLTIME_SPEC);
+        LOG.info("Started YourKit CPU profiling");
+      }
+      // CHECKSTYLE: stop IllegalCatch
+    } catch (Exception e) {
+      // CHECKSTYLE: resume IllegalCatch
+      LOG.info("Failed to start YourKit CPU profiling", e);
+    }
+
+    try {
+      if (enableAllocationRecording) {
+        controller.startAllocationRecording(
+            true, ALLOCATION_RECORDING_INTERVAL, false, -1, true, false);
+        LOG.info("Started YourKit allocation recording");
+      }
+      // CHECKSTYLE: stop IllegalCatch
+    } catch (Exception e) {
+      // CHECKSTYLE: resume IllegalCatch
+      LOG.info("Failed to start YourKit allocation recording", e);
+    }
+
     return new YourKitContext(controller);
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 15 */
 
-/** @param aliasedLockOptions a map of lock options indexed by aliased table names. */
-  public String applyLocksToSql(String sql, Map aliasedLockOptions, Map keyColumnNames) {
+/** updated comment */
+  public String applyLocksToSql(String sql, LockOptions aliasedLockOptions, Map keyColumnNames) {
     return sql + new ForUpdateFragment(this, aliasedLockOptions, keyColumnNames).toFragmentString();
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 16 */
 
-/** Looks up a specific revision based on some SCM-specific set of permissible syntaxes. */
+/** updated comment */
   @CheckForNull
-  public final SCMRevision fetch(@NonNull String revision, @CheckForNull TaskListener listener)
+  public final SCMRevision fetch(@NonNull String thingName, @CheckForNull TaskListener listener)
       throws IOException, InterruptedException {
-    return retrieve(revision, defaultListener(listener));
+    return retrieve(thingName, defaultListener(listener));
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 17 */
 
-/** @param dataBufferRef Next set of bytes received by the caller */
-  public boolean parseMoreData(final CloseableReference<PooledByteBuffer> dataBufferRef) {
+/** updated comment */
+  public boolean parseMoreData(final EncodedImage encodedImage) {
     if (mParserState == NOT_A_JPEG) {
       return false;
     }
 
-    final PooledByteBuffer dataBuffer = dataBufferRef.get();
-    final int dataBufferSize = dataBuffer.size();
+    final int dataBufferSize = encodedImage.getSize();
 
     // Is there any new data to parse?
     // mBytesParsed might be greater than size of dataBuffer - that happens when
@@ -474,9 +439,7 @@
 
     final InputStream bufferedDataStream =
         new PooledByteArrayBufferedInputStream(
-            new PooledByteBufferInputStream(dataBuffer),
-            mByteArrayPool.get(BUFFER_SIZE),
-            mByteArrayPool);
+            encodedImage.getInputStream(), mByteArrayPool.get(BUFFER_SIZE), mByteArrayPool);
     try {
       StreamUtil.skip(bufferedDataStream, mBytesParsed);
       return doParseMoreData(bufferedDataStream);
@@ -491,16 +454,18 @@
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 18 */
 
-/** @return the response, or an Exception if something bad happened */
+/** updated comment */
   private <T> T processResponse(final ClientResponse clientResponse, final Type responseType) {
     final String response = readResponseFromClientResponse(clientResponse);
-    if (clientResponse.getStatus() >= NUM) {
+    if (clientResponse.getStatus() == NUM) {
+      return null;
+    } else if (clientResponse.getStatus() >= NUM) {
       throw new HandshakeAPIException(response);
     }
     try {
@@ -512,29 +477,29 @@
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 19 */
 
-/** Removes the package version from this channel, if it exists. */
-  public ChannelPackageVersion removePackageVersion(PackageVersion packageVersion) {
-    if ((this.channelPackageVersions == null) || (packageVersion == null)) {
+/** updated comment */
+  public RepoPackageVersion removePackageVersion(PackageVersion packageVersion) {
+    if ((this.repoPackageVersions == null) || (packageVersion == null)) {
       return null;
     }
 
-    ChannelPackageVersion doomed = null;
+    RepoPackageVersion doomed = null;
 
-    for (ChannelPackageVersion cpv : this.channelPackageVersions) {
-      if (packageVersion.equals(cpv.getChannelPackageVersionPK().getPackageVersion())) {
+    for (RepoPackageVersion cpv : this.repoPackageVersions) {
+      if (packageVersion.equals(cpv.getRepoPackageVersionPK().getPackageVersion())) {
         doomed = cpv;
         break;
       }
     }
 
     if (doomed != null) {
-      this.channelPackageVersions.remove(doomed);
+      this.repoPackageVersions.remove(doomed);
     }
 
     return doomed;
@@ -542,7 +507,7 @@
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
