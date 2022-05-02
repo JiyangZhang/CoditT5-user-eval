@@ -1,229 +1,38 @@
 /** Method 0 */
 
-/** updated comment */
-  private ClientResponse makeRemoteCall(Action action, String serviceUrl) throws Throwable {
-    String urlPath = null;
-    Stopwatch tracer = null;
-    ClientResponse response = null;
-    logger.debug("Discovery Client talking to the server {}", serviceUrl);
-    try {
-      // If the application is unknown do not register/renew/cancel but
-      // refresh
-      if ((UNKNOWN.equals(instanceInfo.getAppName())
-          && (!Action.Refresh.equals(action))
-          && (!Action.Refresh_Delta.equals(action)))) {
-        return null;
-      }
-      WebResource r = discoveryApacheClient.resource(serviceUrl);
-      String remoteRegionsToFetchStr;
-      switch (action) {
-        case Renew:
-          tracer = RENEW_TIMER.start();
-          urlPath = "apps/" + appPathIdentifier;
-          response =
-              r.path(urlPath)
-                  .queryParam("status", instanceInfo.getStatus().toString())
-                  .queryParam("lastDirtyTimestamp", instanceInfo.getLastDirtyTimestamp().toString())
-                  .put(ClientResponse.class);
-          break;
-        case Refresh:
-          tracer = REFRESH_TIMER.start();
-          final String vipAddress = clientConfig.getRegistryRefreshSingleVipAddress();
-          urlPath = vipAddress == null ? "apps/" : "vips/" + vipAddress;
-          remoteRegionsToFetchStr = remoteRegionsToFetch.get();
-          if (!Strings.isNullOrEmpty(remoteRegionsToFetchStr)) {
-            urlPath += "?regions=" + remoteRegionsToFetchStr;
-          }
-          response = getUrl(serviceUrl + urlPath);
-          break;
-        case Refresh_Delta:
-          tracer = REFRESH_DELTA_TIMER.start();
-          urlPath = "apps/delta";
-          remoteRegionsToFetchStr = remoteRegionsToFetch.get();
-          if (!Strings.isNullOrEmpty(remoteRegionsToFetchStr)) {
-            urlPath += "?regions=" + remoteRegionsToFetchStr;
-          }
-          response = getUrl(serviceUrl + urlPath);
-          break;
-        case Register:
-          tracer = REGISTER_TIMER.start();
-          urlPath = "apps/" + instanceInfo.getAppName();
-          response =
-              r.path(urlPath)
-                  .type(MediaType.APPLICATION_JSON_TYPE)
-                  .post(ClientResponse.class, instanceInfo);
-          break;
-        case Cancel:
-          tracer = CANCEL_TIMER.start();
-          urlPath = "apps/" + appPathIdentifier;
-          response = r.path(urlPath).delete(ClientResponse.class);
-          // Return without during de-registration if it is not registered
-          // already and if we get a 404
-          if ((!isRegisteredWithDiscovery)
-              && (response.getStatus() == Status.NOT_FOUND.getStatusCode())) {
-            return response;
-          }
-          break;
-      }
-
-      if (logger.isDebugEnabled()) {
-        logger.debug(
-            "Finished a call to service url {} and url path {} with status code {}.",
-            new String[] {serviceUrl, urlPath, String.valueOf(response.getStatus())});
-      }
-      if (isOk(action, response.getStatus())) {
-        return response;
-      } else {
-        logger.warn(
-            "Action: "
-                + action
-                + "  => returned status of "
-                + response.getStatus()
-                + " from "
-                + serviceUrl
-                + urlPath);
-        throw new RuntimeException("Bad status: " + response.getStatus());
-      }
-    } catch (Throwable t) {
-      closeResponse(response);
-      logger.warn("Can't get a response from " + serviceUrl + urlPath, t);
-      throw t;
-    } finally {
-      if (tracer != null) {
-        tracer.stop();
-      }
-    }
-  }
-
-
-
-==========================this is the dividing line=============================
-
-
-
-/** Method 1 */
-
-/** updated comment */
-  @Override
-  public final String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append(STR);
-    Iterator<E> it = iterator();
-    if (it.hasNext()) {
-      for (; ; ) {
-        Object e = it.next();
-        sb.append(e == this ? STR : e);
-        if (!it.hasNext()) {
-          break;
-        }
-        sb.append(STR).append(STR);
-      }
-    }
-    return sb.append(STR).toString();
-  }
-
-
-
-==========================this is the dividing line=============================
-
-
-
-/** Method 2 */
-
-/** updated comment */
-  @Deprecated
-  public int getTileSize() {
-    return Math.max(tileHeight, tileWidth);
-  }
-
-
-
-==========================this is the dividing line=============================
-
-
-
-/** Method 3 */
-
-/** updated comment */
-  public Collection<OsmPrimitive> getSelected() {
-    return Collections.unmodifiableSet(selectedPrimitives);
-  }
-
-
-
-==========================this is the dividing line=============================
-
-
-
-/** Method 4 */
-
-/** updated comment */
-  public String toInstantiationType(Schema schema) {
-    if (ModelUtils.isMapSchema(schema)) {
-      Schema additionalProperties = (Schema) schema.getAdditionalProperties();
-      String type = additionalProperties.getType();
-      if (null == type) {
-        LOGGER.error(
-            "No Type defined for Additional Property "
-                + additionalProperties
-                + "\n" //
-                + "\tIn Property: "
-                + schema);
-      }
-      String inner = getSchemaType(additionalProperties);
-      return instantiationTypes.get("map") + "<String, " + inner + ">";
-    } else if (ModelUtils.isArraySchema(schema)) {
-      ArraySchema arraySchema = (ArraySchema) schema;
-      String inner = getSchemaType(arraySchema.getItems());
-      return instantiationTypes.get("array") + "<" + inner + ">";
-    } else {
-      return null;
-    }
-  }
-
-
-
-==========================this is the dividing line=============================
-
-
-
-/** Method 5 */
-
-/** updated comment */
-  public int track(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
+/** @return One of the following application running states: {@link IServer#STATE_STARTED}, {@link IServer#STATE_STARTING}, {@link IServer#STATE_STOPPED}, {@link IServer#STATE_STOPPING}, {@link IServer#STATE_UNKNOWN} */
+  public int track(IProgressMonitor monitor) throws CoreException {
     long currentTime = System.currentTimeMillis();
     long totalTime = currentTime + timeout;
-    CloudFoundryServerBehaviour behaviour = cloudServer.getBehaviour();
-    String appName = appModule.getDeployedApplicationName();
+    CloudFoundryApplicationModule appModule =
+        cloudServer.getBehaviour().updateModuleWithAllCloudInfo(appName, monitor);
     printlnToConsole(
         NLS.bind(Messages.ApplicationInstanceStartingTracker_STARTING_TRACKING, appName),
         appModule);
-    int state = IServer.STATE_UNKNOWN;
+    int state = appModule.getState();
     while (state != IServer.STATE_STARTED
         && state != IServer.STATE_STOPPED
         && currentTime < totalTime) {
+      appModule = cloudServer.getBehaviour().updateModuleWithAllCloudInfo(appName, monitor);
+      if (appModule == null || appModule.getApplication() == null) {
+        printlnToConsole(
+            NLS.bind(Messages.ApplicationInstanceStartingTracker_APPLICATION_NOT_EXISTS, appName),
+            appModule);
+        return IServer.STATE_UNKNOWN;
+      }
       if (monitor != null && monitor.isCanceled()) {
-        String error =
+        printlnToConsole(
             NLS.bind(
-                Messages.ApplicationInstanceStartingTracker_APPLICATION_CHECK_CANCELED, appName);
-        printlnToConsole(error, appModule);
-        throw new OperationCanceledException(error);
+                Messages.ApplicationInstanceStartingTracker_APPLICATION_CHECK_CANCELED, appName),
+            appModule);
+        return IServer.STATE_UNKNOWN;
       }
-      CloudApplication cloudApp = behaviour.getCloudApplication(appName, monitor);
-      ApplicationStats applicationStats = behaviour.getApplicationStats(appName, monitor);
-      if (cloudApp == null) {
-        String error =
-            NLS.bind(Messages.ApplicationInstanceStartingTracker_APPLICATION_NOT_EXISTS, appName);
-        printlnToConsole(error, appModule);
-        throw CloudErrorUtil.toCoreException(error);
-      } else {
-        state = CloudFoundryApplicationModule.getCloudState(cloudApp, applicationStats);
-        try {
-          Thread.sleep(WAIT_TIME);
-        } catch (InterruptedException e) {
-        }
-        currentTime = System.currentTimeMillis();
+      state = appModule.getState();
+      try {
+        Thread.sleep(WAIT_TIME);
+      } catch (InterruptedException e) {
       }
+      currentTime = System.currentTimeMillis();
     }
     String runningStateMessage =
         state == IServer.STATE_STARTED
@@ -236,319 +45,370 @@
 
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
-/** Method 6 */
+/** Method 1 */
 
-/** updated comment */
-  public List<TestSuite> getSuite() {
-    return this.testSuites;
+/** @return The ruleSet */
+  public RuleSet getRuleSet() {
+    return this.ruleSet;
   }
 
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
-/** Method 7 */
+/** Method 2 */
 
-/** updated comment */
-  public static QName getXSIType(Parameter param) {
-    if (param.getMIMEType() != null) {
-      return getMIMETypeQName(param.getMIMEType());
-    }
-
-    QName xmlType = null;
-    TypeEntry te = param.getType();
-
-    // If the TypeEntry describes an Element, get
-    // the referenced Type.
-    if (te != null && te instanceof Element && te.getRefType() != null) {
-      te = te.getRefType();
-    }
-    // If the TypeEntry is a CollectionType, use
-    // the TypeEntry representing the component Type
-    // So for example a parameter that takes a
-    // collection type for
-    // <element name="A" type="xsd:string" maxOccurs="unbounded"/>
-    // will be
-    // new ParameterDesc(<QName of A>, IN,
-    //                   <QName of xsd:string>,
-    //                   String[])
-    if (te != null && te instanceof CollectionType && te.getRefType() != null) {
-      te = te.getRefType();
-    }
-    if (te != null) {
-      xmlType = te.getQName();
-    }
-    return xmlType;
+/** @return red value in given position */
+  public short getRed(final int i) {
+    return data[get1DIndex(i)];
   }
 
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
-/** Method 8 */
+/** Method 3 */
 
-/** updated comment */
-  public String getTypeDeclaration(Schema p) {
-    if (ModelUtils.isArraySchema(p)) {
-      ArraySchema ap = (ArraySchema) p;
-      Schema inner = ap.getItems();
-      return getTypeDeclaration(inner) + "[]";
-    } else if (ModelUtils.isMapSchema(p)) {
-      Schema inner = (Schema) p.getAdditionalProperties();
-      // TODO not sure if the following map/hash declaration is correct
-      return "{String, " + getTypeDeclaration(inner) + "}";
-    } else if (!languageSpecificPrimitives.contains(getSchemaType(p))) {
-      return packageName + ".Model." + super.getTypeDeclaration(p);
-    }
-    return super.getTypeDeclaration(p);
+/** @return item in given position */
+  @SuppressWarnings(STR)
+  public double getReal(final int i) {
+    return (double) getFirstValue(i);
   }
 
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
-/** Method 9 */
+/** Method 4 */
 
-/** updated comment */
-  public float getX() {
-    if (left == null) {
-      calculateLeft();
-    }
-    return left.floatValue();
+/** @return If reached, return true; else, return false. */
+  public static boolean exceedsMaxCount() {
+    return mTestCount >= MAX_TEST_COUNT;
   }
 
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
-/** Method 10 */
+/** Method 5 */
 
-/** updated comment */
-  protected boolean useGzipWhenAccepted(Response r) {
-    return r.getMimeType() != null && r.getMimeType().toLowerCase().contains("text/");
-  }
-
-
-
-==========================this is the dividing line=============================
-
-
-
-/** Method 11 */
-
-/** updated comment */
-  public Map<String, InternalPortletPreference> getStoredPreferences(
-      PortletWindow portletWindow, PortletRequest request) throws PortletContainerException {
-    String key = getFormattedKey(portletWindow, request);
-    Map<String, InternalPortletPreference> preferences = storage.get(key);
-    if (preferences == null) {
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("No portlet preferences found for: " + key);
-      }
-      return Collections.emptyMap();
-    } else {
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("Got " + preferences.size() + " stored preferences.");
-      }
-      return clonePreferences(preferences);
-    }
-  }
-
-
-
-==========================this is the dividing line=============================
-
-
-
-/** Method 12 */
-
-/** updated comment */
-  public static Criterion fromRawSelection(final String selection, final String[] selectionArgs) {
-    if (TextUtils.isEmpty(selection)) {
-      return null;
-    }
-    return new Criterion(null) {
-
-      @Override
-      protected void populate(SqlBuilder builder, boolean forSqlValidation) {
-        builder.sql.append(selection);
-        if (selectionArgs != null && selectionArgs.length > NUM) {
-          if (builder.args == null) {
-            throw new UnsupportedOperationException(STR + STR);
-          }
-          Collections.addAll(builder.args, selectionArgs);
-        }
-      }
-    };
-  }
-
-
-
-==========================this is the dividing line=============================
-
-
-
-/** Method 13 */
-
-/** updated comment */
-  private boolean searchForButton(String regex, int matches) {
-    sleeper.sleep();
-    inst.waitForIdleSync();
-    Pattern p = Pattern.compile(regex);
-    Matcher matcher;
-    ArrayList<Button> buttonList = viewFetcher.getCurrentViews(Button.class);
-    if (matches == 0) matches = 1;
-    for (Button button : buttonList) {
-      matcher = p.matcher(button.getText().toString());
-      if (matcher.find()) {
-        countMatches++;
-      }
-      if (countMatches == matches) {
-        countMatches = 0;
-        return true;
-      }
-    }
-
-    if (scroller.scroll(Scroller.Direction.DOWN)) {
-      return searchForButton(regex, matches);
-    } else {
-      if (countMatches > 0)
-        Log.d(LOG_TAG, " There are only " + countMatches + " matches of " + regex);
-      countMatches = 0;
-      return false;
-    }
-  }
-
-
-
-==========================this is the dividing line=============================
-
-
-
-/** Method 14 */
-
-/** updated comment */
-  public Package getRuleSet() {
-    return this.pkg;
-  }
-
-
-
-==========================this is the dividing line=============================
-
-
-
-/** Method 15 */
-
-/** updated comment */
-  public boolean searchText(String regex, int matches) {
-    boolean found = searcher.searchText(regex, matches, true);
-    return found;
-  }
-
-
-
-==========================this is the dividing line=============================
-
-
-
-/** Method 16 */
-
-/** updated comment */
-  public static ImportMode getModeValue(String mode) {
-    if (mode == null) return null;
+/** @return -1 if the value is not valid */
+  public static int getModeValue(String mode) {
+    if (mode == null) return -NUM;
     mode = mode.trim().toLowerCase();
     if (mode.indexOf(STR) == -NUM) {
       if (STR.equals(mode)) {
-        return ImportMode.insert;
+        return MODE_INSERT;
       } else if (STR.equals(mode)) {
-        return ImportMode.update;
+        return MODE_UPDATE;
       } else {
-        return null;
+        return -NUM;
       }
     } else {
       List l = StringUtil.stringToList(mode, STR);
       String first = (String) l.get(NUM);
       String second = (String) l.get(NUM);
       if (STR.equals(first) && STR.equals(second)) {
-        return ImportMode.insertUpdate;
+        return MODE_INSERT_UPDATE;
       } else if (STR.equals(first) && STR.equals(second)) {
-        return ImportMode.updateInsert;
+        return MODE_UPDATE_INSERT;
       } else {
-        return null;
+        return -NUM;
       }
     }
   }
 
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
+
+
+
+/** Method 6 */
+
+/** @return Built {@link Ct.TimestampedEntry}. */
+  public static Ct.TimestampedEntry parseTimestampedEntry(InputStream in) {
+    Ct.TimestampedEntry.Builder timestampedEntry = Ct.TimestampedEntry.newBuilder();
+    long timestamp = readNumber(in, CTConstants.TIMESTAMP_LENGTH);
+    timestampedEntry.setTimestamp(timestamp);
+    int entryType = (int) readNumber(in, CTConstants.LOG_ENTRY_TYPE_LENGTH);
+    timestampedEntry.setEntryType(Ct.LogEntryType.valueOf(entryType));
+    Ct.SignedEntry.Builder signedEntryBuilder = Ct.SignedEntry.newBuilder();
+    if (entryType == Ct.LogEntryType.X509_ENTRY_VALUE) {
+      int length = (int) readNumber(in, NUM);
+      ByteString x509 = ByteString.copyFrom(readFixedLength(in, length));
+      signedEntryBuilder.setX509(x509);
+    } else if (entryType == Ct.LogEntryType.PRECERT_ENTRY_VALUE) {
+      Ct.PreCert.Builder preCertBuilder = Ct.PreCert.newBuilder();
+      byte[] arr = readFixedLength(in, NUM);
+      preCertBuilder.setIssuerKeyHash(ByteString.copyFrom(arr));
+      arr = readFixedLength(in, NUM);
+      int length = (int) readNumber(in, NUM);
+      preCertBuilder.setTbsCertificate(ByteString.copyFrom(readFixedLength(in, length)));
+      preCertBuilder.build();
+      signedEntryBuilder.setPrecert(preCertBuilder);
+    } else {
+      throw new SerializationException(String.format(STR, entryType));
+    }
+    signedEntryBuilder.build();
+    timestampedEntry.setSignedEntry(signedEntryBuilder);
+    return timestampedEntry.build();
+  }
+
+
+
+*************************this is the dividing line*****************************
+
+
+
+/** Method 7 */
+
+/** @return The {@link android.telecomm.Connection.VideoProvider}. */
+  public android.telecomm.Connection.VideoProvider getVideoProvider() {
+    return mVideoProvider;
+  }
+
+
+
+*************************this is the dividing line*****************************
+
+
+
+/** Method 8 */
+
+/** @return project files in that directory, sorted alphabetically. */
+  private File[] getProjectFiles(File directory) {
+    File[] files =
+        directory.listFiles(
+            new FileFilter() {
+
+              public boolean accept(File file) {
+                return (file.isFile() && file.getName().endsWith(STR));
+              }
+            });
+    switch (explorerTableSortColumn) {
+      case NUM:
+      case NUM:
+      case NUM:
+      default:
+    }
+    selectedFile = -NUM;
+    if (getProject() != null)
+      for (int n = NUM; n < files.length; n++)
+        if (getProject().getFile().equals(files[n])) selectedFile = n;
+    return files;
+  }
+
+
+
+*************************this is the dividing line*****************************
+
+
+
+/** Method 9 */
+
+/** @return the matching option, or null if no match is found and the non-null default is invalid */
+  public static DdlParsingMode parse(String value, String defaultValue) {
+    DdlParsingMode mode = parse(value);
+    if (mode == null && defaultValue != null) {
+      mode = parse(defaultValue);
+    }
+    return mode;
+  }
+
+
+
+*************************this is the dividing line*****************************
+
+
+
+/** Method 10 */
+
+/** @return true if a message was removed, false otherwise. */
+  public boolean removeActiveMessage() {
+    return removeMessage(currentPage);
+  }
+
+
+
+*************************this is the dividing line*****************************
+
+
+
+/** Method 11 */
+
+/** @return the positions offset for the header or, 3 positions, for after the body (the third position is just to indicate that it's the body, the value is meaningless) */
+  public static int[] getViewToHeaderBodyPosition(
+      JTextArea view, String header, int start, int end) {
+    validateView(view);
+    validateHeader(header);
+    validateStartEnd(start, end, view.getDocument().getLength());
+
+    int excessChars = 0;
+    int pos = 0;
+    while ((pos = header.indexOf("\r\n", pos)) != -1) {
+      pos += 2;
+      ++excessChars;
+    }
+
+    if (start + excessChars < header.length()) {
+      int[] position = getViewToHeaderPositionImpl(view, start, end);
+      if (position[1] > header.length()) {
+        position[1] = header.length();
+      }
+      return position;
+    }
+
+    int finalStartPos = start + excessChars - header.length();
+    int finalEndPos = end + excessChars - header.length();
+    return new int[] {finalStartPos, finalEndPos, 0};
+  }
+
+
+
+*************************this is the dividing line*****************************
+
+
+
+/** Method 12 */
+
+/** @return double The yaw Euler angle. */
+  public double getRotY() {
+    return mOrientation.getRotationY();
+  }
+
+
+
+*************************this is the dividing line*****************************
+
+
+
+/** Method 13 */
+
+/** @return the next power of two that is larger than the specified int value. */
+  public static int nextPowerOfTwo(int value) {
+    if (!isPowerOfTwo(value)) {
+      value--;
+      value |= value >> NUM;
+      value |= value >> NUM;
+      value |= value >> NUM;
+      value |= value >> NUM;
+      value |= value >> NUM;
+      value++;
+    }
+    return value;
+  }
+
+
+
+*************************this is the dividing line*****************************
+
+
+
+/** Method 14 */
+
+/** @return the response, or an Exception if something bad happened */
+  private <T> T processResponse(final ClientResponse clientResponse, final Type responseType) {
+    final String response = readResponseFromClientResponse(clientResponse);
+    if (clientResponse.getStatus() >= NUM) {
+      throw new HandshakeAPIException(response);
+    }
+    try {
+      return parseJson(response, responseType);
+    } catch (final IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+
+
+*************************this is the dividing line*****************************
+
+
+
+/** Method 15 */
+
+/** @return The generated proxy. */
+  public static Blob generateProxy(InputStream stream, long length) {
+    return (Blob)
+        Proxy.newProxyInstance(
+            getProxyClassLoader(), PROXY_INTERFACES, new BlobProxy(stream, length));
+  }
+
+
+
+*************************this is the dividing line*****************************
+
+
+
+/** Method 16 */
+
+/** @return The x location of the center of this circle */
+  public float getX() {
+    return center[NUM];
+  }
+
+
+
+*************************this is the dividing line*****************************
 
 
 
 /** Method 17 */
 
-/** updated comment */
-  public boolean isBoolean() {
-    return raw.equals("true") || raw.equals("false");
+/** @return The stored value or null if it doesn't exist in specified form. */
+  public boolean getExtraBoolean(String key) {
+    return mExtraData.optBoolean(key);
   }
 
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Method 18 */
 
-/** updated comment */
-  public int compareTo(ReadablePartial partial) {
-    if (partial == null) {
-      throw new IllegalArgumentException("The instant must not be null");
+/** @return the list of KDCs */
+  public String getKDCList(String realm) {
+    if (realm == null) {
+      realm = getDefaultRealm();
     }
-    int thisValue = get();
-    int otherValue = partial.get(getFieldType());
-    if (thisValue < otherValue) {
-      return -1;
-    } else if (thisValue > otherValue) {
-      return 1;
-    } else {
-      return 0;
+    String kdcs = getDefault(STR, realm);
+    if (kdcs == null) {
+      return null;
     }
+    return kdcs;
   }
 
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Method 19 */
 
-/** updated comment */
-  public float getX() {
-    if (left == null) {
-      calculateLeft();
-    }
-
-    return left.floatValue();
+/** @return caption for that handle */
+  public String getCaption(String handle) {
+    return getMetadataForHandle(handle).caption_;
   }
 
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
