@@ -3,11 +3,6 @@
 /** ["Shouldn't do this line - it's handled by the ...Optionally... bit in the Encr class. https://github.com/pentaho/pentaho-kettle/blob/master/core/src/org/pentaho/di/core/encryption/KettleTwoWayPasswordEncoder.java#L86-L91", "Shouldn't do this line - it's handled by the ...Optionally... bit in the Encr class. https://github.com/pentaho/pentaho-kettle/blob/master/core/src/org/pentaho/di/core/encryption/KettleTwoWayPasswordEncoder.java#L86-L91"] */
 private static void setIfNotNullOrEmpty ( MongoProperties . Builder builder , MongoProp prop , String value ) {
   if ( value != null && value . trim ( ) . length ( ) > 0 ) {
-    boolean isPassword = MongoProp . PASSWORD . equals ( prop ) ;
-    boolean isEncrypted = value . startsWith ( Encr . PASSWORD_ENCRYPTED_PREFIX ) ;
-    if ( isPassword && isEncrypted ) {
-      value = Encr . decryptPasswordOptionallyEncrypted ( value ) ;
-    }
     builder . set ( prop , value ) ;
   }
 }
@@ -29,7 +24,7 @@ private static void setIfNotNullOrEmpty ( MongoProperties . Builder builder , Mo
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -37,43 +32,42 @@ private static void setIfNotNullOrEmpty ( MongoProperties . Builder builder , Mo
 
 /** ['One use/test case is, a non-serializable pojo (user type) that is encoded as a UTF-8 byte[ ] with some string representation of it.', 'One use/test case is, a non-serializable pojo (user type) that is encoded as a UTF-8 byte[ ] with some string representation of it.'] */
 public Mutation toMutation ( K key ) {
-  V valueFromStorage = ( V ) valueDataConversion . fromStorage ( value ) ;
-  return new Mutations . ReadWriteWithValue < > ( valueFromStorage , f ) ;
+  return new Mutations . ReadWriteWithValue < > ( valueDataConversion . fromStorage ( value ) , f ) ;
 }
 
 
 
 
 public Mutation toMutation ( K key ) {
-  V valueFromStorage = ( V ) valueDataConversion . fromStorage ( value ) ;
+  V valueFromStorage = valueDataConversion . fromStorage ( value ) ;
   return new Mutations . ReadWriteWithValue < > ( valueFromStorage , f ) ;
 }
 
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Example 2 */
 
 /** ['IMHO it does not need to be public', 'IMHO it does not need to be public'] */
-public Entry ( Map . Entry < String , String > e ) {
+Entry ( Map . Entry < String , String > e ) {
   this ( e . getKey ( ) , e . getValue ( ) ) ;
 }
 
 
 
 
-public Entry ( Map . Entry < String , String > e ) {
+private Entry ( Map . Entry < String , String > e ) {
   this ( e . getKey ( ) , e . getValue ( ) ) ;
 }
 
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -82,7 +76,7 @@ public Entry ( Map . Entry < String , String > e ) {
 /** ['parts[1].isEmpty', 'parts[1].isEmpty'] */
 private String parsePath ( ) throws URISyntaxException {
   String [ ] parts = uri . split ( "\\?" ) [ 0 ] . split ( ":" , 2 ) ;
-  if ( parts . length < 2 || parts [ 1 ] . length ( ) < 1 ) throw new URISyntaxException ( uri , "invalid path" ) ;
+  if ( parts . length < 2 || parts [ 1 ] . isEmpty ( ) ) throw new URISyntaxException ( uri , "invalid path" ) ;
   else return parts [ 1 ] ;
 }
 
@@ -91,14 +85,14 @@ private String parsePath ( ) throws URISyntaxException {
 
 private String parsePath ( ) throws URISyntaxException {
   String [ ] parts = uri . split ( "\\?" ) [ 0 ] . split ( ":" , 2 ) ;
-  if ( parts . length < 2 || parts [ 1 ] . length ( ) < 1 ) throw new URISyntaxException ( uri , "invalid path" ) ;
+  if ( parts . length < 2 || parts [ 1 ] . isEmpty ( ) || parts [ 1 ] . length ( ) < 1 ) throw new URISyntaxException ( uri , "invalid path" ) ;
   else return parts [ 1 ] ;
 }
 
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -107,8 +101,7 @@ private String parsePath ( ) throws URISyntaxException {
 /** ['this will affect the sorting also on the webadmin - but on webadmin we support sortable columns.  Please move this logic to UserPortalTemplateListModel.', 'this will affect the sorting also on the webadmin - but on webadmin we support sortable columns.  Please move this logic to UserPortalTemplateListModel.'] */
 public void setItems ( Collection value ) {
   genVersionToBaseTemplate ( value ) ;
-  final List < VmTemplate > sortedValues = sortTemplates ( value ) ;
-  super . setItems ( sortedValues ) ;
+  super . setItems ( sortTemplates ( value ) ) ;
 }
 
 
@@ -116,14 +109,13 @@ public void setItems ( Collection value ) {
 
 public void setItems ( Collection value ) {
   genVersionToBaseTemplate ( value ) ;
-  final List < VmTemplate > sortedValues = sortTemplates ( value ) ;
   super . setItems ( sortedValues ) ;
 }
 
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -141,14 +133,13 @@ public void edit ( VolumeBrickModel object ) {
 
 public void edit ( VolumeBrickModel object ) {
   table . setRowData ( new ArrayList < ListModel > ( ) ) ;
-  table . edit ( object . getBricks ( ) ) ;
   Driver . driver . edit ( object ) ;
 }
 
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -156,36 +147,25 @@ public void edit ( VolumeBrickModel object ) {
 
 /** ['why not directly assertEquals(LOW, fCondition.min()); ?', 'why not directly assertEquals(LOW, fCondition.min()); ?', 'why not directly assertEquals(LOW, fCondition.min()); ?'] */
 public void testBounds ( ) {
-  int low = fCondition . min ( ) ;
-  assertEquals ( LOW , low ) ;
-  int high = fCondition . max ( ) ;
-  assertEquals ( HIGH , high ) ;
+  assertEquals ( LOW , fCondition . min ( ) ) ;
 }
 
 
 
 
 public void testBounds ( ) {
-  int low = fCondition . min ( ) ;
-  assertEquals ( LOW , low ) ;
-  int high = fCondition . max ( ) ;
-  assertEquals ( HIGH , high ) ;
+  assertEquals ( LOW , fCondition . min ( ) ) ;
+  assertEquals ( HIGH , fCondition . max ( ) ) ;
 }
 
 
 
 
-public void testBounds ( ) {
-  int low = fCondition . min ( ) ;
-  assertEquals ( LOW , low ) ;
-  int high = fCondition . max ( ) ;
-  assertEquals ( HIGH , high ) ;
-}
 
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -194,11 +174,7 @@ public void testBounds ( ) {
 /** ["Let's move this into an EnablementTester.evaluate(...) method.", "Let's move this into an EnablementTester.evaluate(...) method."] */
 public boolean isExtensionEnabled ( ) {
   if ( enablement != null ) {
-    try {
-      return enablement . getExpression ( ) . evaluate ( new EvaluationContext ( null , new Object ( ) ) ) . equals ( EvaluationResult . TRUE ) ;
-    }
-    catch ( CoreException e ) {
-    }
+    return enablement . getExpression ( ) . evaluate ( new EvaluationContext ( null , new Object ( ) ) ) . equals ( EvaluationResult . TRUE ) ;
   }
   return true ;
 }
@@ -209,7 +185,7 @@ public boolean isExtensionEnabled ( ) {
 public boolean isExtensionEnabled ( ) {
   if ( enablement != null ) {
     try {
-      return enablement . getExpression ( ) . evaluate ( new EvaluationContext ( null , new Object ( ) ) ) . equals ( EvaluationResult . TRUE ) ;
+      return enablement . getExpression ( ) . evaluate ( ) ;
     }
     catch ( CoreException e ) {
     }
@@ -220,7 +196,7 @@ public boolean isExtensionEnabled ( ) {
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -242,7 +218,7 @@ public ProviderNotificationManager createProviderNotificationManager ( final Dia
 
 
 public ProviderNotificationManager createProviderNotificationManager ( final DiagramEventBroker diagramEventBroker , final EObject view , final NotificationListener notificationListener ) {
-  if ( manager != null ) {
+  if ( null != manager ) {
     return manager ;
   }
   manager = new ProviderNotificationManager ( diagramEventBroker , view , notificationListener ) {
@@ -255,14 +231,24 @@ public ProviderNotificationManager createProviderNotificationManager ( final Dia
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Example 9 */
 
 /** ['This method can be`private`.', 'This method can be`private`.'] */
-public void startSyncFolderOperation ( OCFile folder ) {
+private void startSyncFolderOperation ( OCFile folder ) {
+  long currentSyncTime = System . currentTimeMillis ( ) ;
+  mSyncInProgress = true ;
+  RemoteOperation synchFolderOp = new RefreshFolderOperation ( folder , currentSyncTime , false , false , getStorageManager ( ) , getAccount ( ) , getApplicationContext ( ) ) ;
+  synchFolderOp . execute ( getAccount ( ) , this , null , null ) ;
+}
+
+
+
+
+private void startSyncFolderOperation ( OCFile folder ) {
   long currentSyncTime = System . currentTimeMillis ( ) ;
   mSyncInProgress = true ;
   RemoteOperation synchFolderOp = new RefreshFolderOperation ( folder , currentSyncTime , false , false , false , getStorageManager ( ) , getAccount ( ) , getApplicationContext ( ) ) ;
@@ -272,17 +258,7 @@ public void startSyncFolderOperation ( OCFile folder ) {
 
 
 
-public void startSyncFolderOperation ( OCFile folder ) {
-  long currentSyncTime = System . currentTimeMillis ( ) ;
-  mSyncInProgress = true ;
-  RemoteOperation synchFolderOp = new RefreshFolderOperation ( folder , currentSyncTime , false , false , false , getStorageManager ( ) , getAccount ( ) , getApplicationContext ( ) ) ;
-  synchFolderOp . execute ( getAccount ( ) , this , null , null ) ;
-}
-
-
-
-
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -290,7 +266,6 @@ public void startSyncFolderOperation ( OCFile folder ) {
 
 /** ['forgotten line of code?', 'forgotten line of code?'] */
 public String getAuthorizationUrl ( OAuthConfig config ) {
-  System . out . print ( "Authorisation URL: " ) ;
   String url = String . format ( AUTHORIZE_URL , OAuthEncoder . encode ( config . getApiKey ( ) ) , OAuthEncoder . encode ( config . getCallback ( ) ) , OAuthEncoder . encode ( config . getScope ( ) ) , OAuthEncoder . encode ( config . getState ( ) ) ) ;
   return url ;
 }
@@ -299,15 +274,13 @@ public String getAuthorizationUrl ( OAuthConfig config ) {
 
 
 public String getAuthorizationUrl ( OAuthConfig config ) {
-  System . out . print ( "Authorisation URL: " ) ;
-  String url = String . format ( AUTHORIZE_URL , OAuthEncoder . encode ( config . getApiKey ( ) ) , OAuthEncoder . encode ( config . getCallback ( ) ) , OAuthEncoder . encode ( config . getScope ( ) ) , OAuthEncoder . encode ( config . getState ( ) ) ) ;
-  return url ;
+  return String . format ( AUTHORIZE_URL , OAuthEncoder . encode ( config . getApiKey ( ) ) , OAuthEncoder . encode ( config . getCallback ( ) ) , OAuthEncoder . encode ( config . getScope ( ) ) , OAuthEncoder . encode ( config . getState ( ) ) ) ;
 }
 
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -325,7 +298,6 @@ public Object getParameter ( String name ) {
       LttngWorker worker = new LttngWorker ( currentHostThread , "" , 0 ) ;
       return worker ;
     }
-    return currentHostThread ;
   }
   return null ;
 }
@@ -334,10 +306,6 @@ public Object getParameter ( String name ) {
 
 
 public Object getParameter ( String name ) {
-  final HostThread currentHostThread = fCurrentHostThread ;
-  if ( currentHostThread == null ) {
-    return null ;
-  }
   if ( name . equals ( CriticalPathModule . PARAM_WORKER ) ) {
     IAnalysisModule mod = getModule ( ) ;
     if ( ( mod != null ) && ( mod instanceof CriticalPathModule ) ) {
@@ -352,7 +320,7 @@ public Object getParameter ( String name ) {
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -367,13 +335,13 @@ public static ExceptionThrowingSubTest expectThrowable ( Runnable runnable ) {
 
 
 public static ExceptionThrowingSubTest expectThrowable ( Runnable runnable ) {
-  return expectException ( runnable . toString ( ) , runnable ) ;
+  return expectThrowable ( runnable ) ;
 }
 
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -381,7 +349,7 @@ public static ExceptionThrowingSubTest expectThrowable ( Runnable runnable ) {
 
 /** ['Can we add the name of the setting in there somewhere as well?', 'Can we add the name of the setting in there somewhere as well?'] */
 public < V > Setting < V > get ( SimpleUri id , Class < V > valueType ) {
-  Setting setting = settings . get ( id ) ;
+  Setting < V > setting = settings . get ( id ) ;
   Class settingValueClass = setting . getValueClass ( ) ;
   if ( ! settingValueClass . equals ( valueType ) ) {
     throw new ClassCastException ( "Expected a Setting of type " + valueType . getName ( ) + ", found a Setting of type " + settingValueClass . getName ( ) ) ;
@@ -396,7 +364,7 @@ public < V > Setting < V > get ( SimpleUri id , Class < V > valueType ) {
   Setting setting = settings . get ( id ) ;
   Class settingValueClass = setting . getValueClass ( ) ;
   if ( ! settingValueClass . equals ( valueType ) ) {
-    throw new ClassCastException ( "Expected a Setting of type " + valueType . getName ( ) + ", found a Setting of type " + settingValueClass . getName ( ) ) ;
+    throw new ClassCastException ( "Expected a Setting of type " + valueType + ", found a Setting of type " + settingValueClass ) ;
   }
   return ( Setting < V > ) setting ;
 }
@@ -404,7 +372,7 @@ public < V > Setting < V > get ( SimpleUri id , Class < V > valueType ) {
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -423,17 +391,13 @@ private CommandCall duplicateCommandForDifferentElement ( CommandCall commandCal
 
 
 private CommandCall duplicateCommandForDifferentElement ( CommandCall commandCall , Element element ) {
-  String expression = commandCall . getExpression ( ) ;
-  if ( expression . equals ( "" ) ) {
-    expression = element . getText ( ) ;
-  }
   return new CommandCall ( null , commandCall . getCommand ( ) , element , expression , commandCall . getResource ( ) ) ;
 }
 
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -447,10 +411,6 @@ public M fromBytes ( byte [ ] messageBuffer ) {
     deserializer . deserialize ( message , messageBuffer ) ;
     return message ;
   }
-  catch ( TException e ) {
-    logWarning ( "failed to deserialize" , e ) ;
-    return null ;
-  }
   catch ( Throwable e ) {
     logWarning ( "failed to deserialize" , e ) ;
     return null ;
@@ -471,7 +431,7 @@ public M fromBytes ( byte [ ] messageBuffer ) {
     logWarning ( "failed to deserialize" , e ) ;
     return null ;
   }
-  catch ( Throwable e ) {
+  catch ( TException e ) {
     logWarning ( "failed to deserialize" , e ) ;
     return null ;
   }
@@ -480,7 +440,7 @@ public M fromBytes ( byte [ ] messageBuffer ) {
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -507,9 +467,6 @@ public void showPage ( Control page ) {
 
 
 public void showPage ( Control page ) {
-  if ( page . isDisposed ( ) || page . getParent ( ) != this ) {
-    return ;
-  }
   currentPage = page ;
   page . setVisible ( true ) ;
   layout ( true ) ;
@@ -525,7 +482,7 @@ public void showPage ( Control page ) {
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -533,6 +490,9 @@ public void showPage ( Control page ) {
 
 /** ["Let's avoid `null` and rework to empty string", "Let's avoid `null` and rework to empty string"] */
 public String getLinkAt ( int offset ) {
+  if ( offset < 0 ) {
+    return "" ;
+  }
   for ( int i = 0 ;
   i < linkRanges . size ( ) ;
   i ++ ) {
@@ -540,7 +500,7 @@ public String getLinkAt ( int offset ) {
       return hrefs . get ( i ) ;
     }
   }
-  return null ;
+  return "" ;
 }
 
 
@@ -554,13 +514,13 @@ public String getLinkAt ( int offset ) {
       return hrefs . get ( i ) ;
     }
   }
-  return null ;
+  return "" ;
 }
 
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -573,8 +533,6 @@ protected Control createControl ( Composite parent ) {
   config . setCellSelectionEnabled ( false ) ;
   config . setColumnSelectionEnabled ( false ) ;
   config . setRowSelectionEnabled ( false ) ;
-  config . setColumnHeaderLayout ( CTConfiguration . COLUMN_HEADER_LAYOUT_FILL_EQUAL ) ;
-  config . setRowHeaderLayout ( CTConfiguration . ROW_HEADER_LAYOUT_DEFAULT ) ;
   this . table = new ComponentTable ( parent , SWT . FULL_SELECTION , config ) ;
   return this . table . getControl ( ) ;
 }
@@ -597,7 +555,7 @@ protected Control createControl ( Composite parent ) {
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -605,7 +563,7 @@ protected Control createControl ( Composite parent ) {
 
 /** ["return 'true'", "return 'true'"] */
 public boolean isEnabled ( ) {
-  return getActiveTextEditor ( ) != null ;
+  return true ;
 }
 
 
@@ -618,7 +576,7 @@ public boolean isEnabled ( ) {
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
