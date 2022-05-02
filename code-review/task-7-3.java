@@ -1,516 +1,7 @@
 /** Example 0 */
 
-/** ['`this` is redundant here.'] */
-public String weather ( ) {
-  String result = restTemplate . getForObject ( "http://" + WEATHER_SERVICE + "/weather" , String . class ) ;
-  return "Weather Service Response: " + result ;
-}
-
-
-
-
-==========================this is the dividing line=============================
-
-
-
-/** Example 1 */
-
-/** ["Let's move this into an EnablementTester.evaluate(...) method.", "Let's move this into an EnablementTester.evaluate(...) method."] */
-public boolean isExtensionEnabled ( ) {
-  if ( enablement != null ) {
-    return enablement . getExpression ( ) . evaluate ( new EvaluationContext ( null , new Object ( ) ) ) . equals ( EvaluationResult . TRUE ) ;
-  }
-  return true ;
-}
-
-
-
-
-public boolean isExtensionEnabled ( ) {
-  if ( enablement != null ) {
-    try {
-      return enablement . getExpression ( ) . evaluate ( ) ;
-    }
-    catch ( CoreException e ) {
-    }
-  }
-  return true ;
-}
-
-
-
-
-==========================this is the dividing line=============================
-
-
-
-/** Example 2 */
-
-/** ["'null' must be first operande", "'null' must be first operande"] */
-public ProviderNotificationManager createProviderNotificationManager ( final DiagramEventBroker diagramEventBroker , final EObject view , final NotificationListener notificationListener ) {
-  if ( manager != null ) {
-    return manager ;
-  }
-  manager = new ProviderNotificationManager ( diagramEventBroker , view , notificationListener ) {
-    @ Override protected void registerListeners ( ) {
-    }
-  };
-  return manager ;
-}
-
-
-
-
-public ProviderNotificationManager createProviderNotificationManager ( final DiagramEventBroker diagramEventBroker , final EObject view , final NotificationListener notificationListener ) {
-  if ( null != manager ) {
-    return manager ;
-  }
-  manager = new ProviderNotificationManager ( diagramEventBroker , view , notificationListener ) {
-    @ Override protected void registerListeners ( ) {
-    }
-  };
-  return manager ;
-}
-
-
-
-
-==========================this is the dividing line=============================
-
-
-
-/** Example 3 */
-
-/** ['This method can be`private`.', 'This method can be`private`.'] */
-private void startSyncFolderOperation ( OCFile folder ) {
-  long currentSyncTime = System . currentTimeMillis ( ) ;
-  mSyncInProgress = true ;
-  RemoteOperation synchFolderOp = new RefreshFolderOperation ( folder , currentSyncTime , false , false , getStorageManager ( ) , getAccount ( ) , getApplicationContext ( ) ) ;
-  synchFolderOp . execute ( getAccount ( ) , this , null , null ) ;
-}
-
-
-
-
-private void startSyncFolderOperation ( OCFile folder ) {
-  long currentSyncTime = System . currentTimeMillis ( ) ;
-  mSyncInProgress = true ;
-  RemoteOperation synchFolderOp = new RefreshFolderOperation ( folder , currentSyncTime , false , false , false , getStorageManager ( ) , getAccount ( ) , getApplicationContext ( ) ) ;
-  synchFolderOp . execute ( getAccount ( ) , this , null , null ) ;
-}
-
-
-
-
-==========================this is the dividing line=============================
-
-
-
-/** Example 4 */
-
-/** ['This can be private again.'] */
-private static ProtobufMetadataManagerImpl getProtobufMetadataManager ( EmbeddedCacheManager cacheManager ) {
-  if ( cacheManager == null ) {
-    throw new IllegalArgumentException ( "cacheManager cannot be null" ) ;
-  }
-  ProtobufMetadataManagerImpl metadataManager = ( ProtobufMetadataManagerImpl ) cacheManager . getGlobalComponentRegistry ( ) . getComponent ( ProtobufMetadataManager . class ) ;
-  if ( metadataManager == null ) {
-    throw new IllegalStateException ( "ProtobufMetadataManager not initialised yet!" ) ;
-  }
-  return metadataManager ;
-}
-
-
-
-
-==========================this is the dividing line=============================
-
-
-
-/** Example 5 */
-
-/** ['forgotten line of code?', 'forgotten line of code?'] */
-public String getAuthorizationUrl ( OAuthConfig config ) {
-  String url = String . format ( AUTHORIZE_URL , OAuthEncoder . encode ( config . getApiKey ( ) ) , OAuthEncoder . encode ( config . getCallback ( ) ) , OAuthEncoder . encode ( config . getScope ( ) ) , OAuthEncoder . encode ( config . getState ( ) ) ) ;
-  return url ;
-}
-
-
-
-
-public String getAuthorizationUrl ( OAuthConfig config ) {
-  return String . format ( AUTHORIZE_URL , OAuthEncoder . encode ( config . getApiKey ( ) ) , OAuthEncoder . encode ( config . getCallback ( ) ) , OAuthEncoder . encode ( config . getScope ( ) ) , OAuthEncoder . encode ( config . getState ( ) ) ) ;
-}
-
-
-
-
-==========================this is the dividing line=============================
-
-
-
-/** Example 6 */
-
-/** ["This code here should be inside the if, because we don't need to do anything if the parameter request is not PARAM_WORKER", "This code here should be inside the if, because we don't need to do anything if the parameter request is not PARAM_WORKER"] */
-public Object getParameter ( String name ) {
-  final HostThread currentHostThread = fCurrentHostThread ;
-  if ( currentHostThread == null ) {
-    return null ;
-  }
-  if ( name . equals ( CriticalPathModule . PARAM_WORKER ) ) {
-    IAnalysisModule mod = getModule ( ) ;
-    if ( ( mod != null ) && ( mod instanceof CriticalPathModule ) ) {
-      LttngWorker worker = new LttngWorker ( currentHostThread , "" , 0 ) ;
-      return worker ;
-    }
-  }
-  return null ;
-}
-
-
-
-
-public Object getParameter ( String name ) {
-  if ( name . equals ( CriticalPathModule . PARAM_WORKER ) ) {
-    IAnalysisModule mod = getModule ( ) ;
-    if ( ( mod != null ) && ( mod instanceof CriticalPathModule ) ) {
-      LttngWorker worker = new LttngWorker ( currentHostThread , "" , 0 ) ;
-      return worker ;
-    }
-    return currentHostThread ;
-  }
-  return null ;
-}
-
-
-
-
-==========================this is the dividing line=============================
-
-
-
-/** Example 7 */
-
-/** ['Maybe `expectThrowable` for consistency?', 'Maybe `expectThrowable` for consistency?'] */
-public static ExceptionThrowingSubTest expectThrowable ( Runnable runnable ) {
-  return expectException ( runnable . toString ( ) , runnable ) ;
-}
-
-
-
-
-public static ExceptionThrowingSubTest expectThrowable ( Runnable runnable ) {
-  return expectThrowable ( runnable ) ;
-}
-
-
-
-
-==========================this is the dividing line=============================
-
-
-
-/** Example 8 */
-
-/** ['remove this'] */
-protected CONNECTCXFClient ( ServicePortDescriptor < T > portDescriptor , String url , AssertionType assertion , ServicePortBuilder < T > portBuilder ) {
-  serviceEndpoint = super . configureBasePort ( portBuilder . createPort ( ) , url , assertion != null ? assertion . getTransactionTimeout ( ) : null ) ;
-}
-
-
-
-
-==========================this is the dividing line=============================
-
-
-
-/** Example 9 */
-
-/** ['Can we add the name of the setting in there somewhere as well?', 'Can we add the name of the setting in there somewhere as well?'] */
-public < V > Setting < V > get ( SimpleUri id , Class < V > valueType ) {
-  Setting < V > setting = settings . get ( id ) ;
-  Class settingValueClass = setting . getValueClass ( ) ;
-  if ( ! settingValueClass . equals ( valueType ) ) {
-    throw new ClassCastException ( "Expected a Setting of type " + valueType . getName ( ) + ", found a Setting of type " + settingValueClass . getName ( ) ) ;
-  }
-  return ( Setting < V > ) setting ;
-}
-
-
-
-
-public < V > Setting < V > get ( SimpleUri id , Class < V > valueType ) {
-  Setting setting = settings . get ( id ) ;
-  Class settingValueClass = setting . getValueClass ( ) ;
-  if ( ! settingValueClass . equals ( valueType ) ) {
-    throw new ClassCastException ( "Expected a Setting of type " + valueType + ", found a Setting of type " + settingValueClass ) ;
-  }
-  return ( Setting < V > ) setting ;
-}
-
-
-
-
-==========================this is the dividing line=============================
-
-
-
-/** Example 10 */
-
-/** ['it\'s better to init customFields with an empty collection to avoid "==null"'] */
-public String getCustomField ( String fieldName ) {
-  for ( CustomField f : customFields ) {
-    if ( f . getName ( ) . equals ( fieldName ) ) {
-      return f . getValue ( ) ;
-    }
-  }
-  return null ;
-}
-
-
-
-
-==========================this is the dividing line=============================
-
-
-
-/** Example 11 */
-
-/** ["Any way we can clean this up? It seems to only be needed for example commands, but hard to check what the command is here since it's wrapped in decorators.", "Any way we can clean this up? It seems to only be needed for example commands, but hard to check what the command is here since it's wrapped in decorators."] */
-private CommandCall duplicateCommandForDifferentElement ( CommandCall commandCall , Element element ) {
-  String expression = commandCall . getExpression ( ) ;
-  if ( expression . equals ( "" ) ) {
-    expression = element . getText ( ) ;
-  }
-  return new CommandCall ( null , commandCall . getCommand ( ) , element , expression , commandCall . getResource ( ) ) ;
-}
-
-
-
-
-private CommandCall duplicateCommandForDifferentElement ( CommandCall commandCall , Element element ) {
-  return new CommandCall ( null , commandCall . getCommand ( ) , element , expression , commandCall . getResource ( ) ) ;
-}
-
-
-
-
-==========================this is the dividing line=============================
-
-
-
-/** Example 12 */
-
-/** ['TException is throwable, too, and treated the same -- combine the catch clauses?', 'TException is throwable, too, and treated the same -- combine the catch clauses?'] */
-public M fromBytes ( byte [ ] messageBuffer ) {
-  if ( deserializer == null ) deserializer = new ThriftBinaryDeserializer ( ) ;
-  try {
-    M message = typeRef . safeNewInstance ( ) ;
-    deserializer . deserialize ( message , messageBuffer ) ;
-    return message ;
-  }
-  catch ( Throwable e ) {
-    logWarning ( "failed to deserialize" , e ) ;
-    return null ;
-  }
-}
-
-
-
-
-public M fromBytes ( byte [ ] messageBuffer ) {
-  if ( deserializer == null ) deserializer = new ThriftBinaryDeserializer ( ) ;
-  try {
-    M message = typeRef . safeNewInstance ( ) ;
-    deserializer . deserialize ( message , messageBuffer ) ;
-    return message ;
-  }
-  catch ( TException e ) {
-    logWarning ( "failed to deserialize" , e ) ;
-    return null ;
-  }
-  catch ( TException e ) {
-    logWarning ( "failed to deserialize" , e ) ;
-    return null ;
-  }
-}
-
-
-
-
-==========================this is the dividing line=============================
-
-
-
-/** Example 13 */
-
-/** ['remove', 'remove'] */
-public void showPage ( Control page ) {
-  if ( page . isDisposed ( ) || page . getParent ( ) != this ) {
-    return ;
-  }
-  currentPage = page ;
-  page . setVisible ( true ) ;
-  layout ( true ) ;
-  Control [ ] children = getChildren ( ) ;
-  for ( Control element : children ) {
-    Control child = element ;
-    if ( child != page && ! child . isDisposed ( ) ) {
-      child . setVisible ( false ) ;
-    }
-  }
-}
-
-
-
-
-public void showPage ( Control page ) {
-  currentPage = page ;
-  page . setVisible ( true ) ;
-  layout ( true ) ;
-  Control [ ] children = getChildren ( ) ;
-  for ( Control element : children ) {
-    Control child = element ;
-    if ( child != page && ! child . isDisposed ( ) ) {
-      child . setVisible ( false ) ;
-    }
-  }
-}
-
-
-
-
-==========================this is the dividing line=============================
-
-
-
-/** Example 14 */
-
-/** ['info vs warn'] */
-public void info ( String message , Object ... objects ) {
-  LOG . info ( message , objects ) ;
-}
-
-
-
-
-==========================this is the dividing line=============================
-
-
-
-/** Example 15 */
-
-/** ["Let's avoid `null` and rework to empty string", "Let's avoid `null` and rework to empty string"] */
-public String getLinkAt ( int offset ) {
-  if ( offset < 0 ) {
-    return "" ;
-  }
-  for ( int i = 0 ;
-  i < linkRanges . size ( ) ;
-  i ++ ) {
-    if ( linkRanges . get ( i ) . isOffsetInRange ( offset ) ) {
-      return hrefs . get ( i ) ;
-    }
-  }
-  return "" ;
-}
-
-
-
-
-public String getLinkAt ( int offset ) {
-  for ( int i = 0 ;
-  i < linkRanges . size ( ) ;
-  i ++ ) {
-    if ( linkRanges . get ( i ) . isOffsetInRange ( offset ) ) {
-      return hrefs . get ( i ) ;
-    }
-  }
-  return "" ;
-}
-
-
-
-
-==========================this is the dividing line=============================
-
-
-
-/** Example 16 */
-
-/** ['This change I requested was supposed to remove the need for a read lock'] */
-public String toString ( ) {
-  return "FileListCacheValue{
-fileNames=" + getFileNames ( ) + "}" ;
-  }
-  
-
-
-
-==========================this is the dividing line=============================
-
-
-
-/** Example 17 */
-
-/** ['Please not here. This is not a standard SWT table.', 'Please not here. This is not a standard SWT table.'] */
-protected Control createControl ( Composite parent ) {
-  CTConfiguration config = new CTConfiguration ( parent , CTConfiguration . STYLE_GRID ) ;
-  config . setHorizontalAlignment ( SWT . CENTER ) ;
-  config . setCellSelectionEnabled ( false ) ;
-  config . setColumnSelectionEnabled ( false ) ;
-  config . setRowSelectionEnabled ( false ) ;
-  this . table = new ComponentTable ( parent , SWT . FULL_SELECTION , config ) ;
-  return this . table . getControl ( ) ;
-}
-
-
-
-
-protected Control createControl ( Composite parent ) {
-  CTConfiguration config = new CTConfiguration ( parent , CTConfiguration . STYLE_GRID ) ;
-  config . setHorizontalAlignment ( SWT . CENTER ) ;
-  config . setCellSelectionEnabled ( false ) ;
-  config . setColumnSelectionEnabled ( false ) ;
-  config . setRowSelectionEnabled ( false ) ;
-  config . setColumnHeaderLayout ( CTConfiguration . COLUMN_HEADER_LAYOUT_FILL_EQUAL ) ;
-  config . setRowHeaderLayout ( CTConfiguration . ROW_HEADER_LAYOUT_DEFAULT ) ;
-  this . table = new ComponentTable ( parent , SWT . FULL_SELECTION , config ) ;
-  return this . table . getControl ( ) ;
-}
-
-
-
-
-==========================this is the dividing line=============================
-
-
-
-/** Example 18 */
-
-/** ["return 'true'", "return 'true'"] */
-public boolean isEnabled ( ) {
-  return true ;
-}
-
-
-
-
-public boolean isEnabled ( ) {
-  return getActiveTextEditor ( ) != null ;
-}
-
-
-
-
-==========================this is the dividing line=============================
-
-
-
-/** Example 19 */
-
 /** ['maybe you need a specific Exception Type', 'maybe you need a specific Exception Type'] */
-void verifyMetadata ( MessageMetadata metadata ) {
+void verifyMetadata ( MessageMetadata metadata ) throws Exception {
   if ( metadata . getMessageMetadataType ( ) != MessageType . LOG_ENTRY_MESSAGE || metadata . getSnapshotTimestamp ( ) != srcGlobalSnapshot ) {
     log . error ( "Wrong message metadata {
 }, expecting  type {
@@ -538,7 +29,594 @@ void verifyMetadata ( MessageMetadata metadata ) throws Exception {
 
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
+
+
+
+/** Example 1 */
+
+/** ['what is this part for? you are not checking throw statements.', 'what is this part for? you are not checking throw statements.'] */
+public void setPrice1 ( int price3 ) {
+  if ( price3 < 0 || price3 > 10000 ) {
+    throw new IllegalArgumentException ( "Invalid price: " + price3 ) ;
+  }
+  if ( true ) {
+    assert price3 > 1000 ;
+  }
+}
+
+
+
+
+public void setPrice1 ( int price3 ) {
+  if ( price3 < 0 || price3 > 10000 ) {
+    throw new IllegalArgumentException ( "Invalid price: " + price3 ) ;
+  }
+  if ( true ) {
+    assert price3 > 1000 ;
+  }
+}
+
+
+
+
+*************************this is the dividing line*****************************
+
+
+
+/** Example 2 */
+
+/** ['This will fail on `null`', 'This will fail on `null`'] */
+public String evaluate ( TransactionContext txnCtx , Input < Object > [ ] args ) {
+  assert args . length == 2 : "repeat takes exactly two arguments" ;
+  var text = ( String ) args [ 0 ] . value ( ) ;
+  if ( text == null ) {
+    return null ;
+  }
+  var repetitions = ( int ) args [ 1 ] . value ( ) ;
+  if ( repetitions <= 0 ) {
+    return "" ;
+  }
+  else {
+    return text . repeat ( repetitions ) ;
+  }
+}
+
+
+
+
+public String evaluate ( TransactionContext txnCtx , Input < Object > [ ] args ) {
+  assert args . length == 2 : "repeat takes exactly two arguments" ;
+  var text = ( String ) args [ 0 ] . value ( ) ;
+  if ( text == null ) {
+    return null ;
+  }
+  var repetitions = ( int ) args [ 1 ] . value ( ) ;
+  if ( repetitions <= 0 ) {
+    return "" ;
+  }
+  else {
+    return text . repeat ( repetitions ) ;
+  }
+}
+
+
+
+
+*************************this is the dividing line*****************************
+
+
+
+/** Example 3 */
+
+/** ['Please use {} for every if/else/for/etc. block.', 'Please use {} for every if/else/for/etc. block.'] */
+public static ProjectBuildType getProjectType ( IProject project ) {
+  if ( isAutoTools ( project ) ) return ProjectBuildType . AUTO_TOOLS ;
+  IConfiguration defaultConfiguration = helper_getActiveConfiguration ( project ) ;
+  IBuilder builder = defaultConfiguration . getBuilder ( ) ;
+  Boolean projIsManaged = builder . isManagedBuildOn ( ) ;
+  if ( projIsManaged ) return ProjectBuildType . MANAGED_MAKEFILE ;
+  else return ProjectBuildType . OTHER ;
+}
+
+
+
+
+public static ProjectBuildType getProjectType ( IProject project ) {
+  if ( isAutoTools ( project ) ) return ProjectBuildType . AUTO_TOOLS ;
+  IConfiguration defaultConfiguration = helper_getActiveConfiguration ( project ) ;
+  IBuilder builder = defaultConfiguration . getBuilder ( ) ;
+  Boolean projIsManaged = builder . isManagedBuildOn ( ) ;
+  if ( projIsManaged ) return ProjectBuildType . MANAGED_MAKEFILE ;
+  else return ProjectBuildType . OTHER ;
+}
+
+
+
+
+*************************this is the dividing line*****************************
+
+
+
+/** Example 4 */
+
+/** ['public', 'public'] */
+public PinotQueryGeneratorContext visitFilter ( FilterNode node , PinotQueryGeneratorContext context ) {
+  context = node . getSource ( ) . accept ( this , context ) ;
+  requireNonNull ( context , "context is null" ) ;
+  LinkedHashMap < VariableReferenceExpression , Selection > selections = context . getSelections ( ) ;
+  String filter = node . getPredicate ( ) . accept ( pinotFilterExpressionConverter , ( var ) -> selections . get ( var ) ) . getDefinition ( ) ;
+  return context . withFilter ( filter ) . withOutputColumns ( node . getOutputVariables ( ) ) ;
+}
+
+
+
+
+public PinotQueryGeneratorContext visitFilter ( FilterNode node , PinotQueryGeneratorContext context ) {
+  context = node . getSource ( ) . accept ( this , context ) ;
+  requireNonNull ( context , "context is null" ) ;
+  LinkedHashMap < VariableReferenceExpression , Selection > selections = context . getSelections ( ) ;
+  String filter = node . getPredicate ( ) . accept ( pinotFilterExpressionConverter , ( var ) -> selections . get ( var ) ) . getDefinition ( ) ;
+  return context . withFilter ( filter ) . withOutputColumns ( node . getOutputVariables ( ) ) ;
+}
+
+
+
+
+*************************this is the dividing line*****************************
+
+
+
+/** Example 5 */
+
+/** ['JavaDoc and method signature did not match. Please update the JavaDoc!', 'JavaDoc and method signature did not match. Please update the JavaDoc!'] */
+private Space ( String enumeratedValue ) {
+  this . enumeratedValue = enumeratedValue ;
+}
+
+
+
+
+private Space ( String enumeratedValue ) {
+  this . enumeratedValue = enumeratedValue ;
+}
+
+
+
+
+*************************this is the dividing line*****************************
+
+
+
+/** Example 6 */
+
+/** ["For this it's better to do:  ``` threadsLocked.inc(); try { // other stuff } finally { threadsLocked.dec(); } ```  This way if an exception is thrown we still decrement the threadsLocked counter.", "For this it's better to do:  ``` threadsLocked.inc(); try { // other stuff } finally { threadsLocked.dec(); } ```  This way if an exception is thrown we still decrement the threadsLocked counter."] */
+public void lock ( T id ) throws InterruptedException {
+  threadsLocked . inc ( ) ;
+  idsLocked . update ( 1 ) ;
+  lockInternal ( id ) ;
+  threadsLocked . dec ( ) ;
+}
+
+
+
+
+public void lock ( T id ) throws InterruptedException {
+  threadsLocked . inc ( ) ;
+  idsLocked . update ( 1 ) ;
+  lockInternal ( id ) ;
+  threadsLocked . dec ( ) ;
+}
+
+
+
+
+*************************this is the dividing line*****************************
+
+
+
+/** Example 7 */
+
+/** ['looks like syntax typo  (`Add position checks in RunLenghtEncodedBlock` commit)', 'looks like syntax typo  (`Add position checks in RunLenghtEncodedBlock` commit)'] */
+public RunLengthEncodedBlock ( Block value , int positionCount ) {
+  requireNonNull ( value , "value is null" ) ;
+  if ( value . getPositionCount ( ) != 1 ) {
+    throw new IllegalArgumentException ( format ( "Expected value to contain a single position but has %s positions" , value . getPositionCount ( ) ) ) ;
+  }
+  if ( value instanceof RunLengthEncodedBlock ) {
+    throw new IllegalArgumentException ( format ( "Value can not be an instance of a %s" , getClass ( ) . getName ( ) ) ) ;
+  }
+  if ( positionCount < 0 ) {
+    throw new IllegalArgumentException ( "positionCount is negative" ) ;
+  }
+  this . value = value this . positionCount = positionCount ;
+}
+
+
+
+
+public RunLengthEncodedBlock ( Block value , int positionCount ) {
+  requireNonNull ( value , "value is null" ) ;
+  if ( value . getPositionCount ( ) != 1 ) {
+    throw new IllegalArgumentException ( format ( "Expected value to contain a single position but has %s positions" , value . getPositionCount ( ) ) ) ;
+  }
+  if ( value instanceof RunLengthEncodedBlock ) {
+    throw new IllegalArgumentException ( format ( "Value can not be an instance of a %s" , getClass ( ) . getName ( ) ) ) ;
+  }
+  if ( positionCount < 0 ) {
+    throw new IllegalArgumentException ( "positionCount is negative" ) ;
+  }
+  this . value = value this . positionCount = positionCount ;
+}
+
+
+
+
+*************************this is the dividing line*****************************
+
+
+
+/** Example 8 */
+
+/** ['I would prefer to use full words. For example `directoryAllow`.', 'I would prefer to use full words. For example `directoryAllow`.'] */
+public void init ( FilterConfig filterConfig ) throws ServletException {
+  dirAllowed = Context . getConfig ( ) . getBoolean ( "media.dirAllowed" ) ;
+}
+
+
+
+
+public void init ( FilterConfig filterConfig ) throws ServletException {
+  dirAllowed = Context . getConfig ( ) . getBoolean ( "media.dirAllowed" ) ;
+}
+
+
+
+
+*************************this is the dividing line*****************************
+
+
+
+/** Example 9 */
+
+/** ["Another extra space, can you plese cleanup all these similar things? There're a few others, some functions have spaces in parameters, some don't like `queryPos( APPBARDATA ABData )` vs. `dwABM.setValue(ShellAPI.ABM_QUERYPOS);`. Sorry to be a pest, just looks messy and inconsistent.", "Another extra space, can you plese cleanup all these similar things? There're a few others, some functions have spaces in parameters, some don't like `queryPos( APPBARDATA ABData )` vs. `dwABM.setValue(ShellAPI.ABM_QUERYPOS);`. Sorry to be a pest, just looks messy and inconsistent.", "Another extra space, can you plese cleanup all these similar things? There're a few others, some functions have spaces in parameters, some don't like `queryPos( APPBARDATA ABData )` vs. `dwABM.setValue(ShellAPI.ABM_QUERYPOS);`. Sorry to be a pest, just looks messy and inconsistent."] */
+private void removeAppBar ( ) {
+  DWORD dwABM = new DWORD ( ) ;
+  APPBARDATA ABData = new APPBARDATA . ByReference ( ) ;
+  ABData . cbSize . setValue ( ABData . size ( ) ) ;
+  dwABM . setValue ( ShellAPI . ABM_REMOVE ) ;
+  UINT_PTR result = Shell32 . INSTANCE . SHAppBarMessage ( dwABM , ABData ) ;
+  assertNotNull ( result ) ;
+}
+
+
+
+
+private void removeAppBar ( ) {
+  DWORD dwABM = new DWORD ( ) ;
+  APPBARDATA ABData = new APPBARDATA . ByReference ( ) ;
+  ABData . cbSize . setValue ( ABData . size ( ) ) ;
+  dwABM . setValue ( ShellAPI . ABM_REMOVE ) ;
+  UINT_PTR result = Shell32 . INSTANCE . SHAppBarMessage ( dwABM , ABData ) ;
+  assertNotNull ( result ) ;
+}
+
+
+
+
+private void removeAppBar ( ) {
+  DWORD dwABM = new DWORD ( ) ;
+  APPBARDATA ABData = new APPBARDATA . ByReference ( ) ;
+  ABData . cbSize . setValue ( ABData . size ( ) ) ;
+  dwABM . setValue ( ShellAPI . ABM_REMOVE ) ;
+  UINT_PTR result = Shell32 . INSTANCE . SHAppBarMessage ( dwABM , ABData ) ;
+  assertNotNull ( result ) ;
+}
+
+
+
+
+*************************this is the dividing line*****************************
+
+
+
+/** Example 10 */
+
+/** ["It is always expected that launch would be an instance of GdbLaunch, I don't think the check is required.", "It is always expected that launch would be an instance of GdbLaunch, I don't think the check is required."] */
+protected Sequence getServicesSequence ( DsfSession session , ILaunch launch , IProgressMonitor rm ) {
+  if ( launch instanceof GdbLaunch ) {
+    return new ServicesLaunchSequence ( session , ( GdbLaunch ) launch , rm ) ;
+  }
+  return null ;
+}
+
+
+
+
+protected Sequence getServicesSequence ( DsfSession session , ILaunch launch , IProgressMonitor rm ) {
+  if ( launch instanceof GdbLaunch ) {
+    return new ServicesLaunchSequence ( session , ( GdbLaunch ) launch , rm ) ;
+  }
+  return null ;
+}
+
+
+
+
+*************************this is the dividing line*****************************
+
+
+
+/** Example 11 */
+
+/** ['`MiddlewareQueryException` is now a run time exception so it is not required to be part of the method signature. Not invalid to have it in signature, but Sonar will report it as a _Major_ category violation.', '`MiddlewareQueryException` is now a run time exception so it is not required to be part of the method signature. Not invalid to have it in signature, but Sonar will report it as a _Major_ category violation.'] */
+public AdvanceResult advanceNursery ( final AdvancingNursery advanceInfo , final Workbook workbook ) throws RuleException , MiddlewareQueryException , FieldbookException {
+  return this . namingConventionService . advanceNursery ( advanceInfo , workbook ) ;
+}
+
+
+
+
+public AdvanceResult advanceNursery ( final AdvancingNursery advanceInfo , final Workbook workbook ) throws RuleException , MiddlewareQueryException , FieldbookException {
+  return this . namingConventionService . advanceNursery ( advanceInfo , workbook ) ;
+}
+
+
+
+
+*************************this is the dividing line*****************************
+
+
+
+/** Example 12 */
+
+/** ['Please make it non-static, similar to what is done with ManagementNetworkFinder', 'Please make it non-static, similar to what is done with ManagementNetworkFinder'] */
+public org . ovirt . engine . api . model . Cluster update ( org . ovirt . engine . api . model . Cluster incoming ) {
+  MacPool macPool = incoming . getMacPool ( ) ;
+  macPool . setId ( MacPoolIdByIdOrName . get ( macPool . getId ( ) , macPool . getName ( ) , this ) ) ;
+  return performUpdate ( incoming , new QueryIdResolver < > ( VdcQueryType . GetClusterById , IdQueryParameters . class ) , VdcActionType . UpdateCluster , new UpdateParametersProvider ( ) ) ;
+}
+
+
+
+
+public org . ovirt . engine . api . model . Cluster update ( org . ovirt . engine . api . model . Cluster incoming ) {
+  MacPool macPool = incoming . getMacPool ( ) ;
+  macPool . setId ( MacPoolIdByIdOrName . get ( macPool . getId ( ) , macPool . getName ( ) , this ) ) ;
+  return performUpdate ( incoming , new QueryIdResolver < > ( VdcQueryType . GetClusterById , IdQueryParameters . class ) , VdcActionType . UpdateCluster , new UpdateParametersProvider ( ) ) ;
+}
+
+
+
+
+*************************this is the dividing line*****************************
+
+
+
+/** Example 13 */
+
+/** ['I think it makes more sense to omit this assert in the expected exception cases?', 'I think it makes more sense to omit this assert in the expected exception cases?'] */
+public void testReservedSkippableBeforeStreamIdentifier ( ) throws Exception {
+  ByteBuf in = Unpooled . wrappedBuffer ( new byte [ ] {
+    - 0x7f , 0x06 , 0x00 , 0x00 , 's' , 'n' , 'e' , 't' , 't' , 'y' }
+    ) ;
+    assertFalse ( channel . writeInbound ( in ) ) ;
+  }
+  
+
+
+
+public void testReservedSkippableBeforeStreamIdentifier ( ) throws Exception {
+  ByteBuf in = Unpooled . wrappedBuffer ( new byte [ ] {
+    - 0x7f , 0x06 , 0x00 , 0x00 , 's' , 'n' , 'e' , 't' , 't' , 'y' }
+    ) ;
+    assertFalse ( channel . writeInbound ( in ) ) ;
+  }
+  
+
+
+
+*************************this is the dividing line*****************************
+
+
+
+/** Example 14 */
+
+/** ["In the `get` method which calls `getChild` we use `property.getName()` instead of `field.getName().getPrefixedName()` as the key in the `children` map. Can you make this consistent so that we're sure there's no discrepancy between prefixed/unprefixed?", "In the `get` method which calls `getChild` we use `property.getName()` instead of `field.getName().getPrefixedName()` as the key in the `children` map. Can you make this consistent so that we're sure there's no discrepancy between prefixed/unprefixed?"] */
+public void set ( String name , Property property ) throws PropertyNotFoundException {
+  Field field = getType ( ) . getField ( name ) ;
+  if ( field == null ) {
+    Property removedProperty = computeRemovedProperty ( name ) ;
+    if ( removedProperty != null ) {
+      removedProperty . set ( name , property ) ;
+    }
+    return ;
+  }
+  children . put ( field . getName ( ) . getPrefixedName ( ) , property ) ;
+  setIsModified ( ) ;
+}
+
+
+
+
+public void set ( String name , Property property ) throws PropertyNotFoundException {
+  Field field = getType ( ) . getField ( name ) ;
+  if ( field == null ) {
+    Property removedProperty = computeRemovedProperty ( name ) ;
+    if ( removedProperty != null ) {
+      removedProperty . set ( name , property ) ;
+    }
+    return ;
+  }
+  children . put ( field . getName ( ) . getPrefixedName ( ) , property ) ;
+  setIsModified ( ) ;
+}
+
+
+
+
+*************************this is the dividing line*****************************
+
+
+
+/** Example 15 */
+
+/** ['`andCardinality(Container)` should be called here instead of `and(Container).getCardinality()`', '`andCardinality(Container)` should be called here instead of `and(Container).getCardinality()`'] */
+public int andCardinality ( Container x ) {
+  if ( this . getCardinality ( ) == 0 ) return 0 ;
+  else if ( x . getCardinality ( ) == 0 ) return 0 ;
+  else {
+    if ( x instanceof ArrayContainer ) return and ( ( ArrayContainer ) x ) . getCardinality ( ) ;
+    else if ( x instanceof BitmapContainer ) return and ( ( BitmapContainer ) x ) . getCardinality ( ) ;
+    return and ( ( RunContainer ) x ) . getCardinality ( ) ;
+  }
+}
+
+
+
+
+public int andCardinality ( Container x ) {
+  if ( this . getCardinality ( ) == 0 ) return 0 ;
+  else if ( x . getCardinality ( ) == 0 ) return 0 ;
+  else {
+    if ( x instanceof ArrayContainer ) return and ( ( ArrayContainer ) x ) . getCardinality ( ) ;
+    else if ( x instanceof BitmapContainer ) return and ( ( BitmapContainer ) x ) . getCardinality ( ) ;
+    return and ( ( RunContainer ) x ) . getCardinality ( ) ;
+  }
+}
+
+
+
+
+*************************this is the dividing line*****************************
+
+
+
+/** Example 16 */
+
+/** ['public @Nullable String...', 'public @Nullable String...'] */
+public String getAttributeValue ( @ Nullable String name ) {
+  return name ;
+}
+
+
+
+
+public String getAttributeValue ( @ Nullable String name ) {
+  return name ;
+}
+
+
+
+
+*************************this is the dividing line*****************************
+
+
+
+/** Example 17 */
+
+/** ['This logic will obviously need updated once we change `this.cookiesToClear`.', 'This logic will obviously need updated once we change `this.cookiesToClear`.'] */
+public void logout ( HttpServletRequest request , HttpServletResponse response , Authentication authentication ) {
+  for ( Object cookie : cookiesToClear ) {
+    Cookie realCookie = null ;
+    if ( cookie instanceof String ) {
+      realCookie = new Cookie ( ( String ) cookie , null ) ;
+      String cookiePath = request . getContextPath ( ) + "/" ;
+      realCookie . setPath ( cookiePath ) ;
+      realCookie . setMaxAge ( 0 ) ;
+    }
+    else if ( cookie instanceof Cookie ) {
+      realCookie = ( Cookie ) cookie ;
+    }
+    response . addCookie ( realCookie ) ;
+  }
+}
+
+
+
+
+public void logout ( HttpServletRequest request , HttpServletResponse response , Authentication authentication ) {
+  for ( Object cookie : cookiesToClear ) {
+    Cookie realCookie = null ;
+    if ( cookie instanceof String ) {
+      realCookie = new Cookie ( ( String ) cookie , null ) ;
+      String cookiePath = request . getContextPath ( ) + "/" ;
+      realCookie . setPath ( cookiePath ) ;
+      realCookie . setMaxAge ( 0 ) ;
+    }
+    else if ( cookie instanceof Cookie ) {
+      realCookie = ( Cookie ) cookie ;
+    }
+    response . addCookie ( realCookie ) ;
+  }
+}
+
+
+
+
+*************************this is the dividing line*****************************
+
+
+
+/** Example 18 */
+
+/** ["won't this be a double-decrement?", "won't this be a double-decrement?"] */
+public void channelOpen ( ChannelHandlerContext ctx , ChannelStateEvent e ) throws Exception {
+  if ( maxConnections > 0 ) {
+    if ( numConnections . incrementAndGet ( ) > maxConnections ) {
+      ctx . getChannel ( ) . close ( ) ;
+      numConnections . decrementAndGet ( ) ;
+      log . info ( "Accepted connection above limit ({
+}
+). Dropping." , maxConnections ) ;
+    }
+  }
+  super . channelOpen ( ctx , e ) ;
+}
+
+
+
+
+public void channelOpen ( ChannelHandlerContext ctx , ChannelStateEvent e ) throws Exception {
+  if ( maxConnections > 0 ) {
+    if ( numConnections . incrementAndGet ( ) > maxConnections ) {
+      ctx . getChannel ( ) . close ( ) ;
+      numConnections . decrementAndGet ( ) ;
+      log . info ( "Accepted connection above limit ({
+}
+). Dropping." , maxConnections ) ;
+    }
+  }
+  super . channelOpen ( ctx , e ) ;
+}
+
+
+
+
+*************************this is the dividing line*****************************
+
+
+
+/** Example 19 */
+
+/** ['@qeesung: nit you can merge the above 2 lines as `checkNotNull` returns `channelClass`.', '@qeesung: nit you can merge the above 2 lines as `checkNotNull` returns `channelClass`.'] */
+public B channel ( Class < ? extends C > channelClass ) {
+  ObjectUtil . checkNotNull ( channelClass , "channelClass" ) ;
+  return channelFactory ( new ReflectiveChannelFactory < C > ( channelClass ) ) ;
+}
+
+
+
+
+public B channel ( Class < ? extends C > channelClass ) {
+  ObjectUtil . checkNotNull ( channelClass , "channelClass" ) ;
+  return channelFactory ( new ReflectiveChannelFactory < C > ( channelClass ) ) ;
+}
+
+
+
+
+*************************this is the dividing line*****************************
 
 
 
