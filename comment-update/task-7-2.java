@@ -1,22 +1,16 @@
 /** Method 0 */
 
-/** @return a string representation of this map */
+/** updated comment */
   @Override
-  public String toString() {
-    Node<K, V>[] t;
-    int f = (t = table) == null ? NUM : t.length;
-    Traverser<K, V> it = new Traverser<K, V>(t, f, NUM, f);
+  public final String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append(STR);
-    Node<K, V> p;
-    if ((p = it.advance()) != null) {
+    Iterator<E> it = iterator();
+    if (it.hasNext()) {
       for (; ; ) {
-        K k = p.key;
-        V v = p.val;
-        sb.append(k == this ? STR : k);
-        sb.append(STR);
-        sb.append(v == this ? STR : v);
-        if ((p = it.advance()) == null) {
+        Object e = it.next();
+        sb.append(e == this ? STR : e);
+        if (!it.hasNext()) {
           break;
         }
         sb.append(STR).append(STR);
@@ -27,16 +21,22 @@
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 1 */
 
-/** @return the converted value, or null if the conversion could not be made */
+/** updated comment */
   protected Object convertTimestampToEpochMillisAsDate(
       Column column, Field fieldDefn, Object data) {
-    if (data == null) return null;
+    if (data == null) {
+      data = fieldDefn.schema().defaultValue();
+    }
+    if (data == null) {
+      if (column.isOptional()) return null;
+      return new java.util.Date(0L); // return epoch
+    }
     try {
       return new java.util.Date(Timestamp.toEpochMillis(data));
     } catch (IllegalArgumentException e) {
@@ -46,63 +46,67 @@
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 2 */
 
-/** @return {@link ScaleAnimationBuilder} instance. Call {@link com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.ScaleAnimationBuilder#start()} to start the anim. */
-  public ScaleAnimationBuilder animateScale(float scale) {
+/** updated comment */
+  public AnimationBuilder animateScale(float scale) {
     if (!isImageReady()) {
       return null;
     }
-    return new ScaleAnimationBuilder(scale);
+    return new AnimationBuilder(scale);
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 3 */
 
-/** @return An annotator as specified by the given name and properties. */
-  private static synchronized Supplier<Annotator> getOrCreate(
-      String name, Properties props, Supplier<Annotator> annotator) {
-    StanfordCoreNLP.AnnotatorSignature key =
-        new StanfordCoreNLP.AnnotatorSignature(name, PropertiesUtils.getSignature(name, props));
-    customAnnotators.register(
-        name,
-        props,
-        StanfordCoreNLP.GLOBAL_ANNOTATOR_CACHE.computeIfAbsent(
-            key, (sig) -> Lazy.cache(annotator)));
-    return () -> customAnnotators.get(name);
+/** updated comment */
+  private static synchronized Supplier<Annotator> getOrCreate(AnnotatorFactory factory) {
+    return () -> {
+      Annotator rtn = customAnnotators.get(factory.signature());
+      if (rtn == null) {
+        // Create the annotator
+        rtn = factory.create();
+        // Register the annotator
+        customAnnotators.put(factory.signature(), factory.create());
+        // Clean up memory if needed
+        while (customAnnotators.size() > 10) {
+          customAnnotators.keySet().iterator().remove();
+        }
+      }
+      return rtn;
+    };
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 4 */
 
-/** @return A configuration configured via the stream */
+/** updated comment */
   protected Configuration doConfigure(InputStream stream, String resourceName)
       throws HibernateException {
-
-    org.dom4j.Document doc;
     try {
       List errors = new ArrayList();
-      doc =
+      Document document =
           xmlHelper
               .createSAXReader(resourceName, errors, entityResolver)
               .read(new InputSource(stream));
       if (errors.size() != 0) {
         throw new MappingException("invalid configuration", (Throwable) errors.get(0));
       }
+      doConfigure(document);
     } catch (DocumentException e) {
       throw new HibernateException("Could not parse configuration: " + resourceName, e);
     } finally {
@@ -112,120 +116,123 @@
         log.warn("could not close input stream for: " + resourceName, ioe);
       }
     }
-
-    return doConfigure(doc);
+    return this;
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 5 */
 
-/** @return the validated collection (never {@code null} for method chaining) */
-  public static <T extends Collection<?>> T validIndex(final T collection, final int index) {
+/** updated comment */
+  public static <T extends CharSequence> T validIndex(final T chars, final int index) {
     return validIndex(
-        collection, index, DEFAULT_VALID_INDEX_COLLECTION_EX_MESSAGE, Integer.valueOf(index));
+        chars, index, DEFAULT_VALID_INDEX_CHAR_SEQUENCE_EX_MESSAGE, Integer.valueOf(index));
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 6 */
 
-/** @return Returns the charset. */
+/** updated comment */
   public String getCharset() {
-    return charset;
+    if (charset != null) {
+      return charset.name();
+    }
+    return DEFAULT_CHARSET;
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 7 */
 
-/** @return the adapter to test */
+/** updated comment */
   private ComponentAdapter prepRES_lifecycleManagerHonorsInstantiationSequence(
       MutablePicoContainer picoContainer) {
-    picoContainer.component(RecordingLifecycle.One.class);
+    picoContainer.addComponent(RecordingLifecycle.One.class);
     PoolingComponentAdapter poolingComponentAdapter =
         new PoolingComponentAdapter(
             new ConstructorInjectionComponentAdapter(
                 RecordingLifecycle.Recorder.class, RecordingLifecycle.Two.class));
-    return picoContainer.adapter(poolingComponentAdapter).lastCA();
+    return picoContainer.addAdapter(poolingComponentAdapter).lastCA();
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 8 */
 
-/** @return true if the gzip compression should be used if the client accespts it. Default this option is tuned off. */
-  protected boolean useGzipWhenAccepted() {
-    return false;
+/** updated comment */
+  protected boolean useGzipWhenAccepted(Response r) {
+    return r.getMimeType() != null && r.getMimeType().toLowerCase().contains("text/");
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 9 */
 
-/** @return the size of tiles in pixels */
+/** updated comment */
+  @Deprecated
   public int getTileSize() {
-    return tileSize;
+    return Math.max(tileHeight, tileWidth);
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 10 */
 
-/** @return the extended FluentPipeline */
-  public T bothV() {
+/** updated comment */
+  public GremlinPipeline<S, Vertex> bothV() {
     return this.add(new BothVerticesPipe());
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 11 */
 
-/** @return List of all selected objects. */
+/** updated comment */
   public Collection<OsmPrimitive> getSelected() {
-    return new ArrayList<OsmPrimitive>(selectedPrimitives);
+    return Collections.unmodifiableSet(selectedPrimitives);
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 12 */
 
-/** @return a {@link Criterion} that evaluates the raw selection and selection args */
+/** updated comment */
   public static Criterion fromRawSelection(final String selection, final String[] selectionArgs) {
     if (TextUtils.isEmpty(selection)) {
-      return Criterion.all;
+      return null;
     }
     return new Criterion(null) {
 
@@ -244,62 +251,64 @@
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 13 */
 
-/** @return an  ExecutionResult */
-  protected CompletableFuture<ExecutionResult> completeValueForList(
+/** updated comment */
+  protected FieldValueInfo completeValueForList(
       ExecutionContext executionContext,
       ExecutionStrategyParameters parameters,
       Iterable<Object> iterableValues) {
 
+    Collection<Object> values = FpKit.toCollection(iterableValues);
     ExecutionTypeInfo typeInfo = parameters.getTypeInfo();
     GraphQLList fieldType = typeInfo.castType(GraphQLList.class);
     GraphQLFieldDefinition fieldDef = parameters.getTypeInfo().getFieldDefinition();
 
     InstrumentationFieldCompleteParameters instrumentationParams =
         new InstrumentationFieldCompleteParameters(
-            executionContext,
-            parameters,
-            fieldDef,
-            fieldTypeInfo(parameters, fieldDef),
-            iterableValues);
+            executionContext, parameters, fieldDef, fieldTypeInfo(parameters, fieldDef), values);
     Instrumentation instrumentation = executionContext.getInstrumentation();
 
     InstrumentationContext<ExecutionResult> completeListCtx =
         instrumentation.beginFieldListComplete(instrumentationParams);
 
-    CompletableFuture<List<ExecutionResult>> resultsFuture =
-        Async.each(
-            iterableValues,
-            (item, index) -> {
-              ExecutionPath indexedPath = parameters.getPath().segment(index);
+    List<FieldValueInfo> fieldValueInfos = new ArrayList<>();
+    int index = 0;
+    for (Object item : values) {
+      ExecutionPath indexedPath = parameters.getPath().segment(index);
 
-              ExecutionTypeInfo wrappedTypeInfo =
-                  ExecutionTypeInfo.newTypeInfo()
-                      .parentInfo(typeInfo)
-                      .type(fieldType.getWrappedType())
+      ExecutionTypeInfo wrappedTypeInfo =
+          ExecutionTypeInfo.newTypeInfo()
+              .parentInfo(typeInfo)
+              .type(fieldType.getWrappedType())
+              .path(indexedPath)
+              .fieldDefinition(fieldDef)
+              .build();
+
+      NonNullableFieldValidator nonNullableFieldValidator =
+          new NonNullableFieldValidator(executionContext, wrappedTypeInfo);
+
+      int finalIndex = index;
+      ExecutionStrategyParameters newParameters =
+          parameters.transform(
+              builder ->
+                  builder
+                      .typeInfo(wrappedTypeInfo)
+                      .nonNullFieldValidator(nonNullableFieldValidator)
+                      .listSize(values.size())
+                      .currentListIndex(finalIndex)
                       .path(indexedPath)
-                      .fieldDefinition(fieldDef)
-                      .build();
+                      .source(item));
+      fieldValueInfos.add(completeValue(executionContext, newParameters));
+      index++;
+    }
 
-              NonNullableFieldValidator nonNullableFieldValidator =
-                  new NonNullableFieldValidator(executionContext, wrappedTypeInfo);
-
-              ExecutionStrategyParameters newParameters =
-                  parameters.transform(
-                      builder ->
-                          builder
-                              .typeInfo(wrappedTypeInfo)
-                              .nonNullFieldValidator(nonNullableFieldValidator)
-                              .path(indexedPath)
-                              .source(item));
-
-              return completeValue(executionContext, newParameters);
-            });
+    CompletableFuture<List<ExecutionResult>> resultsFuture =
+        Async.each(fieldValueInfos, (item, i) -> item.getFieldValue());
 
     CompletableFuture<ExecutionResult> overallResult = new CompletableFuture<>();
     completeListCtx.onDispatched(overallResult);
@@ -320,100 +329,113 @@
           overallResult.complete(executionResult);
         });
     overallResult.whenComplete(completeListCtx::onCompleted);
-    return overallResult;
+
+    return FieldValueInfo.newFieldValueInfo(LIST)
+        .fieldValue(overallResult)
+        .fieldValueInfos(fieldValueInfos)
+        .build();
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 14 */
 
-/** @return the current time in ms */
+/** updated comment */
   private long now() {
-    return mMonotonicClock == null ? SystemClock.uptimeMillis() : mMonotonicClock.now();
+    return SystemClock.uptimeMillis();
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 15 */
 
-/** @param operator operator */
-  public static BooleanOperation predicate(Operator operator, Expression<?>... args) {
-    return new BooleanOperation(operator, args);
+/** updated comment */
+  public static BooleanOperation predicate(Operator operation, Expression<?>... args) {
+    return new BooleanOperation(operation, args);
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 16 */
 
-/** @param property Property to get example string for */
-  protected String getExample(Property property) {
-    if (property.getExample() != null) {
-      return property.getExample().toString();
-    } else if (property instanceof DateTimeProperty) {
+/** updated comment */
+  protected String getExample(Schema schema) {
+    if (schema.getExample() != null) {
+      return schema.getExample().toString();
+    } else if (ModelUtils.isDateTimeSchema(schema)) {
       return "2000-01-23T04:56:07.000Z";
-    } else if (property instanceof DateProperty) {
+    } else if (ModelUtils.isDateSchema(schema)) {
       return "2000-01-23";
-    } else if (property instanceof BooleanProperty) {
+    } else if (ModelUtils.isBooleanSchema(schema)) {
       return "true";
-    } else if (property instanceof LongProperty) {
-      return "123456789";
-    } else if (property
-        instanceof DoubleProperty) { // derived from DecimalProperty so make sure this is first
-      return "3.149";
-    } else if (property instanceof DecimalProperty) {
-      return "1.3579";
-    } else if (property instanceof PasswordProperty) {
+    } else if (ModelUtils.isNumberSchema(schema)) {
+      if (ModelUtils.isFloatSchema(schema)) { // float
+        return "1.3579";
+      } else { // double
+        return "3.149";
+      }
+    } else if (ModelUtils.isPasswordSchema(schema)) {
       return "********";
-    } else if (property instanceof UUIDProperty) {
+    } else if (ModelUtils.isUUIDSchema(schema)) {
       return "046b6c7f-0b8a-43b9-b35d-6489e6daee91";
       // do these last in case the specific types above are derived from these classes
-    } else if (property instanceof StringProperty) {
+    } else if (ModelUtils.isStringSchema(schema)) {
       return "aeiou";
-    } else if (property instanceof BaseIntegerProperty) {
-      return "123";
-    } else if (property instanceof AbstractNumericProperty) {
-      return "1.23";
+    } else if (ModelUtils.isIntegerSchema(schema)) {
+      if (ModelUtils.isLongSchema(schema)) { // long
+        return "123456789";
+      } else { // integer
+        return "123";
+      }
+    } else {
+      LOGGER.debug(
+          "default example value not implemented for {}. Default to UNDEFINED_EXAMPLE_VALUE",
+          schema);
+      return "UNDEFINED_EXAMPLE_VALUE";
     }
-    LOGGER.warn("default example value not implemented for " + property);
-    return "";
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 17 */
 
-/** @param aliasedLockOptions a map of lock options indexed by aliased table names. */
-  public String applyLocksToSql(String sql, Map aliasedLockOptions, Map keyColumnNames) {
+/** updated comment */
+  public String applyLocksToSql(String sql, LockOptions aliasedLockOptions, Map keyColumnNames) {
     return sql + new ForUpdateFragment(this, aliasedLockOptions, keyColumnNames).toFragmentString();
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 18 */
 
-/** @param te is the typeEntry from the Parameters object, which represents the parameter */
-  public static QName getXSIType(TypeEntry te) {
+/** updated comment */
+  public static QName getXSIType(Parameter param) {
+    if (param.getMIMEType() != null) {
+      return getMIMETypeQName(param.getMIMEType());
+    }
+
     QName xmlType = null;
+    TypeEntry te = param.getType();
 
     // If the TypeEntry describes an Element, get
     // the referenced Type.
@@ -440,21 +462,21 @@
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 19 */
 
-/** @param user (User) Updated user object (required) */
-  public UpdateUserOper body(User user) {
-    reqSpec.setBody(user);
+/** updated comment */
+  public UpdateUserOper body(User body) {
+    reqSpec.setBody(body);
     return this;
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
