@@ -1,38 +1,40 @@
 /** Method 0 */
 
-/** @return One of the following application running states: {@link IServer#STATE_STARTED}, {@link IServer#STATE_STARTING}, {@link IServer#STATE_STOPPED}, {@link IServer#STATE_STOPPING}, {@link IServer#STATE_UNKNOWN} */
-  public int track(IProgressMonitor monitor) throws CoreException {
+/** updated comment */
+  public int track(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
     long currentTime = System.currentTimeMillis();
     long totalTime = currentTime + timeout;
-    CloudFoundryApplicationModule appModule =
-        cloudServer.getBehaviour().updateModuleWithAllCloudInfo(appName, monitor);
+    CloudFoundryServerBehaviour behaviour = cloudServer.getBehaviour();
+    String appName = appModule.getDeployedApplicationName();
     printlnToConsole(
         NLS.bind(Messages.ApplicationInstanceStartingTracker_STARTING_TRACKING, appName),
         appModule);
-    int state = appModule.getState();
+    int state = IServer.STATE_UNKNOWN;
     while (state != IServer.STATE_STARTED
         && state != IServer.STATE_STOPPED
         && currentTime < totalTime) {
-      appModule = cloudServer.getBehaviour().updateModuleWithAllCloudInfo(appName, monitor);
-      if (appModule == null || appModule.getApplication() == null) {
-        printlnToConsole(
-            NLS.bind(Messages.ApplicationInstanceStartingTracker_APPLICATION_NOT_EXISTS, appName),
-            appModule);
-        return IServer.STATE_UNKNOWN;
-      }
       if (monitor != null && monitor.isCanceled()) {
-        printlnToConsole(
+        String error =
             NLS.bind(
-                Messages.ApplicationInstanceStartingTracker_APPLICATION_CHECK_CANCELED, appName),
-            appModule);
-        return IServer.STATE_UNKNOWN;
+                Messages.ApplicationInstanceStartingTracker_APPLICATION_CHECK_CANCELED, appName);
+        printlnToConsole(error, appModule);
+        throw new OperationCanceledException(error);
       }
-      state = appModule.getState();
-      try {
-        Thread.sleep(WAIT_TIME);
-      } catch (InterruptedException e) {
+      CloudApplication cloudApp = behaviour.getCloudApplication(appName, monitor);
+      ApplicationStats applicationStats = behaviour.getApplicationStats(appName, monitor);
+      if (cloudApp == null) {
+        String error =
+            NLS.bind(Messages.ApplicationInstanceStartingTracker_APPLICATION_NOT_EXISTS, appName);
+        printlnToConsole(error, appModule);
+        throw CloudErrorUtil.toCoreException(error);
+      } else {
+        state = CloudFoundryApplicationModule.getCloudState(cloudApp, applicationStats);
+        try {
+          Thread.sleep(WAIT_TIME);
+        } catch (InterruptedException e) {
+        }
+        currentTime = System.currentTimeMillis();
       }
-      currentTime = System.currentTimeMillis();
     }
     String runningStateMessage =
         state == IServer.STATE_STARTED
@@ -45,106 +47,106 @@
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 1 */
 
-/** @return The ruleSet */
-  public RuleSet getRuleSet() {
-    return this.ruleSet;
+/** updated comment */
+  public Package getRuleSet() {
+    return this.pkg;
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 2 */
 
-/** @return red value in given position */
-  public short getRed(final int i) {
-    return data[get1DIndex(i)];
+/** updated comment */
+  public short getRed() {
+    return data[getFirst1DIndex()];
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 3 */
 
-/** @return item in given position */
+/** updated comment */
   @SuppressWarnings(STR)
-  public double getReal(final int i) {
-    return (double) getFirstValue(i);
+  public double getReal() {
+    return (double) getFirstValue();
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 4 */
 
-/** @return If reached, return true; else, return false. */
+/** updated comment */
   public static boolean exceedsMaxCount() {
-    return mTestCount >= MAX_TEST_COUNT;
+    final long maxTestCount = HostConfig.getMaxTestCount();
+    return (maxTestCount > NUM) && (mTestCount >= maxTestCount);
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 5 */
 
-/** @return -1 if the value is not valid */
-  public static int getModeValue(String mode) {
-    if (mode == null) return -NUM;
+/** updated comment */
+  public static ImportMode getModeValue(String mode) {
+    if (mode == null) return null;
     mode = mode.trim().toLowerCase();
     if (mode.indexOf(STR) == -NUM) {
       if (STR.equals(mode)) {
-        return MODE_INSERT;
+        return ImportMode.insert;
       } else if (STR.equals(mode)) {
-        return MODE_UPDATE;
+        return ImportMode.update;
       } else {
-        return -NUM;
+        return null;
       }
     } else {
       List l = StringUtil.stringToList(mode, STR);
       String first = (String) l.get(NUM);
       String second = (String) l.get(NUM);
       if (STR.equals(first) && STR.equals(second)) {
-        return MODE_INSERT_UPDATE;
+        return ImportMode.insertUpdate;
       } else if (STR.equals(first) && STR.equals(second)) {
-        return MODE_UPDATE_INSERT;
+        return ImportMode.updateInsert;
       } else {
-        return -NUM;
+        return null;
       }
     }
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 6 */
 
-/** @return Built {@link Ct.TimestampedEntry}. */
-  public static Ct.TimestampedEntry parseTimestampedEntry(InputStream in) {
-    Ct.TimestampedEntry.Builder timestampedEntry = Ct.TimestampedEntry.newBuilder();
-    long timestamp = readNumber(in, CTConstants.TIMESTAMP_LENGTH);
-    timestampedEntry.setTimestamp(timestamp);
+/** updated comment */
+  public static TimestampedEntry parseTimestampedEntry(InputStream in) {
+    TimestampedEntry timestampedEntry = new TimestampedEntry();
+    timestampedEntry.timestamp = readNumber(in, CTConstants.TIMESTAMP_LENGTH);
     int entryType = (int) readNumber(in, CTConstants.LOG_ENTRY_TYPE_LENGTH);
-    timestampedEntry.setEntryType(Ct.LogEntryType.valueOf(entryType));
+    timestampedEntry.entryType = Ct.LogEntryType.valueOf(entryType);
     Ct.SignedEntry.Builder signedEntryBuilder = Ct.SignedEntry.newBuilder();
     if (entryType == Ct.LogEntryType.X509_ENTRY_VALUE) {
       int length = (int) readNumber(in, NUM);
@@ -162,99 +164,98 @@
     } else {
       throw new SerializationException(String.format(STR, entryType));
     }
-    signedEntryBuilder.build();
-    timestampedEntry.setSignedEntry(signedEntryBuilder);
-    return timestampedEntry.build();
+    timestampedEntry.signedEntry = signedEntryBuilder.build();
+    return timestampedEntry;
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 7 */
 
-/** @return The {@link android.telecomm.Connection.VideoProvider}. */
-  public android.telecomm.Connection.VideoProvider getVideoProvider() {
+/** updated comment */
+  public android.telecom.Connection.VideoProvider getVideoProvider() {
     return mVideoProvider;
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 8 */
 
-/** @return project files in that directory, sorted alphabetically. */
+/** updated comment */
   private File[] getProjectFiles(File directory) {
-    File[] files =
-        directory.listFiles(
-            new FileFilter() {
+    return directory.listFiles(
+        new FileFilter() {
 
-              public boolean accept(File file) {
-                return (file.isFile() && file.getName().endsWith(STR));
-              }
-            });
-    switch (explorerTableSortColumn) {
-      case NUM:
-      case NUM:
-      case NUM:
-      default:
-    }
-    selectedFile = -NUM;
-    if (getProject() != null)
-      for (int n = NUM; n < files.length; n++)
-        if (getProject().getFile().equals(files[n])) selectedFile = n;
-    return files;
+          public boolean accept(File file) {
+            return (file.isFile() && file.getName().endsWith(STR));
+          }
+        });
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 9 */
 
-/** @return the matching option, or null if no match is found and the non-null default is invalid */
-  public static DdlParsingMode parse(String value, String defaultValue) {
-    DdlParsingMode mode = parse(value);
-    if (mode == null && defaultValue != null) {
-      mode = parse(defaultValue);
+/** updated comment */
+  public static EventProcessingFailureHandlingMode parse(String value) {
+    if (value == null) {
+      return null;
     }
-    return mode;
+
+    value = value.trim();
+
+    for (EventProcessingFailureHandlingMode option : EventProcessingFailureHandlingMode.values()) {
+      if (option.getValue().equalsIgnoreCase(value)) {
+        return option;
+      }
+    }
+
+    return null;
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 10 */
 
-/** @return true if a message was removed, false otherwise. */
-  public boolean removeActiveMessage() {
+/** updated comment */
+  public int removeActiveMessage() {
     return removeMessage(currentPage);
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 11 */
 
-/** @return the positions offset for the header or, 3 positions, for after the body (the third position is just to indicate that it's the body, the value is meaningless) */
+/** updated comment */
   public static int[] getViewToHeaderBodyPosition(
       JTextArea view, String header, int start, int end) {
     validateView(view);
     validateHeader(header);
-    validateStartEnd(start, end, view.getDocument().getLength());
+    validateStartEnd(start, end);
+
+    if (!isValidStartEndForLength(start, end, view.getDocument().getLength())) {
+      return INVALID_POSITION;
+    }
 
     int excessChars = 0;
     int pos = 0;
@@ -278,51 +279,44 @@
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 12 */
 
-/** @return double The yaw Euler angle. */
+/** updated comment */
   public double getRotY() {
-    return mOrientation.getRotationY();
+    return Math.toDegrees(mOrientation.getRotationY());
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 13 */
 
-/** @return the next power of two that is larger than the specified int value. */
-  public static int nextPowerOfTwo(int value) {
-    if (!isPowerOfTwo(value)) {
-      value--;
-      value |= value >> NUM;
-      value |= value >> NUM;
-      value |= value >> NUM;
-      value |= value >> NUM;
-      value |= value >> NUM;
-      value++;
-    }
-    return value;
+/** updated comment */
+  public static int nextPowerOfTwo(final int value) {
+    return NUM << (NUM - Integer.numberOfLeadingZeros(value - NUM));
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 14 */
 
-/** @return the response, or an Exception if something bad happened */
+/** updated comment */
   private <T> T processResponse(final ClientResponse clientResponse, final Type responseType) {
     final String response = readResponseFromClientResponse(clientResponse);
-    if (clientResponse.getStatus() >= NUM) {
+    if (clientResponse.getStatus() == NUM) {
+      return null;
+    } else if (clientResponse.getStatus() >= NUM) {
       throw new HandshakeAPIException(response);
     }
     try {
@@ -334,81 +328,110 @@
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 15 */
 
-/** @return The generated proxy. */
+/** updated comment */
   public static Blob generateProxy(InputStream stream, long length) {
-    return (Blob)
-        Proxy.newProxyInstance(
-            getProxyClassLoader(), PROXY_INTERFACES, new BlobProxy(stream, length));
+    return new BlobProxy(stream, length);
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 16 */
 
-/** @return The x location of the center of this circle */
+/** updated comment */
   public float getX() {
-    return center[NUM];
+    if (left == null) {
+      calculateLeft();
+    }
+    return left.floatValue();
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 17 */
 
-/** @return The stored value or null if it doesn't exist in specified form. */
-  public boolean getExtraBoolean(String key) {
-    return mExtraData.optBoolean(key);
+/** updated comment */
+  public boolean getExtraBoolean(String key) throws JSONException {
+    return mExtraData.getBoolean(key);
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 18 */
 
-/** @return the list of KDCs */
-  public String getKDCList(String realm) {
+/** updated comment */
+  public String getKDCList(String realm) throws KrbException {
     if (realm == null) {
       realm = getDefaultRealm();
     }
+    Exception cause = null;
     String kdcs = getDefault(STR, realm);
     if (kdcs == null) {
-      return null;
+      kdcs =
+          java.security.AccessController.doPrivileged(
+              new java.security.PrivilegedAction<String>() {
+
+                @Override
+                public String run() {
+                  String osname = System.getProperty(STR);
+                  if (osname.startsWith(STR)) {
+                    String logonServer = System.getenv(STR);
+                    if (logonServer != null && logonServer.startsWith(STR)) {
+                      logonServer = logonServer.substring(NUM);
+                    }
+                    return logonServer;
+                  }
+                  return null;
+                }
+              });
+    }
+    if (kdcs == null) {
+      KrbException ke = new KrbException(STR);
+      if (cause != null) {
+        ke.initCause(cause);
+      }
+      throw ke;
     }
     return kdcs;
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Method 19 */
 
-/** @return caption for that handle */
+/** updated comment */
   public String getCaption(String handle) {
-    return getMetadataForHandle(handle).caption_;
+    TerminalMetadata data = getMetadataForHandle(handle);
+    if (data == null) {
+      return null;
+    }
+    return data.caption_;
   }
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
