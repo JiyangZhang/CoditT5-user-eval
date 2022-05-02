@@ -5,7 +5,7 @@ public synchronized Inode < ? > getInodeOrNull ( ) {
   if ( ! fullPathExists ( ) ) {
     return null ;
   }
-  List < Inode < ? >> inodeList = Lists . newArrayList ( mLockList . getInodes ( ) ) ;
+  List < Inode < ? >> inodeList = mLockList . getInodes ( ) ;
   return inodeList . get ( inodeList . size ( ) - 1 ) ;
 }
 
@@ -16,14 +16,14 @@ public synchronized Inode < ? > getInodeOrNull ( ) {
   if ( ! fullPathExists ( ) ) {
     return null ;
   }
-  List < Inode < ? >> inodeList = Lists . newArrayList ( mLockList . getInodes ( ) ) ;
+  List < Inode < ? >> inodeList = new ArrayList < Inode < ? >> ( mLockList . getInodes ( ) ) ;
   return inodeList . get ( inodeList . size ( ) - 1 ) ;
 }
 
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -31,6 +31,13 @@ public synchronized Inode < ? > getInodeOrNull ( ) {
 
 /** ['why not `list.stream().forEach`?', 'why not `list.stream().forEach`?', 'why not `list.stream().forEach`?'] */
 private static < T > Set < T > findDuplicates ( Collection < T > list ) {
+  return findDuplicates ( list . stream ( ) ) ;
+}
+
+
+
+
+public static < T > Set < T > findDuplicates ( Collection < T > list ) {
   Set < T > duplicates = new HashSet < > ( ) ;
   Set < T > uniques = new HashSet < > ( ) ;
   for ( T t : list ) {
@@ -46,7 +53,6 @@ private static < T > Set < T > findDuplicates ( Collection < T > list ) {
 
 private static < T > Set < T > findDuplicates ( Collection < T > list ) {
   Set < T > duplicates = new HashSet < > ( ) ;
-  Set < T > uniques = new HashSet < > ( ) ;
   for ( T t : list ) {
     if ( ! uniques . add ( t ) ) {
       duplicates . add ( t ) ;
@@ -58,21 +64,7 @@ private static < T > Set < T > findDuplicates ( Collection < T > list ) {
 
 
 
-private static < T > Set < T > findDuplicates ( Collection < T > list ) {
-  Set < T > duplicates = new HashSet < > ( ) ;
-  Set < T > uniques = new HashSet < > ( ) ;
-  for ( T t : list ) {
-    if ( ! uniques . add ( t ) ) {
-      duplicates . add ( t ) ;
-    }
-  }
-  return duplicates ;
-}
-
-
-
-
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -90,7 +82,6 @@ public boolean next ( ) throws IOException {
     refName = t . lc . getRefName ( ) ;
     updateIndex = t . lc . getUpdateIndex ( ) ;
     entry = t . lc . getReflogEntry ( ) ;
-    boolean include = includeDeletes || entry != null ;
     skipShadowed ( refName , updateIndex ) ;
     add ( t ) ;
     if ( include ) {
@@ -127,7 +118,7 @@ public boolean next ( ) throws IOException {
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -143,7 +134,7 @@ public void sendOffsetsToTransaction ( Map < TopicPartition , OffsetAndMetadata 
 . If the old group id is not empty, this indicates an abuse of this API" , cachedGroupMetadata . groupId ( ) , consumerGroupId ) ;
     cachedGroupMetadata = new ConsumerGroupMetadata ( consumerGroupId , JoinGroupRequest . UNKNOWN_GENERATION_ID , JoinGroupRequest . UNKNOWN_MEMBER_ID , Optional . empty ( ) ) ;
   }
-  sendOffsetsToTransactionInternal ( offsets , cachedGroupMetadata , false ) ;
+  sendOffsetsToTransactionInternal ( offsets , cachedGroupMetadata , true ) ;
 }
 
 
@@ -164,7 +155,7 @@ public void sendOffsetsToTransaction ( Map < TopicPartition , OffsetAndMetadata 
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -174,12 +165,6 @@ public void sendOffsetsToTransaction ( Map < TopicPartition , OffsetAndMetadata 
 public boolean cancel ( final Exception rootReason ) {
   if ( transitionCancel ( rootReason ) ) {
     final Exception reason = new CancellationException ( rootReason ) ;
-    try {
-      traceFailure ( reason ) ;
-    }
-    catch ( Throwable ex ) {
-      LOGGER . warn ( "Exception thrown in logging trace for failure!" , ex ) ;
-    }
     getSettableDelegate ( ) . fail ( reason ) ;
     return true ;
   }
@@ -207,14 +192,14 @@ public boolean cancel ( final Exception rootReason ) {
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Example 5 */
 
 /** ['the connection configuration is never serialized.', 'the connection configuration is never serialized.'] */
-protected void writeJDBCStoreConnection ( XMLExtendedStreamWriter writer , SimpleConnectionFactoryConfiguration configuration ) throws XMLStreamException {
+protected void writeJDBCStoreConnection ( XMLExtendedStreamWriter writer , SimpleConnectionFactoryConfiguration configuration ) {
   writer . writeStartElement ( Element . SIMPLE_CONNECTION ) ;
   writeOptional ( writer , Attribute . CONNECTION_URL , configuration . connectionUrl ( ) ) ;
   writeOptional ( writer , Attribute . DRIVER_CLASS , configuration . driverClass ( ) ) ;
@@ -238,7 +223,7 @@ protected void writeJDBCStoreConnection ( XMLExtendedStreamWriter writer , Simpl
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -246,7 +231,6 @@ protected void writeJDBCStoreConnection ( XMLExtendedStreamWriter writer , Simpl
 
 /** ['I\'m probably missing something, but it seems like this is part of the next case (isn\'t `queue.size() >= 0` an invariant?). Is this called out just to emphasize that setting `0` => "no queuing"?', 'I\'m probably missing something, but it seems like this is part of the next case (isn\'t `queue.size() >= 0` an invariant?). Is this called out just to emphasize that setting `0` => "no queuing"?'] */
 private boolean checkForJournalFlush ( ) {
-  if ( QueueBatchSize == 0 ) return true ;
   if ( queue . size ( ) >= QueueBatchSize ) return true ;
   boolean journalSizeFlush = ( JournalThresholdSize > 0 && journal . size ( ) > JournalThresholdSize ) ;
   if ( journalSizeFlush ) return true ;
@@ -267,7 +251,7 @@ private boolean checkForJournalFlush ( ) {
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -295,21 +279,20 @@ private ProjectState newProjectState ( ProjectConfig local ) {
   RulesCache rulesCache = null ;
   SitePaths sitePaths = null ;
   List < CommentLinkInfo > commentLinks = null ;
-  all . put ( local . getProject ( ) . getNameKey ( ) , new ProjectState ( sitePaths , projectCache , allProjectsName , projectControlFactory , envFactory , gitMgr , rulesCache , commentLinks , local ) ) ;
-  return all . get ( local . getProject ( ) . getNameKey ( ) ) ;
+  return add ( local , new ProjectState ( sitePaths , projectCache , allProjectsName , projectControlFactory , envFactory , gitMgr , rulesCache , commentLinks , local ) ) ;
 }
 
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
 /** Example 8 */
 
 /** ["There's a re-declaration error here, that got fixed on the parent branch. That needs to get merged in here.", "There's a re-declaration error here, that got fixed on the parent branch. That needs to get merged in here."] */
-public static Collection < PersonaAccount > getPersonaAccountsForAccount ( long accountId ) throws CentralRepoException {
+public static Collection < PersonaAccount > getPersonaAccountsForAccount ( long accountId ) {
   String queryClause = PERSONA_ACCOUNTS_QUERY_CALUSE + " WHERE persona_accounts.account_id = " + accountId + "AND p.status_id != " + Persona . PersonaStatus . DELETED . getStatusId ( ) ;
   CentralRepository cr = CentralRepository . getInstance ( ) ;
   if ( cr != null ) {
@@ -325,10 +308,9 @@ public static Collection < PersonaAccount > getPersonaAccountsForAccount ( long 
 
 
 public static Collection < PersonaAccount > getPersonaAccountsForAccount ( long accountId ) throws CentralRepoException {
-  String queryClause = PERSONA_ACCOUNTS_QUERY_CALUSE + " WHERE persona_accounts.account_id = " + accountId + "AND p.status_id != " + Persona . PersonaStatus . DELETED . getStatusId ( ) ;
+  String queryClause = PERSONA_ACCOUNTS_QUERY_CALUSE + " WHERE persona_accounts.account_id = " + accountId ;
   CentralRepository cr = CentralRepository . getInstance ( ) ;
   if ( cr != null ) {
-    String queryClause = PERSONA_ACCOUNTS_QUERY_CALUSE + " WHERE persona_accounts.account_id = " + accountId ;
     PersonaAccountsQueryCallback queryCallback = new PersonaAccountsQueryCallback ( ) ;
     cr . executeSelectSQL ( queryClause , queryCallback ) ;
     return queryCallback . getPersonaAccountsList ( ) ;
@@ -339,7 +321,7 @@ public static Collection < PersonaAccount > getPersonaAccountsForAccount ( long 
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -367,7 +349,7 @@ public boolean hasMultipleValues ( final String dimension ) {
     return virtualColumns . getVirtualColumn ( dimension ) . capabilities ( dimension ) . hasMultipleValues ( ) ;
   }
   final Column column = index . getColumn ( dimension ) ;
-  if ( column == null || ! columnSupportsFiltering ( column ) ) {
+  if ( column == null ) {
     return false ;
   }
   else {
@@ -378,7 +360,7 @@ public boolean hasMultipleValues ( final String dimension ) {
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -394,14 +376,13 @@ public void resumeNode ( String id ) {
 
 
 public void resumeNode ( String id ) {
-  waitServerUntilAvailable . apply ( getNode ( id ) ) ;
   api . serverApi ( ) . updateStatus ( id , Server . UpdateStatus . create ( Types . ServerAction . POWER_ON , Types . ServerActionMethod . HARDWARE ) ) ;
 }
 
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -412,10 +393,6 @@ public void registerOperations ( ManagementResourceRegistration resourceRegistra
   if ( showResources ) {
     resourceRegistration . registerOperationHandler ( ShowJaxrsResourcesHandler . DEFINITION , new ShowJaxrsResourcesHandler ( ) ) ;
   }
-  else {
-    resourceRegistration . registerOperationHandler ( ADD_DEFINITION , JaxrsSubsystemAdd . INSTANCE ) ;
-    resourceRegistration . registerOperationHandler ( REMOVE_DEFINITION , ReloadRequiredRemoveStepHandler . INSTANCE ) ;
-  }
 }
 
 
@@ -426,15 +403,14 @@ public void registerOperations ( ManagementResourceRegistration resourceRegistra
     resourceRegistration . registerOperationHandler ( ShowJaxrsResourcesHandler . DEFINITION , new ShowJaxrsResourcesHandler ( ) ) ;
   }
   else {
-    resourceRegistration . registerOperationHandler ( ADD_DEFINITION , JaxrsSubsystemAdd . INSTANCE ) ;
-    resourceRegistration . registerOperationHandler ( REMOVE_DEFINITION , ReloadRequiredRemoveStepHandler . INSTANCE ) ;
+    resourceRegistration . registerOperationHandler ( ADD_DEFINITION , ReloadRequiredRemoveStepHandler . INSTANCE ) ;
   }
 }
 
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -442,18 +418,12 @@ public void registerOperations ( ManagementResourceRegistration resourceRegistra
 
 /** ["I'm thinking that new thread is not needed for the reconnect task. This thread should be dead already by the time a new reconnect is needed and I see `Timer` instance serving the purpose of this thread. What do you think?", "I'm thinking that new thread is not needed for the reconnect task. This thread should be dead already by the time a new reconnect is needed and I see `Timer` instance serving the purpose of this thread. What do you think?"] */
 public void run ( ) {
-  if ( thread == null || ! Thread . currentThread ( ) . equals ( thread ) ) {
-    thread = new Thread ( this ) ;
-    thread . start ( ) ;
+  try {
+    if ( logger . isInfoEnabled ( ) ) logger . info ( "Start reconnecting " + provider ) ;
+    provider . register ( getUIService ( ) . getDefaultSecurityAuthority ( provider ) ) ;
   }
-  else {
-    try {
-      if ( logger . isInfoEnabled ( ) ) logger . info ( "Start reconnecting " + provider ) ;
-      provider . register ( getUIService ( ) . getDefaultSecurityAuthority ( provider ) ) ;
-    }
-    catch ( OperationFailedException ex ) {
-      logger . error ( "cannot re-register provider will keep going" , ex ) ;
-    }
+  catch ( OperationFailedException ex ) {
+    logger . error ( "cannot re-register provider will keep going" , ex ) ;
   }
 }
 
@@ -461,7 +431,7 @@ public void run ( ) {
 
 
 public void run ( ) {
-  if ( thread == null || ! Thread . currentThread ( ) . equals ( thread ) ) {
+  if ( thread == null ) {
     thread = new Thread ( this ) ;
     thread . start ( ) ;
   }
@@ -479,7 +449,7 @@ public void run ( ) {
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -495,14 +465,12 @@ public void checkProperties ( Properties properties ) {
 
 
 public void checkProperties ( Properties properties ) {
-  properties . setProperty ( "log4j.shutdownCallbackRegistry" , "io.druid.common.config.Log4jShutdown" ) ;
-  properties . setProperty ( "log4j.shutdownHookEnabled" , "true" ) ;
 }
 
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -512,7 +480,6 @@ public void checkProperties ( Properties properties ) {
 private EmbeddedExpirableMetadata ( long lifespan , TimeUnit lifespanUnit , long maxIdle , TimeUnit maxIdleUnit , EntryVersion version ) {
   super ( version ) ;
   this . lifespan = lifespan < 0 ? lifespan : lifespanUnit . toMillis ( lifespan ) ;
-  this . maxIdle = maxIdleUnit . toMillis ( maxIdle ) ;
 }
 
 
@@ -521,13 +488,13 @@ private EmbeddedExpirableMetadata ( long lifespan , TimeUnit lifespanUnit , long
 private EmbeddedExpirableMetadata ( long lifespan , TimeUnit lifespanUnit , long maxIdle , TimeUnit maxIdleUnit , EntryVersion version ) {
   super ( version ) ;
   this . lifespan = lifespan < 0 ? lifespan : lifespanUnit . toMillis ( lifespan ) ;
-  this . maxIdle = maxIdleUnit . toMillis ( maxIdle ) ;
+  this . maxIdle = maxIdle < 0 ? maxIdle : maxIdleUnit . toMillis ( maxIdle ) ;
 }
 
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -535,6 +502,23 @@ private EmbeddedExpirableMetadata ( long lifespan , TimeUnit lifespanUnit , long
 
 /** ['@Lars Do you think that for consistency (and maybe another slight performance enhancement) this line should be changed as well?', '@Lars Do you think that for consistency (and maybe another slight performance enhancement) this line should be changed as well?'] */
 protected void setMatcherString ( String pattern ) {
+  if ( StringUtils . isEmpty ( pattern ) ) {
+    searchPattern = null ;
+  }
+  else {
+    SearchPattern patternMatcher = new SearchPattern ( ) ;
+    if ( pattern . indexOf ( '*' ) != 0 && pattern . indexOf ( '?' ) != 0 && pattern . indexOf ( '.' ) != 0 ) {
+      pattern = "*" + pattern ;
+    }
+    patternMatcher . setPattern ( pattern ) ;
+    searchPattern = patternMatcher ;
+  }
+}
+
+
+
+
+private void setMatcherString ( String pattern ) {
   if ( pattern . length ( ) == 0 ) {
     searchPattern = null ;
   }
@@ -551,24 +535,7 @@ protected void setMatcherString ( String pattern ) {
 
 
 
-protected void setMatcherString ( String pattern ) {
-  if ( pattern . length ( ) == 0 ) {
-    searchPattern = null ;
-  }
-  else {
-    SearchPattern patternMatcher = new SearchPattern ( ) ;
-    if ( pattern . indexOf ( '*' ) != 0 && pattern . indexOf ( '?' ) != 0 && pattern . indexOf ( '.' ) != 0 ) {
-      pattern = "*" + pattern ;
-    }
-    patternMatcher . setPattern ( pattern ) ;
-    searchPattern = patternMatcher ;
-  }
-}
-
-
-
-
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -586,7 +553,7 @@ public DefaultEditorSession ( final ManagedSession session , final CanvasCommand
 
 
 
-public DefaultEditorSession ( final ManagedSession session , final CanvasCommandManager < AbstractCanvasHandler > canvasCommandManager , final @ Session SessionCommandManager < AbstractCanvasHandler > sessionCommandManager , final @ Request SessionCommandManager < AbstractCanvasHandler > requestCommandManager , final ClientCommandRegistry < org . kie . workbench . common . stunner . core . command . Command < AbstractCanvasHandler , CanvasViolation >> clientCommandRegistry ) {
+public DefaultEditorSession ( final ManagedSession session , final CanvasCommandManager < AbstractCanvasHandler > canvasCommandManager , final @ Session SessionCommandManager < AbstractCanvasHandler > sessionCommandManager , final @ Request SessionCommandManager < AbstractCanvasHandler > requestCommandManager , final ClientCommandRegistry < CanvasViolation >> clientCommandRegistry ) {
   this . session = session ;
   this . commandRegistry = clientCommandRegistry . setSession ( session ) ;
   this . sessionCommandManager = sessionCommandManager ;
@@ -597,7 +564,7 @@ public DefaultEditorSession ( final ManagedSession session , final CanvasCommand
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -611,9 +578,6 @@ private static void fireOnFailure ( final NodeProvisioner . PlannedNode plannedN
     }
     catch ( Throwable e ) {
       LOGGER . log ( Level . SEVERE , "Unexpected uncaught exception encountered while " + "processing onFailure() listener call in " + cl + " for agent " + plannedNode . displayName , e ) ;
-      if ( e instanceof Error ) {
-        throw e ;
-      }
     }
   }
 }
@@ -628,17 +592,15 @@ private static void fireOnFailure ( final NodeProvisioner . PlannedNode plannedN
     }
     catch ( Throwable e ) {
       LOGGER . log ( Level . SEVERE , "Unexpected uncaught exception encountered while " + "processing onFailure() listener call in " + cl + " for agent " + plannedNode . displayName , e ) ;
-      if ( e instanceof Error ) {
-        throw e ;
-      }
     }
   }
+}
 }
 
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -649,12 +611,12 @@ public synchronized boolean isLastMQNotifLongAgo ( ) {
   long delay = 18 * 3600 ;
   long threshold = sharedPreferences . getLong ( getCurrentModeName ( ) + LAST_MORNING_Q_TIMESTAMP , - delay ) + delay ;
   if ( threshold < Calendar . getInstance ( ) . getTimeInMillis ( ) ) {
-    Logger . d ( TAG , "{}
+    Logger . v ( TAG , "{}
  - Last MQ notif was yesterday" , getCurrentModeName ( ) ) ;
     return true ;
   }
   else {
-    Logger . d ( TAG , "{}
+    Logger . v ( TAG , "{}
  - Last MQ notif was recent, do not notify" , getCurrentModeName ( ) ) ;
     return false ;
   }
@@ -667,7 +629,7 @@ public synchronized boolean isLastMQNotifLongAgo ( ) {
   long delay = 18 * 3600 ;
   long threshold = sharedPreferences . getLong ( getCurrentModeName ( ) + LAST_MORNING_Q_TIMESTAMP , - delay ) + delay ;
   if ( threshold < Calendar . getInstance ( ) . getTimeInMillis ( ) ) {
-    Logger . d ( TAG , "{}
+    Logger . v ( TAG , "{}
  - Last MQ notif was yesterday" , getCurrentModeName ( ) ) ;
     return true ;
   }
@@ -681,7 +643,7 @@ public synchronized boolean isLastMQNotifLongAgo ( ) {
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -689,11 +651,11 @@ public synchronized boolean isLastMQNotifLongAgo ( ) {
 
 /** ['Ditto `input != null`', 'Ditto `input != null`'] */
 public CrewMember apply ( org . atlasapi . media . entity . CrewMember input ) {
-  if ( input instanceof org . atlasapi . media . entity . Actor ) {
-    return translateLegacyActor ( ( org . atlasapi . media . entity . Actor ) input ) ;
-  }
-  else if ( Objects . nonNull ( input ) ) {
+  if ( input != null ) {
     return translateLegacyCrewMember ( input ) ;
+  }
+  else if ( input instanceof org . atlasapi . media . entity . Actor ) {
+    return translateLegacyActor ( ( org . atlasapi . media . entity . Actor ) input ) ;
   }
   else {
     return null ;
@@ -707,7 +669,7 @@ public CrewMember apply ( org . atlasapi . media . entity . CrewMember input ) {
   if ( input instanceof org . atlasapi . media . entity . Actor ) {
     return translateLegacyActor ( ( org . atlasapi . media . entity . Actor ) input ) ;
   }
-  else if ( Objects . nonNull ( input ) ) {
+  else if ( input != null ) {
     return translateLegacyCrewMember ( input ) ;
   }
   else {
@@ -718,7 +680,7 @@ public CrewMember apply ( org . atlasapi . media . entity . CrewMember input ) {
 
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
