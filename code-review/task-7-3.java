@@ -2,7 +2,20 @@
 
 /** maybe you need a specific Exception Type */
 
-// option 0 
+// option 0
+void verifyMetadata ( MessageMetadata metadata ) {
+  if ( metadata . getMessageMetadataType ( ) != MessageType . LOG_ENTRY_MESSAGE || metadata . getSnapshotTimestamp ( ) != srcGlobalSnapshot ) {
+    log . error ( "Wrong message metadata {
+}, expecting  type {
+}
+ snapshot {
+}" , metadata , MessageType . LOG_ENTRY_MESSAGE , srcGlobalSnapshot ) ;
+  throw new Exception ( "wrong type of message" ) ;
+}
+}
+
+
+// option 1
 void verifyMetadata ( MessageMetadata metadata ) throws Exception {
   if ( metadata . getMessageMetadataType ( ) != MessageType . LOG_ENTRY_MESSAGE || metadata . getSnapshotTimestamp ( ) != srcGlobalSnapshot ) {
     log . error ( "Wrong message metadata {
@@ -15,20 +28,7 @@ void verifyMetadata ( MessageMetadata metadata ) throws Exception {
 }
 
 
-// option 1 
-void verifyMetadata ( MessageMetadata metadata ) throws Exception {
-  if ( metadata . getMessageMetadataType ( ) != MessageType . LOG_ENTRY_MESSAGE || metadata . getSnapshotTimestamp ( ) != srcGlobalSnapshot ) {
-    log . error ( "Wrong message metadata {
-}, expecting  type {
-}
- snapshot {
-}" , metadata , MessageType . LOG_ENTRY_MESSAGE , srcGlobalSnapshot ) ;
-  throw new Exception ( "wrong type of message" ) ;
-}
-}
-
-
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -36,7 +36,7 @@ void verifyMetadata ( MessageMetadata metadata ) throws Exception {
 
 /** what is this part for? you are not checking throw statements. */
 
-// option 0 
+// option 0
 public void setPrice1 ( int price3 ) {
   if ( price3 < 0 || price3 > 10000 ) {
     throw new IllegalArgumentException ( "Invalid price: " + price3 ) ;
@@ -47,18 +47,16 @@ public void setPrice1 ( int price3 ) {
 }
 
 
-// option 1 
+// option 1
 public void setPrice1 ( int price3 ) {
   if ( price3 < 0 || price3 > 10000 ) {
     throw new IllegalArgumentException ( "Invalid price: " + price3 ) ;
   }
-  if ( true ) {
-    assert price3 > 1000 ;
-  }
+  assert price3 > 1000 ;
 }
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -66,12 +64,26 @@ public void setPrice1 ( int price3 ) {
 
 /** This will fail on `null` */
 
-// option 0 
+// option 0
+public String evaluate ( TransactionContext txnCtx , Input < Object > [ ] args ) {
+  assert args . length == 2 : "repeat takes exactly two arguments" ;
+  var text = ( String ) args [ 0 ] . value ( ) ;
+  var repetitions = ( int ) args [ 1 ] . value ( ) ;
+  if ( repetitions <= 0 ) {
+    return "" ;
+  }
+  else {
+    return text . repeat ( repetitions ) ;
+  }
+}
+
+
+// option 1
 public String evaluate ( TransactionContext txnCtx , Input < Object > [ ] args ) {
   assert args . length == 2 : "repeat takes exactly two arguments" ;
   var text = ( String ) args [ 0 ] . value ( ) ;
   if ( text == null ) {
-    return null ;
+    return "" ;
   }
   var repetitions = ( int ) args [ 1 ] . value ( ) ;
   if ( repetitions <= 0 ) {
@@ -83,24 +95,7 @@ public String evaluate ( TransactionContext txnCtx , Input < Object > [ ] args )
 }
 
 
-// option 1 
-public String evaluate ( TransactionContext txnCtx , Input < Object > [ ] args ) {
-  assert args . length == 2 : "repeat takes exactly two arguments" ;
-  var text = ( String ) args [ 0 ] . value ( ) ;
-  if ( text == null ) {
-    return null ;
-  }
-  var repetitions = ( int ) args [ 1 ] . value ( ) ;
-  if ( repetitions <= 0 ) {
-    return "" ;
-  }
-  else {
-    return text . repeat ( repetitions ) ;
-  }
-}
-
-
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -108,29 +103,39 @@ public String evaluate ( TransactionContext txnCtx , Input < Object > [ ] args )
 
 /** Please use {} for every if/else/for/etc. block. */
 
-// option 0 
+// option 0
 public static ProjectBuildType getProjectType ( IProject project ) {
-  if ( isAutoTools ( project ) ) return ProjectBuildType . AUTO_TOOLS ;
+  if ( isAutoTools ( project ) ) {
+    return ProjectBuildType . AUTO_TOOLS ;
+  }
   IConfiguration defaultConfiguration = helper_getActiveConfiguration ( project ) ;
   IBuilder builder = defaultConfiguration . getBuilder ( ) ;
   Boolean projIsManaged = builder . isManagedBuildOn ( ) ;
-  if ( projIsManaged ) return ProjectBuildType . MANAGED_MAKEFILE ;
-  else return ProjectBuildType . OTHER ;
+  if ( projIsManaged ) {
+    return ProjectBuildType . MANAGED_MAKEFILE ;
+  }
+  else {
+    return ProjectBuildType . OTHER ;
+  }
 }
 
 
-// option 1 
+// option 1
 public static ProjectBuildType getProjectType ( IProject project ) {
-  if ( isAutoTools ( project ) ) return ProjectBuildType . AUTO_TOOLS ;
+  if ( isAutoTools ( project ) ) {
+    return ProjectBuildType . AUTO_TOOLS ;
+  }
   IConfiguration defaultConfiguration = helper_getActiveConfiguration ( project ) ;
   IBuilder builder = defaultConfiguration . getBuilder ( ) ;
   Boolean projIsManaged = builder . isManagedBuildOn ( ) ;
-  if ( projIsManaged ) return ProjectBuildType . MANAGED_MAKEFILE ;
-  else return ProjectBuildType . OTHER ;
+  if ( projIsManaged ) {
+    return ProjectBuildType . MANAGED_MAKEFILE ;
+  }
+  return ProjectBuildType . OTHER ;
 }
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -138,7 +143,7 @@ public static ProjectBuildType getProjectType ( IProject project ) {
 
 /** public */
 
-// option 0 
+// option 0
 public PinotQueryGeneratorContext visitFilter ( FilterNode node , PinotQueryGeneratorContext context ) {
   context = node . getSource ( ) . accept ( this , context ) ;
   requireNonNull ( context , "context is null" ) ;
@@ -148,8 +153,8 @@ public PinotQueryGeneratorContext visitFilter ( FilterNode node , PinotQueryGene
 }
 
 
-// option 1 
-public PinotQueryGeneratorContext visitFilter ( FilterNode node , PinotQueryGeneratorContext context ) {
+// option 1
+private PinotQueryGeneratorContext visitFilter ( FilterNode node , PinotQueryGeneratorContext context ) {
   context = node . getSource ( ) . accept ( this , context ) ;
   requireNonNull ( context , "context is null" ) ;
   LinkedHashMap < VariableReferenceExpression , Selection > selections = context . getSelections ( ) ;
@@ -158,7 +163,7 @@ public PinotQueryGeneratorContext visitFilter ( FilterNode node , PinotQueryGene
 }
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -166,19 +171,19 @@ public PinotQueryGeneratorContext visitFilter ( FilterNode node , PinotQueryGene
 
 /** JavaDoc and method signature did not match. Please update the JavaDoc! */
 
-// option 0 
+// option 0
 private Space ( String enumeratedValue ) {
   this . enumeratedValue = enumeratedValue ;
 }
 
 
-// option 1 
-private Space ( String enumeratedValue ) {
+// option 1
+public Space ( String enumeratedValue ) {
   this . enumeratedValue = enumeratedValue ;
 }
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -186,25 +191,28 @@ private Space ( String enumeratedValue ) {
 
 /** For this it's better to do:  ``` threadsLocked.inc(); try { // other stuff } finally { threadsLocked.dec(); } ```  This way if an exception is thrown we still decrement the threadsLocked counter. */
 
-// option 0 
+// option 0
 public void lock ( T id ) throws InterruptedException {
   threadsLocked . inc ( ) ;
   idsLocked . update ( 1 ) ;
   lockInternal ( id ) ;
-  threadsLocked . dec ( ) ;
 }
 
 
-// option 1 
+// option 1
 public void lock ( T id ) throws InterruptedException {
-  threadsLocked . inc ( ) ;
-  idsLocked . update ( 1 ) ;
-  lockInternal ( id ) ;
-  threadsLocked . dec ( ) ;
+  try {
+    threadsLocked . inc ( ) ;
+    idsLocked . update ( 1 ) ;
+    lockInternal ( id ) ;
+  }
+  finally {
+    threadsLocked . dec ( ) ;
+  }
 }
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -212,9 +220,22 @@ public void lock ( T id ) throws InterruptedException {
 
 /** looks like syntax typo  (`Add position checks in RunLenghtEncodedBlock` commit) */
 
-// option 0 
+// option 0
 public RunLengthEncodedBlock ( Block value , int positionCount ) {
   requireNonNull ( value , "value is null" ) ;
+  if ( value . getPositionCount ( ) != 1 ) {
+    throw new IllegalArgumentException ( format ( "Expected value to contain a single position but has %s positions" , value . getPositionCount ( ) ) ) ;
+  }
+  if ( value instanceof RunLengthEncodedBlock ) {
+    throw new IllegalArgumentException ( format ( "Value can not be an instance of a %s" , getClass ( ) . getName ( ) ) ) ;
+  }
+  this . value = value ;
+  this . positionCount = positionCount ;
+}
+
+
+// option 1
+public RunLengthEncodedBlock ( Block value , int positionCount ) {
   if ( value . getPositionCount ( ) != 1 ) {
     throw new IllegalArgumentException ( format ( "Expected value to contain a single position but has %s positions" , value . getPositionCount ( ) ) ) ;
   }
@@ -228,23 +249,7 @@ public RunLengthEncodedBlock ( Block value , int positionCount ) {
 }
 
 
-// option 1 
-public RunLengthEncodedBlock ( Block value , int positionCount ) {
-  requireNonNull ( value , "value is null" ) ;
-  if ( value . getPositionCount ( ) != 1 ) {
-    throw new IllegalArgumentException ( format ( "Expected value to contain a single position but has %s positions" , value . getPositionCount ( ) ) ) ;
-  }
-  if ( value instanceof RunLengthEncodedBlock ) {
-    throw new IllegalArgumentException ( format ( "Value can not be an instance of a %s" , getClass ( ) . getName ( ) ) ) ;
-  }
-  if ( positionCount < 0 ) {
-    throw new IllegalArgumentException ( "positionCount is negative" ) ;
-  }
-  this . value = value this . positionCount = positionCount ;
-}
-
-
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -252,19 +257,19 @@ public RunLengthEncodedBlock ( Block value , int positionCount ) {
 
 /** I would prefer to use full words. For example `directoryAllow`. */
 
-// option 0 
+// option 0
+public void init ( FilterConfig filterConfig ) throws ServletException {
+  directoryAllow = Context . getConfig ( ) . getBoolean ( "media.dirAllowed" ) ;
+}
+
+
+// option 1
 public void init ( FilterConfig filterConfig ) throws ServletException {
   dirAllowed = Context . getConfig ( ) . getBoolean ( "media.dirAllowed" ) ;
 }
 
 
-// option 1 
-public void init ( FilterConfig filterConfig ) throws ServletException {
-  dirAllowed = Context . getConfig ( ) . getBoolean ( "media.dirAllowed" ) ;
-}
-
-
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -272,9 +277,21 @@ public void init ( FilterConfig filterConfig ) throws ServletException {
 
 /** Another extra space, can you plese cleanup all these similar things? There're a few others, some functions have spaces in parameters, some don't like `queryPos( APPBARDATA ABData )` vs. `dwABM.setValue(ShellAPI.ABM_QUERYPOS);`. Sorry to be a pest, just looks messy and inconsistent. */
 
-// option 0 
+// option 0
+
+
+// option 1
 private void removeAppBar ( ) {
-  DWORD dwABM = new DWORD ( ) ;
+  APPBARDATA data = new APPBARDATA . ByReference ( ) ;
+  data . cbSize . setValue ( data . size ( ) ) ;
+  data . cbSize . setValue ( data . size ( ) ) ;
+  UINT_PTR result = Shell32 . INSTANCE . SHAppBarMessage ( new DWORD ( ShellAPI . ABM_REMOVE ) , data ) ;
+  assertNotNull ( result ) ;
+}
+
+
+// option 2
+private void removeAppBar ( ) {
   APPBARDATA ABData = new APPBARDATA . ByReference ( ) ;
   ABData . cbSize . setValue ( ABData . size ( ) ) ;
   dwABM . setValue ( ShellAPI . ABM_REMOVE ) ;
@@ -283,29 +300,7 @@ private void removeAppBar ( ) {
 }
 
 
-// option 1 
-private void removeAppBar ( ) {
-  DWORD dwABM = new DWORD ( ) ;
-  APPBARDATA ABData = new APPBARDATA . ByReference ( ) ;
-  ABData . cbSize . setValue ( ABData . size ( ) ) ;
-  dwABM . setValue ( ShellAPI . ABM_REMOVE ) ;
-  UINT_PTR result = Shell32 . INSTANCE . SHAppBarMessage ( dwABM , ABData ) ;
-  assertNotNull ( result ) ;
-}
-
-
-// option 2 
-private void removeAppBar ( ) {
-  DWORD dwABM = new DWORD ( ) ;
-  APPBARDATA ABData = new APPBARDATA . ByReference ( ) ;
-  ABData . cbSize . setValue ( ABData . size ( ) ) ;
-  dwABM . setValue ( ShellAPI . ABM_REMOVE ) ;
-  UINT_PTR result = Shell32 . INSTANCE . SHAppBarMessage ( dwABM , ABData ) ;
-  assertNotNull ( result ) ;
-}
-
-
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -313,7 +308,7 @@ private void removeAppBar ( ) {
 
 /** It is always expected that launch would be an instance of GdbLaunch, I don't think the check is required. */
 
-// option 0 
+// option 0
 protected Sequence getServicesSequence ( DsfSession session , ILaunch launch , IProgressMonitor rm ) {
   if ( launch instanceof GdbLaunch ) {
     return new ServicesLaunchSequence ( session , ( GdbLaunch ) launch , rm ) ;
@@ -322,16 +317,13 @@ protected Sequence getServicesSequence ( DsfSession session , ILaunch launch , I
 }
 
 
-// option 1 
+// option 1
 protected Sequence getServicesSequence ( DsfSession session , ILaunch launch , IProgressMonitor rm ) {
-  if ( launch instanceof GdbLaunch ) {
-    return new ServicesLaunchSequence ( session , ( GdbLaunch ) launch , rm ) ;
-  }
-  return null ;
+  return new ServicesLaunchSequence ( session , launch , rm ) ;
 }
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -339,19 +331,19 @@ protected Sequence getServicesSequence ( DsfSession session , ILaunch launch , I
 
 /** `MiddlewareQueryException` is now a run time exception so it is not required to be part of the method signature. Not invalid to have it in signature, but Sonar will report it as a _Major_ category violation. */
 
-// option 0 
-public AdvanceResult advanceNursery ( final AdvancingNursery advanceInfo , final Workbook workbook ) throws RuleException , MiddlewareQueryException , FieldbookException {
+// option 0
+public AdvanceResult advanceNursery ( final AdvancingNursery advanceInfo , final Workbook workbook ) throws RuleException , FieldbookException {
   return this . namingConventionService . advanceNursery ( advanceInfo , workbook ) ;
 }
 
 
-// option 1 
-public AdvanceResult advanceNursery ( final AdvancingNursery advanceInfo , final Workbook workbook ) throws RuleException , MiddlewareQueryException , FieldbookException {
+// option 1
+public AdvanceResult advanceNursery ( final AdvancingNursery advanceInfo , final Workbook workbook ) throws FieldbookException {
   return this . namingConventionService . advanceNursery ( advanceInfo , workbook ) ;
 }
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -359,7 +351,15 @@ public AdvanceResult advanceNursery ( final AdvancingNursery advanceInfo , final
 
 /** Please make it non-static, similar to what is done with ManagementNetworkFinder */
 
-// option 0 
+// option 0
+public static org . ovirt . engine . api . model . Cluster update ( org . ovirt . engine . api . model . Cluster incoming ) {
+  MacPool macPool = incoming . getMacPool ( ) ;
+  macPool . setId ( MacPoolIdByIdOrName . get ( macPool . getId ( ) , macPool . getName ( ) , this ) ) ;
+  return performUpdate ( incoming , new QueryIdResolver < > ( VdcQueryType . GetClusterById , IdQueryParameters . class ) , VdcActionType . UpdateCluster , new UpdateParametersProvider ( ) ) ;
+}
+
+
+// option 1
 public org . ovirt . engine . api . model . Cluster update ( org . ovirt . engine . api . model . Cluster incoming ) {
   MacPool macPool = incoming . getMacPool ( ) ;
   macPool . setId ( MacPoolIdByIdOrName . get ( macPool . getId ( ) , macPool . getName ( ) , this ) ) ;
@@ -367,15 +367,7 @@ public org . ovirt . engine . api . model . Cluster update ( org . ovirt . engin
 }
 
 
-// option 1 
-public org . ovirt . engine . api . model . Cluster update ( org . ovirt . engine . api . model . Cluster incoming ) {
-  MacPool macPool = incoming . getMacPool ( ) ;
-  macPool . setId ( MacPoolIdByIdOrName . get ( macPool . getId ( ) , macPool . getName ( ) , this ) ) ;
-  return performUpdate ( incoming , new QueryIdResolver < > ( VdcQueryType . GetClusterById , IdQueryParameters . class ) , VdcActionType . UpdateCluster , new UpdateParametersProvider ( ) ) ;
-}
-
-
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -383,7 +375,7 @@ public org . ovirt . engine . api . model . Cluster update ( org . ovirt . engin
 
 /** I think it makes more sense to omit this assert in the expected exception cases? */
 
-// option 0 
+// option 0
 public void testReservedSkippableBeforeStreamIdentifier ( ) throws Exception {
   ByteBuf in = Unpooled . wrappedBuffer ( new byte [ ] {
     - 0x7f , 0x06 , 0x00 , 0x00 , 's' , 'n' , 'e' , 't' , 't' , 'y' }
@@ -392,16 +384,16 @@ public void testReservedSkippableBeforeStreamIdentifier ( ) throws Exception {
   }
   
 
-// option 1 
+// option 1
 public void testReservedSkippableBeforeStreamIdentifier ( ) throws Exception {
   ByteBuf in = Unpooled . wrappedBuffer ( new byte [ ] {
     - 0x7f , 0x06 , 0x00 , 0x00 , 's' , 'n' , 'e' , 't' , 't' , 'y' }
     ) ;
-    assertFalse ( channel . writeInbound ( in ) ) ;
+    channel . writeInbound ( in ) ;
   }
   
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -409,7 +401,7 @@ public void testReservedSkippableBeforeStreamIdentifier ( ) throws Exception {
 
 /** In the `get` method which calls `getChild` we use `property.getName()` instead of `field.getName().getPrefixedName()` as the key in the `children` map. Can you make this consistent so that we're sure there's no discrepancy between prefixed/unprefixed? */
 
-// option 0 
+// option 0
 public void set ( String name , Property property ) throws PropertyNotFoundException {
   Field field = getType ( ) . getField ( name ) ;
   if ( field == null ) {
@@ -419,12 +411,12 @@ public void set ( String name , Property property ) throws PropertyNotFoundExcep
     }
     return ;
   }
-  children . put ( field . getName ( ) . getPrefixedName ( ) , property ) ;
+  children . put ( field . getName ( ) , property ) ;
   setIsModified ( ) ;
 }
 
 
-// option 1 
+// option 1
 public void set ( String name , Property property ) throws PropertyNotFoundException {
   Field field = getType ( ) . getField ( name ) ;
   if ( field == null ) {
@@ -434,12 +426,12 @@ public void set ( String name , Property property ) throws PropertyNotFoundExcep
     }
     return ;
   }
-  children . put ( field . getName ( ) . getPrefixedName ( ) , property ) ;
+  children . put ( property . getName ( ) , property ) ;
   setIsModified ( ) ;
 }
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -447,7 +439,7 @@ public void set ( String name , Property property ) throws PropertyNotFoundExcep
 
 /** `andCardinality(Container)` should be called here instead of `and(Container).getCardinality()` */
 
-// option 0 
+// option 0
 public int andCardinality ( Container x ) {
   if ( this . getCardinality ( ) == 0 ) return 0 ;
   else if ( x . getCardinality ( ) == 0 ) return 0 ;
@@ -459,19 +451,17 @@ public int andCardinality ( Container x ) {
 }
 
 
-// option 1 
+// option 1
 public int andCardinality ( Container x ) {
   if ( this . getCardinality ( ) == 0 ) return 0 ;
   else if ( x . getCardinality ( ) == 0 ) return 0 ;
   else {
-    if ( x instanceof ArrayContainer ) return and ( ( ArrayContainer ) x ) . getCardinality ( ) ;
-    else if ( x instanceof BitmapContainer ) return and ( ( BitmapContainer ) x ) . getCardinality ( ) ;
-    return and ( ( RunContainer ) x ) . getCardinality ( ) ;
+    return and ( ( Container ) x ) . getCardinality ( ) ;
   }
 }
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -479,19 +469,19 @@ public int andCardinality ( Container x ) {
 
 /** public @Nullable String... */
 
-// option 0 
+// option 0
 public String getAttributeValue ( @ Nullable String name ) {
   return name ;
 }
 
 
-// option 1 
-public String getAttributeValue ( @ Nullable String name ) {
+// option 1
+public String getAttributeValue ( String name ) {
   return name ;
 }
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -499,7 +489,7 @@ public String getAttributeValue ( @ Nullable String name ) {
 
 /** This logic will obviously need updated once we change `this.cookiesToClear`. */
 
-// option 0 
+// option 0
 public void logout ( HttpServletRequest request , HttpServletResponse response , Authentication authentication ) {
   for ( Object cookie : cookiesToClear ) {
     Cookie realCookie = null ;
@@ -507,6 +497,24 @@ public void logout ( HttpServletRequest request , HttpServletResponse response ,
       realCookie = new Cookie ( ( String ) cookie , null ) ;
       String cookiePath = request . getContextPath ( ) + "/" ;
       realCookie . setPath ( cookiePath ) ;
+      realCookie . setMaxAge ( 0 ) ;
+    }
+    else {
+      realCookie = ( Cookie ) cookie ;
+    }
+    response . addCookie ( realCookie ) ;
+  }
+}
+
+
+// option 1
+public void logout ( HttpServletRequest request , HttpServletResponse response , Authentication authentication ) {
+  for ( Object cookie : cookiesToClear ) {
+    Cookie realCookie = null ;
+    if ( cookie instanceof String ) {
+      realCookie = new Cookie ( ( String ) cookie , null ) ;
+      String cookiePath = request . getContextPath ( ) + "/" ;
+      realCookie . setPath ( request . getContextPath ( ) + "/" ) ;
       realCookie . setMaxAge ( 0 ) ;
     }
     else if ( cookie instanceof Cookie ) {
@@ -517,25 +525,7 @@ public void logout ( HttpServletRequest request , HttpServletResponse response ,
 }
 
 
-// option 1 
-public void logout ( HttpServletRequest request , HttpServletResponse response , Authentication authentication ) {
-  for ( Object cookie : cookiesToClear ) {
-    Cookie realCookie = null ;
-    if ( cookie instanceof String ) {
-      realCookie = new Cookie ( ( String ) cookie , null ) ;
-      String cookiePath = request . getContextPath ( ) + "/" ;
-      realCookie . setPath ( cookiePath ) ;
-      realCookie . setMaxAge ( 0 ) ;
-    }
-    else if ( cookie instanceof Cookie ) {
-      realCookie = ( Cookie ) cookie ;
-    }
-    response . addCookie ( realCookie ) ;
-  }
-}
-
-
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -543,7 +533,7 @@ public void logout ( HttpServletRequest request , HttpServletResponse response ,
 
 /** won't this be a double-decrement? */
 
-// option 0 
+// option 0
 public void channelOpen ( ChannelHandlerContext ctx , ChannelStateEvent e ) throws Exception {
   if ( maxConnections > 0 ) {
     if ( numConnections . incrementAndGet ( ) > maxConnections ) {
@@ -558,10 +548,10 @@ public void channelOpen ( ChannelHandlerContext ctx , ChannelStateEvent e ) thro
 }
 
 
-// option 1 
+// option 1
 public void channelOpen ( ChannelHandlerContext ctx , ChannelStateEvent e ) throws Exception {
   if ( maxConnections > 0 ) {
-    if ( numConnections . incrementAndGet ( ) > maxConnections ) {
+    if ( numConnections . decrementAndGet ( ) > maxConnections ) {
       ctx . getChannel ( ) . close ( ) ;
       numConnections . decrementAndGet ( ) ;
       log . info ( "Accepted connection above limit ({
@@ -573,7 +563,7 @@ public void channelOpen ( ChannelHandlerContext ctx , ChannelStateEvent e ) thro
 }
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -581,21 +571,20 @@ public void channelOpen ( ChannelHandlerContext ctx , ChannelStateEvent e ) thro
 
 /** @qeesung: nit you can merge the above 2 lines as `checkNotNull` returns `channelClass`. */
 
-// option 0 
+// option 0
 public B channel ( Class < ? extends C > channelClass ) {
-  ObjectUtil . checkNotNull ( channelClass , "channelClass" ) ;
+  channelClass = ObjectUtil . checkNotNull ( channelClass , "channelClass" ) ;
   return channelFactory ( new ReflectiveChannelFactory < C > ( channelClass ) ) ;
 }
 
 
-// option 1 
+// option 1
 public B channel ( Class < ? extends C > channelClass ) {
-  ObjectUtil . checkNotNull ( channelClass , "channelClass" ) ;
   return channelFactory ( new ReflectiveChannelFactory < C > ( channelClass ) ) ;
 }
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
