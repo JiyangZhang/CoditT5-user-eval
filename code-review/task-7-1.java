@@ -2,6 +2,15 @@
 
 /** ChangeDetailEditor_EGerriTipValue has no more arguments, should we just use it directly , no need to set the arguments ? */
 
+// Manual revision
+private void activateMarkers ( ) {
+  if ( ! fGerritClient . getRepository ( ) . getServerInfo ( ) . isAnonymous ( ) ) {
+    UIUtils . showDialogTip ( MARKERS_KEY , headerSection . getShell ( ) , Messages . EGerriTip , Messages . ChangeDetailEditor_EGerriTipValue ) ;
+  }
+}
+
+
+// Suggested Revision A
 private void activateMarkers ( ) {
   if ( ! fGerritClient . getRepository ( ) . getServerInfo ( ) . isAnonymous ( ) ) {
     String value = NLS . bind ( Messages . ChangeDetailEditor_EGerriTipValue , fChangeInfo . getUserSelectedRevision ( ) . get_number ( ) ) ;
@@ -10,23 +19,16 @@ private void activateMarkers ( ) {
 }
 
 
+// Suggested Revision B
 private void activateMarkers ( ) {
   if ( ! fGerritClient . getRepository ( ) . getServerInfo ( ) . isAnonymous ( ) ) {
-    String value = NLS . bind ( Messages . ChangeDetailEditor_EGerriTipValue , fChangeInfo . getUserSelectedRevision ( ) . get_number ( ) ) ;
+    String value = ChangeDetailEditor_EGerriTipValue . bind ( fChangeInfo . getUserSelectedRevision ( ) . get_number ( ) ) ;
     UIUtils . showDialogTip ( MARKERS_KEY , headerSection . getShell ( ) , Messages . EGerriTip , value ) ;
   }
 }
 
 
-private void activateMarkers ( ) {
-  if ( ! fGerritClient . getRepository ( ) . getServerInfo ( ) . isAnonymous ( ) ) {
-    String value = NLS . bind ( Messages . ChangeDetailEditor_EGerriTipValue , fChangeInfo . getUserSelectedRevision ( ) . get_number ( ) ) ;
-    UIUtils . showDialogTip ( MARKERS_KEY , headerSection . getShell ( ) , Messages . EGerriTip , value ) ;
-  }
-}
-
-
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -34,28 +36,35 @@ private void activateMarkers ( ) {
 
 /** should be called `resource` */
 
-private void activateMarkers ( ) {
-  if ( ! fGerritClient . getRepository ( ) . getServerInfo ( ) . isAnonymous ( ) ) {
-    UIUtils . showDialogTip ( MARKERS_KEY , headerSection . getShell ( ) , Messages . EGerriTip , Messages . ChangeDetailEditor_EGerriTipValue ) ;
-  }
+// Manual revision
+public void testCreate ( ) throws StripeException {
+  final Map < String , Object > params = new HashMap < String , Object > ( ) ;
+  params . put ( "currency" , "usd" ) ;
+  final Order order = Order . create ( params ) ;
+  assertNotNull ( order ) ;
+  verifyRequest ( APIResource . RequestMethod . POST , "/v1/orders" , params ) ;
 }
 
 
-private void activateMarkers ( ) {
-  if ( ! fGerritClient . getRepository ( ) . getServerInfo ( ) . isAnonymous ( ) ) {
-    UIUtils . showDialogTip ( MARKERS_KEY , headerSection . getShell ( ) , Messages . EGerriTip , Messages . ChangeDetailEditor_EGerriTipValue ) ;
-  }
+// Suggested Revision A
+public void testCreate ( ) throws StripeException {
+  final Order order = Order . create ( new HashMap < String , Object > ( ) ) ;
+  assertNotNull ( order ) ;
+  verifyRequest ( APIResource . RequestMethod . POST , "/v1/orders" , params ) ;
 }
 
 
-private void activateMarkers ( ) {
-  if ( ! fGerritClient . getRepository ( ) . getServerInfo ( ) . isAnonymous ( ) ) {
-    UIUtils . showDialogTip ( MARKERS_KEY , headerSection . getShell ( ) , Messages . EGerriTip , Messages . ChangeDetailEditor_EGerriTipValue ) ;
-  }
+// Suggested Revision B
+public void testCreate ( ) throws StripeException {
+  final Map < String , Object > params = new HashMap < String , Object > ( ) ;
+  params . put ( "currency" , "usd" ) ;
+  final Order order = Order . create ( params ) ;
+  assertNotNull ( order ) ;
+  verifyRequest ( APIResource . RequestMethod . POST , "/v1/orders" , params ) ;
 }
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -63,34 +72,29 @@ private void activateMarkers ( ) {
 
 /** Should probably use a Set<String> instead of a List<String> so that the intention of the code is clear by first glance. */
 
-public void testCreate ( ) throws StripeException {
-  Map < String , Object > params = new HashMap < String , Object > ( ) ;
-  params . put ( "currency" , "usd" ) ;
-  final Order order = Order . create ( params ) ;
-  assertNotNull ( order ) ;
-  verifyRequest ( APIResource . RequestMethod . POST , "/v1/orders" , params ) ;
+// Manual revision
+public void addDownload ( String download ) {
+  downloads . add ( download ) ;
 }
 
 
-public void testCreate ( ) throws StripeException {
-  Map < String , Object > params = new HashMap < String , Object > ( ) ;
-  params . put ( "currency" , "usd" ) ;
-  final Order order = Order . create ( params ) ;
-  assertNotNull ( order ) ;
-  verifyRequest ( APIResource . RequestMethod . POST , "/v1/orders" , params ) ;
+// Suggested Revision A
+private void addDownload ( String download ) {
+  if ( ! downloads . contains ( download ) ) {
+    downloads . add ( download ) ;
+  }
 }
 
 
-public void testCreate ( ) throws StripeException {
-  Map < String , Object > params = new HashMap < String , Object > ( ) ;
-  params . put ( "currency" , "usd" ) ;
-  final Order order = Order . create ( params ) ;
-  assertNotNull ( order ) ;
-  verifyRequest ( APIResource . RequestMethod . POST , "/v1/orders" , params ) ;
+// Suggested Revision B
+public void addDownload ( String download ) {
+  if ( ! downloads . contains ( download ) ) {
+    downloads . add ( download ) ;
+  }
 }
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -98,34 +102,43 @@ public void testCreate ( ) throws StripeException {
 
 /** Should this be 1 or null instead of 0? */
 
-public void testCreate ( ) throws StripeException {
-  final Map < String , Object > params = new HashMap < String , Object > ( ) ;
-  params . put ( "currency" , "usd" ) ;
-  final Order order = Order . create ( params ) ;
-  assertNotNull ( order ) ;
-  verifyRequest ( APIResource . RequestMethod . POST , "/v1/orders" , params ) ;
+// Manual revision
+public void copyDetailsFromOtherCuObjectCodeActivationGlobal ( CuObjectCodeActivationGlobal oldGlobal ) {
+  for ( CuObjectCodeGlobalDetail oldDetail : oldGlobal . getObjectCodeGlobalDetails ( ) ) {
+    CuObjectCodeGlobalDetail newDetail = ( CuObjectCodeGlobalDetail ) ObjectUtils . deepCopy ( oldDetail ) ;
+    newDetail . setObjectId ( null ) ;
+    newDetail . setDocumentNumber ( getDocumentNumber ( ) ) ;
+    newDetail . setVersionNumber ( new Long ( 1 ) ) ;
+    getObjectCodeGlobalDetails ( ) . add ( newDetail ) ;
+  }
 }
 
 
-public void testCreate ( ) throws StripeException {
-  final Map < String , Object > params = new HashMap < String , Object > ( ) ;
-  params . put ( "currency" , "usd" ) ;
-  final Order order = Order . create ( params ) ;
-  assertNotNull ( order ) ;
-  verifyRequest ( APIResource . RequestMethod . POST , "/v1/orders" , params ) ;
+// Suggested Revision A
+public void copyDetailsFromOtherCuObjectCodeActivationGlobal ( CuObjectCodeActivationGlobal oldGlobal ) {
+  for ( CuObjectCodeGlobalDetail oldDetail : oldGlobal . getObjectCodeGlobalDetails ( ) ) {
+    CuObjectCodeGlobalDetail newDetail = ( CuObjectCodeGlobalDetail ) ObjectUtils . deepCopy ( oldDetail ) ;
+    newDetail . setObjectId ( null ) ;
+    newDetail . setDocumentNumber ( getDocumentNumber ( ) ) ;
+    newDetail . setVersionNumber ( 1 ) ;
+    getObjectCodeGlobalDetails ( ) . add ( newDetail ) ;
+  }
 }
 
 
-public void testCreate ( ) throws StripeException {
-  final Map < String , Object > params = new HashMap < String , Object > ( ) ;
-  params . put ( "currency" , "usd" ) ;
-  final Order order = Order . create ( params ) ;
-  assertNotNull ( order ) ;
-  verifyRequest ( APIResource . RequestMethod . POST , "/v1/orders" , params ) ;
+// Suggested Revision B
+public void copyDetailsFromOtherCuObjectCodeActivationGlobal ( CuObjectCodeActivationGlobal oldGlobal ) {
+  for ( CuObjectCodeGlobalDetail oldDetail : oldGlobal . getObjectCodeGlobalDetails ( ) ) {
+    CuObjectCodeGlobalDetail newDetail = ( CuObjectCodeGlobalDetail ) ObjectUtils . deepCopy ( oldDetail ) ;
+    newDetail . setObjectId ( null ) ;
+    newDetail . setDocumentNumber ( getDocumentNumber ( ) ) ;
+    newDetail . setVersionNumber ( null ) ;
+    getObjectCodeGlobalDetails ( ) . add ( newDetail ) ;
+  }
 }
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -133,28 +146,36 @@ public void testCreate ( ) throws StripeException {
 
 /** These arguments can all go on the same line */
 
-public void addDownload ( String download ) {
-  if ( ! downloads . contains ( download ) ) {
-    downloads . add ( download ) ;
-  }
+// Manual revision
+private RuleApplication applyRule ( ) {
+  SymbolAllocator symbolAllocator = new SymbolAllocator ( symbols ) ;
+  Memo memo = new Memo ( idAllocator , plan ) ;
+  Lookup lookup = Lookup . from ( memo :: resolve ) ;
+  Optional < PlanNode > result = inTransaction ( session -> rule . apply ( memo . getNode ( memo . getRootGroup ( ) ) , lookup , idAllocator , symbolAllocator , session ) ) ;
+  return new RuleApplication ( lookup , symbolAllocator . getTypes ( ) , result ) ;
 }
 
 
-public void addDownload ( String download ) {
-  if ( ! downloads . contains ( download ) ) {
-    downloads . add ( download ) ;
-  }
+// Suggested Revision A
+private RuleApplication applyRule ( ) {
+  SymbolAllocator symbolAllocator = new SymbolAllocator ( symbols ) ;
+  Memo memo = new Memo ( idAllocator , plan ) ;
+  Lookup lookup = Lookup . from ( memo :: resolve ) ;
+  Optional < PlanNode > result = inTransaction ( session -> rule . apply ( memo . getNode ( memo . getRootGroup ( ) ) , lookup , idAllocator , symbolAllocator , session ) ) ;
+  return new RuleApplication ( memo , lookup , symbolAllocator . getTypes ( ) , result ) ;
 }
 
 
-public void addDownload ( String download ) {
-  if ( ! downloads . contains ( download ) ) {
-    downloads . add ( download ) ;
-  }
+// Suggested Revision B
+private RuleApplication applyRule ( ) {
+  Memo memo = new Memo ( idAllocator , plan ) ;
+  Lookup lookup = Lookup . from ( memo :: resolve ) ;
+  Optional < PlanNode > result = inTransaction ( session -> rule . apply ( memo . getNode ( memo . getRootGroup ( ) ) , lookup , idAllocator , symbolAllocator , session ) ) ;
+  return new RuleApplication ( memo , lookup , symbolAllocator . getTypes ( ) , result ) ;
 }
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -162,22 +183,45 @@ public void addDownload ( String download ) {
 
 /** Why the expected output was changed? */
 
-public void addDownload ( String download ) {
-  downloads . add ( download ) ;
+// Manual revision
+public void testPushDownArray ( ) throws Exception {
+  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] = 1" , 3 , 2 ) ;
+  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] = 100" , 0 , 1 ) ;
+  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] <> 1" , 8 , 6 ) ;
+  testParquetFilterPushDown ( "t.`user`.hobby_ids[2] > 20" , 5 , 3 ) ;
+  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] between 10 and 20" , 5 , 4 ) ;
+  testParquetFilterPushDown ( "t.`user`.hobby_ids[4] = 15" , 1 , 3 ) ;
+  testParquetFilterPushDown ( "t.`user`.hobby_ids[2] is not null" , 11 , 6 ) ;
+  testParquetFilterPushDown ( "t.`user`.hobby_ids[3] is null" , 11 , 7 ) ;
 }
 
 
-public void addDownload ( String download ) {
-  downloads . add ( download ) ;
+// Suggested Revision A
+public void testPushDownArray ( ) throws Exception {
+  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] = 1" , 3 , 2 ) ;
+  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] = 100" , 0 , 1 ) ;
+  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] <> 1" , 8 , 7 ) ;
+  testParquetFilterPushDown ( "t.`user`.hobby_ids[2] > 20" , 5 , 4 ) ;
+  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] between 10 and 20" , 5 , 5 ) ;
+  testParquetFilterPushDown ( "t.`user`.hobby_ids[4] = 15" , 1 , 3 ) ;
+  testParquetFilterPushDown ( "t.`user`.hobby_ids[3] is not null" , 11 , 6 ) ;
+  testParquetFilterPushDown ( "t.`user`.hobby_ids[4] is null" , 11 , 7 ) ;
 }
 
 
-public void addDownload ( String download ) {
-  downloads . add ( download ) ;
+// Suggested Revision B
+public void testPushDownArray ( ) throws Exception {
+  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] = 1" , 3 , 2 ) ;
+  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] = 100" , 0 , 1 ) ;
+  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] <> 1" , 8 , 7 ) ;
+  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] <> 1" , 8 , 7 ) ;
+  testParquetFilterPushDown ( "t.`user`.hobby_ids[2] > 20" , 5 , 4 ) ;
+  testParquetFilterPushDown ( "t.`user`.hobby_ids[4] = 15" , 1 , 3 ) ;
+  testParquetFilterPushDown ( "t.`user`.hobby_ids[3] is null" ) ;
 }
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -185,40 +229,30 @@ public void addDownload ( String download ) {
 
 /** This logic should be in the default implementation. */
 
-public void copyDetailsFromOtherCuObjectCodeActivationGlobal ( CuObjectCodeActivationGlobal oldGlobal ) {
-  for ( CuObjectCodeGlobalDetail oldDetail : oldGlobal . getObjectCodeGlobalDetails ( ) ) {
-    CuObjectCodeGlobalDetail newDetail = ( CuObjectCodeGlobalDetail ) ObjectUtils . deepCopy ( oldDetail ) ;
-    newDetail . setObjectId ( null ) ;
-    newDetail . setDocumentNumber ( getDocumentNumber ( ) ) ;
-    newDetail . setVersionNumber ( new Long ( 0 ) ) ;
-    getObjectCodeGlobalDetails ( ) . add ( newDetail ) ;
-  }
+// Manual revision
+default Direction getBubbleElevatorDirection ( ) {
+  return this . getBlockState ( ) . getBlock ( ) . getBubbleElevatorDirection ( this . getBlockState ( ) ) ;
 }
 
 
-public void copyDetailsFromOtherCuObjectCodeActivationGlobal ( CuObjectCodeActivationGlobal oldGlobal ) {
-  for ( CuObjectCodeGlobalDetail oldDetail : oldGlobal . getObjectCodeGlobalDetails ( ) ) {
-    CuObjectCodeGlobalDetail newDetail = ( CuObjectCodeGlobalDetail ) ObjectUtils . deepCopy ( oldDetail ) ;
-    newDetail . setObjectId ( null ) ;
-    newDetail . setDocumentNumber ( getDocumentNumber ( ) ) ;
-    newDetail . setVersionNumber ( new Long ( 0 ) ) ;
-    getObjectCodeGlobalDetails ( ) . add ( newDetail ) ;
+// Suggested Revision A
+default Direction getBubbleElevatorDirection ( ) {
+  Block block = this . getBlockState ( ) . getBlock ( ) ;
+  if ( block == Blocks . BUBBLE_COLUMN ) {
+    return this . getBlockState ( ) . get ( BubbleColumnBlock . DRAG ) ? Direction . DOWN : Direction . UP ;
   }
+  return block . getBubbleElevatorDirection ( this . getBlockState ( ) ) ;
 }
 
 
-public void copyDetailsFromOtherCuObjectCodeActivationGlobal ( CuObjectCodeActivationGlobal oldGlobal ) {
-  for ( CuObjectCodeGlobalDetail oldDetail : oldGlobal . getObjectCodeGlobalDetails ( ) ) {
-    CuObjectCodeGlobalDetail newDetail = ( CuObjectCodeGlobalDetail ) ObjectUtils . deepCopy ( oldDetail ) ;
-    newDetail . setObjectId ( null ) ;
-    newDetail . setDocumentNumber ( getDocumentNumber ( ) ) ;
-    newDetail . setVersionNumber ( new Long ( 0 ) ) ;
-    getObjectCodeGlobalDetails ( ) . add ( newDetail ) ;
-  }
+// Suggested Revision B
+default Direction getBubbleElevatorDirection ( ) {
+  Block block = this . getBlockState ( ) . getBlock ( ) ;
+  return block . getBubbleElevatorDirection ( this . getBlockState ( ) ) ;
 }
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -226,40 +260,55 @@ public void copyDetailsFromOtherCuObjectCodeActivationGlobal ( CuObjectCodeActiv
 
 /** Why access this method staticly? */
 
-public void copyDetailsFromOtherCuObjectCodeActivationGlobal ( CuObjectCodeActivationGlobal oldGlobal ) {
-  for ( CuObjectCodeGlobalDetail oldDetail : oldGlobal . getObjectCodeGlobalDetails ( ) ) {
-    CuObjectCodeGlobalDetail newDetail = ( CuObjectCodeGlobalDetail ) ObjectUtils . deepCopy ( oldDetail ) ;
-    newDetail . setObjectId ( null ) ;
-    newDetail . setDocumentNumber ( getDocumentNumber ( ) ) ;
-    newDetail . setVersionNumber ( new Long ( 1 ) ) ;
-    getObjectCodeGlobalDetails ( ) . add ( newDetail ) ;
+// Manual revision
+public void testSystemPropertiesOverrideConfigurationValues ( ) {
+  final String keyName = CoreConfig . MAX_CASSANDRA_CONNECTIONS . toString ( ) ;
+  Configuration config = Configuration . getInstance ( ) ;
+  try {
+    Assert . assertEquals ( "75" , config . getStringProperty ( CoreConfig . MAX_CASSANDRA_CONNECTIONS ) ) ;
+    System . setProperty ( keyName , "something else" ) ;
+    Assert . assertEquals ( "something else" , config . getStringProperty ( CoreConfig . MAX_CASSANDRA_CONNECTIONS ) ) ;
+  }
+  finally {
+    System . clearProperty ( keyName ) ;
+    config . clearProperty ( keyName ) ;
   }
 }
 
 
-public void copyDetailsFromOtherCuObjectCodeActivationGlobal ( CuObjectCodeActivationGlobal oldGlobal ) {
-  for ( CuObjectCodeGlobalDetail oldDetail : oldGlobal . getObjectCodeGlobalDetails ( ) ) {
-    CuObjectCodeGlobalDetail newDetail = ( CuObjectCodeGlobalDetail ) ObjectUtils . deepCopy ( oldDetail ) ;
-    newDetail . setObjectId ( null ) ;
-    newDetail . setDocumentNumber ( getDocumentNumber ( ) ) ;
-    newDetail . setVersionNumber ( new Long ( 1 ) ) ;
-    getObjectCodeGlobalDetails ( ) . add ( newDetail ) ;
+// Suggested Revision A
+public static void testSystemPropertiesOverrideConfigurationValues ( ) {
+  final String keyName = CoreConfig . MAX_CASSANDRA_CONNECTIONS . toString ( ) ;
+  Configuration config = Configuration . getInstance ( ) ;
+  try {
+    Assert . assertEquals ( "75" , config . getStringProperty ( CoreConfig . MAX_CASSANDRA_CONNECTIONS ) ) ;
+    System . setProperty ( keyName , "something else" ) ;
+    Assert . assertEquals ( "something else" , config . getStringProperty ( CoreConfig . MAX_CASSANDRA_CONNECTIONS ) ) ;
+  }
+  finally {
+    System . clearProperty ( keyName ) ;
+    Configuration . clearProperty ( keyName ) ;
   }
 }
 
 
-public void copyDetailsFromOtherCuObjectCodeActivationGlobal ( CuObjectCodeActivationGlobal oldGlobal ) {
-  for ( CuObjectCodeGlobalDetail oldDetail : oldGlobal . getObjectCodeGlobalDetails ( ) ) {
-    CuObjectCodeGlobalDetail newDetail = ( CuObjectCodeGlobalDetail ) ObjectUtils . deepCopy ( oldDetail ) ;
-    newDetail . setObjectId ( null ) ;
-    newDetail . setDocumentNumber ( getDocumentNumber ( ) ) ;
-    newDetail . setVersionNumber ( new Long ( 1 ) ) ;
-    getObjectCodeGlobalDetails ( ) . add ( newDetail ) ;
+// Suggested Revision B
+public void testSystemPropertiesOverrideConfigurationValues ( ) {
+  final String keyName = CoreConfig . MAX_CASSANDRA_CONNECTIONS . toString ( ) ;
+  Configuration config = Configuration . getInstance ( ) ;
+  try {
+    Assert . assertEquals ( "75" , config . getStringProperty ( CoreConfig . MAX_CASSANDRA_CONNECTIONS ) ) ;
+    System . setProperty ( keyName , "something else" ) ;
+    Assert . assertEquals ( "something else" , config . getStringProperty ( CoreConfig . MAX_CASSANDRA_CONNECTIONS ) ) ;
+  }
+  finally {
+    System . clearProperty ( keyName ) ;
+    Configuration . clearProperty ( keyName ) ;
   }
 }
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -267,34 +316,30 @@ public void copyDetailsFromOtherCuObjectCodeActivationGlobal ( CuObjectCodeActiv
 
 /** You can set it on a plain field, no need for atomics:  ``` java this.inner = inner; o.onSubscribe(this); inner.request(Long.MAX_VALUE); ``` */
 
-private RuleApplication applyRule ( ) {
-  SymbolAllocator symbolAllocator = new SymbolAllocator ( symbols ) ;
-  Memo memo = new Memo ( idAllocator , plan ) ;
-  Lookup lookup = Lookup . from ( memo :: resolve ) ;
-  Optional < PlanNode > result = inTransaction ( session -> rule . apply ( memo . getNode ( memo . getRootGroup ( ) ) , lookup , idAllocator , symbolAllocator , session ) ) ;
-  return new RuleApplication ( memo , lookup , symbolAllocator . getTypes ( ) , result ) ;
+// Manual revision
+public void onSubscribe ( Subscription inner ) {
+  this . inner = inner ;
+  o . onSubscribe ( this ) ;
+  inner . request ( Long . MAX_VALUE ) ;
 }
 
 
-private RuleApplication applyRule ( ) {
-  SymbolAllocator symbolAllocator = new SymbolAllocator ( symbols ) ;
-  Memo memo = new Memo ( idAllocator , plan ) ;
-  Lookup lookup = Lookup . from ( memo :: resolve ) ;
-  Optional < PlanNode > result = inTransaction ( session -> rule . apply ( memo . getNode ( memo . getRootGroup ( ) ) , lookup , idAllocator , symbolAllocator , session ) ) ;
-  return new RuleApplication ( memo , lookup , symbolAllocator . getTypes ( ) , result ) ;
+// Suggested Revision A
+public void onSubscribe ( Subscription inner ) {
+  SubscriptionHelper . setOnce ( this , inner ) ;
+  o . onSubscribe ( this ) ;
+  inner . request ( Long . MAX_VALUE ) ;
 }
 
 
-private RuleApplication applyRule ( ) {
-  SymbolAllocator symbolAllocator = new SymbolAllocator ( symbols ) ;
-  Memo memo = new Memo ( idAllocator , plan ) ;
-  Lookup lookup = Lookup . from ( memo :: resolve ) ;
-  Optional < PlanNode > result = inTransaction ( session -> rule . apply ( memo . getNode ( memo . getRootGroup ( ) ) , lookup , idAllocator , symbolAllocator , session ) ) ;
-  return new RuleApplication ( memo , lookup , symbolAllocator . getTypes ( ) , result ) ;
+// Suggested Revision B
+public void onSubscribe ( Subscription inner ) {
+  o . onSubscribe ( this ) ;
+  inner . request ( Long . MAX_VALUE ) ;
 }
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -302,34 +347,40 @@ private RuleApplication applyRule ( ) {
 
 /** There's no need to make these public, even if the package is internal. */
 
-private RuleApplication applyRule ( ) {
-  SymbolAllocator symbolAllocator = new SymbolAllocator ( symbols ) ;
-  Memo memo = new Memo ( idAllocator , plan ) ;
-  Lookup lookup = Lookup . from ( memo :: resolve ) ;
-  Optional < PlanNode > result = inTransaction ( session -> rule . apply ( memo . getNode ( memo . getRootGroup ( ) ) , lookup , idAllocator , symbolAllocator , session ) ) ;
-  return new RuleApplication ( lookup , symbolAllocator . getTypes ( ) , result ) ;
+// Manual revision
+private static Color getSystemForegroundColor ( Display display ) {
+  ColorRegistry colorRegistry = JFaceResources . getColorRegistry ( ) ;
+  Color foreground = colorRegistry . get ( JFacePreferences . INFORMATION_FOREGROUND_COLOR ) ;
+  if ( foreground == null ) {
+    return JFaceColors . getInformationViewerForegroundColor ( display ) ;
+  }
+  return foreground ;
 }
 
 
-private RuleApplication applyRule ( ) {
-  SymbolAllocator symbolAllocator = new SymbolAllocator ( symbols ) ;
-  Memo memo = new Memo ( idAllocator , plan ) ;
-  Lookup lookup = Lookup . from ( memo :: resolve ) ;
-  Optional < PlanNode > result = inTransaction ( session -> rule . apply ( memo . getNode ( memo . getRootGroup ( ) ) , lookup , idAllocator , symbolAllocator , session ) ) ;
-  return new RuleApplication ( lookup , symbolAllocator . getTypes ( ) , result ) ;
+// Suggested Revision A
+private static Color getSystemForegroundColor ( Display display ) {
+  ColorRegistry colorRegistry = JFaceResources . getColorRegistry ( ) ;
+  Color foreground = colorRegistry . get ( JFacePreferences . INFORMATION_FOREGROUND_COLOR ) ;
+  if ( foreground == null ) {
+    return JFaceColors . getInformationViewerForegroundColor ( display ) ;
+  }
+  return foreground ;
 }
 
 
-private RuleApplication applyRule ( ) {
-  SymbolAllocator symbolAllocator = new SymbolAllocator ( symbols ) ;
-  Memo memo = new Memo ( idAllocator , plan ) ;
-  Lookup lookup = Lookup . from ( memo :: resolve ) ;
-  Optional < PlanNode > result = inTransaction ( session -> rule . apply ( memo . getNode ( memo . getRootGroup ( ) ) , lookup , idAllocator , symbolAllocator , session ) ) ;
-  return new RuleApplication ( lookup , symbolAllocator . getTypes ( ) , result ) ;
+// Suggested Revision B
+static Color getSystemForegroundColor ( Display display ) {
+  ColorRegistry colorRegistry = JFaceResources . getColorRegistry ( ) ;
+  Color foreground = colorRegistry . get ( JFacePreferences . INFORMATION_FOREGROUND_COLOR ) ;
+  if ( foreground == null ) {
+    return JFaceColors . getInformationViewerForegroundColor ( display ) ;
+  }
+  return foreground ;
 }
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -337,43 +388,55 @@ private RuleApplication applyRule ( ) {
 
 /** You should go one step more in simplifying the rule: Change this method to return a boolean: `hasNoDefault(switchStatementTree)`  ``` return allLabels(switchStatementTree).noneMatch(SwitchLastCaseIsDefaultCheck::isDefault); ``` */
 
-public void testPushDownArray ( ) throws Exception {
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] = 1" , 3 , 2 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] = 100" , 0 , 1 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] <> 1" , 8 , 7 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[2] > 20" , 5 , 4 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] between 10 and 20" , 5 , 5 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[4] = 15" , 1 , 3 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[2] is not null" , 11 , 6 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[3] is null" , 11 , 7 ) ;
+// Manual revision
+public void visitNode ( Tree tree ) {
+  if ( ! hasSemantic ( ) ) {
+    return ;
+  }
+  SwitchStatementTree switchStatementTree = ( SwitchStatementTree ) tree ;
+  if ( getDefaultLabel ( switchStatementTree ) ) {
+    if ( ! isSwitchOnEnum ( switchStatementTree ) ) {
+      reportIssue ( switchStatementTree . switchKeyword ( ) , "Add a default case to this switch." ) ;
+    }
+    else if ( missingCasesOfEnum ( switchStatementTree ) ) {
+      reportIssue ( switchStatementTree . switchKeyword ( ) , "Complete cases by adding the missing enum constants or add a default case to this switch." ) ;
+    }
+  }
 }
 
 
-public void testPushDownArray ( ) throws Exception {
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] = 1" , 3 , 2 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] = 100" , 0 , 1 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] <> 1" , 8 , 7 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[2] > 20" , 5 , 4 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] between 10 and 20" , 5 , 5 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[4] = 15" , 1 , 3 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[2] is not null" , 11 , 6 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[3] is null" , 11 , 7 ) ;
+// Suggested Revision A
+public void visitNode ( Tree tree ) {
+  SwitchStatementTree switchStatementTree = ( SwitchStatementTree ) tree ;
+  Optional < CaseLabelTree > defaultLabel = getDefaultLabel ( switchStatementTree ) ;
+  if ( ! defaultLabel . isPresent ( ) ) {
+    if ( ! isSwitchOnEnum ( switchStatementTree ) ) {
+      reportIssue ( switchStatementTree . switchKeyword ( ) , "Add a default case to this switch." ) ;
+    }
+    else if ( missingCasesOfEnum ( switchStatementTree ) ) {
+      reportIssue ( switchStatementTree . switchKeyword ( ) , "Complete cases by adding the missing enum constants or add a default case to this switch." ) ;
+    }
+  }
 }
 
 
-public void testPushDownArray ( ) throws Exception {
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] = 1" , 3 , 2 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] = 100" , 0 , 1 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] <> 1" , 8 , 7 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[2] > 20" , 5 , 4 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] between 10 and 20" , 5 , 5 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[4] = 15" , 1 , 3 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[2] is not null" , 11 , 6 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[3] is null" , 11 , 7 ) ;
+// Suggested Revision B
+public void visitNode ( Tree tree ) {
+  if ( ! hasSemantic ( ) ) {
+    return ;
+  }
+  SwitchStatementTree switchStatementTree = ( SwitchStatementTree ) tree ;
+  Optional < CaseLabelTree > defaultLabel = getDefaultLabel ( switchStatementTree ) ;
+  if ( ! defaultLabel . isPresent ( ) ) {
+    reportIssue ( switchStatementTree . switchKeyword ( ) , "Add a default case to this switch." ) ;
+  }
+  else if ( missingCasesOfEnum ( switchStatementTree ) ) {
+    reportIssue ( switchStatementTree . switchKeyword ( ) , "Complete cases by adding the missing enum constants or add a default case to this switch." ) ;
+  }
 }
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -381,43 +444,35 @@ public void testPushDownArray ( ) throws Exception {
 
 /** style nit: no braces around single line blocks */
 
-public void testPushDownArray ( ) throws Exception {
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] = 1" , 3 , 2 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] = 100" , 0 , 1 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] <> 1" , 8 , 6 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[2] > 20" , 5 , 3 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] between 10 and 20" , 5 , 4 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[4] = 15" , 1 , 3 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[2] is not null" , 11 , 6 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[3] is null" , 11 , 7 ) ;
+// Manual revision
+private void createIndex ( ) {
+  lastFoundElementPosition = 0 ;
+  filteredPlan . clear ( ) ;
+  for ( PlanElement element : plan . getList ( ) ) {
+    if ( ! element . isComment ( ) ) filteredPlan . add ( element ) ;
+  }
 }
 
 
-public void testPushDownArray ( ) throws Exception {
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] = 1" , 3 , 2 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] = 100" , 0 , 1 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] <> 1" , 8 , 6 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[2] > 20" , 5 , 3 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] between 10 and 20" , 5 , 4 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[4] = 15" , 1 , 3 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[2] is not null" , 11 , 6 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[3] is null" , 11 , 7 ) ;
+// Suggested Revision A
+private void createIndex ( ) {
+  lastFoundElementPosition = 0 ;
+  filteredPlan . clear ( ) ;
+  for ( PlanElement element : plan . getList ( ) ) {
+    if ( ! element . isComment ( ) ) filteredPlan . add ( element ) ;
+  }
 }
 
 
-public void testPushDownArray ( ) throws Exception {
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] = 1" , 3 , 2 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] = 100" , 0 , 1 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] <> 1" , 8 , 6 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[2] > 20" , 5 , 3 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] between 10 and 20" , 5 , 4 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[4] = 15" , 1 , 3 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[2] is not null" , 11 , 6 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[3] is null" , 11 , 7 ) ;
+// Suggested Revision B
+private void createIndex ( ) {
+  lastFoundElementPosition = 0 ;
+  filteredPlan . clear ( ) ;
+  for ( PlanElement element : plan . getList ( ) ) if ( ! element . isComment ( ) ) filteredPlan . add ( element ) ;
 }
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -425,40 +480,25 @@ public void testPushDownArray ( ) throws Exception {
 
 /** is there a difference between parallelStream() and entryStream().parallel() ? */
 
-default Direction getBubbleElevatorDirection ( ) {
-  Block block = this . getBlockState ( ) . getBlock ( ) ;
-  if ( block == Blocks . BUBBLE_COLUMN ) {
-    return this . getBlockState ( ) . get ( BubbleColumnBlock . DRAG ) ? Direction . DOWN : Direction . UP ;
-  }
-  else {
-    return block . getBubbleElevatorDirection ( this . getBlockState ( ) ) ;
-  }
+// Manual revision
+public Collection < Map . Entry < K , V >> scanAndFilterByEntry ( Predicate < ? super Map . Entry < K , V >> entryPredicate ) {
+  return mainMap . entryStream ( ) . filter ( entryPredicate ) . collect ( Collectors . toCollection ( ArrayList :: new ) ) ;
 }
 
 
-default Direction getBubbleElevatorDirection ( ) {
-  Block block = this . getBlockState ( ) . getBlock ( ) ;
-  if ( block == Blocks . BUBBLE_COLUMN ) {
-    return this . getBlockState ( ) . get ( BubbleColumnBlock . DRAG ) ? Direction . DOWN : Direction . UP ;
-  }
-  else {
-    return block . getBubbleElevatorDirection ( this . getBlockState ( ) ) ;
-  }
+// Suggested Revision A
+public Collection < Map . Entry < K , V >> scanAndFilterByEntry ( Predicate < ? super Map . Entry < K , V >> entryPredicate ) {
+  return mainMap . entryStream ( ) . filter ( entryPredicate ) . collect ( Collectors . toCollection ( ArrayList :: new ) ) ;
 }
 
 
-default Direction getBubbleElevatorDirection ( ) {
-  Block block = this . getBlockState ( ) . getBlock ( ) ;
-  if ( block == Blocks . BUBBLE_COLUMN ) {
-    return this . getBlockState ( ) . get ( BubbleColumnBlock . DRAG ) ? Direction . DOWN : Direction . UP ;
-  }
-  else {
-    return block . getBubbleElevatorDirection ( this . getBlockState ( ) ) ;
-  }
+// Suggested Revision B
+public Collection < Map . Entry < K , V >> scanAndFilterByEntry ( Predicate < ? super Map . Entry < K , V >> entryPredicate ) {
+  return mainMap . entryStream ( ) . parallel ( ) . filter ( entryPredicate ) . collect ( Collectors . toCollection ( ArrayList :: new ) ) ;
 }
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -466,22 +506,31 @@ default Direction getBubbleElevatorDirection ( ) {
 
 /** Toni, could we please choose better variable names here? `equals` and `equals1` do not say much for newcomer to the codebase.  Or we could avoid storing partial results by: ```java if(!Objects.equals(editorPlaceRequest, event.getPlace())) { return false; }  if (!Objects.equals(getEditorIdentifier(), event.getPlace().getIdentifier())) { return false; } return true; ```  Please let me know what do you think. */
 
-default Direction getBubbleElevatorDirection ( ) {
-  return this . getBlockState ( ) . getBlock ( ) . getBubbleElevatorDirection ( this . getBlockState ( ) ) ;
+// Manual revision
+public boolean verifyEventIdentifier ( AbstractPlaceEvent event ) {
+  return ( Objects . equals ( getEditorIdentifier ( ) , event . getPlace ( ) . getIdentifier ( ) ) && Objects . equals ( editorPlaceRequest , event . getPlace ( ) ) ) ;
 }
 
 
-default Direction getBubbleElevatorDirection ( ) {
-  return this . getBlockState ( ) . getBlock ( ) . getBubbleElevatorDirection ( this . getBlockState ( ) ) ;
+// Suggested Revision A
+public boolean verifyEventIdentifier ( AbstractPlaceEvent event ) {
+  if ( ! Objects . equals ( editorPlaceRequest , event . getPlace ( ) ) ) {
+    return false ;
+  }
+  if ( ! Objects . equals ( getEditorIdentifier ( ) , event . getPlace ( ) . getIdentifier ( ) ) ) {
+    return false ;
+  }
+  return true ;
 }
 
 
-default Direction getBubbleElevatorDirection ( ) {
-  return this . getBlockState ( ) . getBlock ( ) . getBubbleElevatorDirection ( this . getBlockState ( ) ) ;
+// Suggested Revision B
+public boolean verifyEventIdentifier ( AbstractPlaceEvent event ) {
+  return ! Objects . equals ( getEditorIdentifier ( ) , event . getPlace ( ) . getIdentifier ( ) ) ;
 }
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -489,52 +538,25 @@ default Direction getBubbleElevatorDirection ( ) {
 
 /** What is the need to make `issueArticles` nullable? It would be easier to understand this view class if we required it.  If that's totally impractical, we should consider having a separate view class to capture the difference. */
 
-public void testSystemPropertiesOverrideConfigurationValues ( ) {
-  final String keyName = CoreConfig . MAX_CASSANDRA_CONNECTIONS . toString ( ) ;
-  Configuration config = Configuration . getInstance ( ) ;
-  try {
-    Assert . assertEquals ( "75" , config . getStringProperty ( CoreConfig . MAX_CASSANDRA_CONNECTIONS ) ) ;
-    System . setProperty ( keyName , "something else" ) ;
-    Assert . assertEquals ( "something else" , config . getStringProperty ( CoreConfig . MAX_CASSANDRA_CONNECTIONS ) ) ;
-  }
-  finally {
-    System . clearProperty ( keyName ) ;
-    Configuration . clearProperty ( keyName ) ;
-  }
+// Manual revision
+public IssueOutputView ( Issue issue ) {
+  this ( issue , null ) ;
 }
 
 
-public void testSystemPropertiesOverrideConfigurationValues ( ) {
-  final String keyName = CoreConfig . MAX_CASSANDRA_CONNECTIONS . toString ( ) ;
-  Configuration config = Configuration . getInstance ( ) ;
-  try {
-    Assert . assertEquals ( "75" , config . getStringProperty ( CoreConfig . MAX_CASSANDRA_CONNECTIONS ) ) ;
-    System . setProperty ( keyName , "something else" ) ;
-    Assert . assertEquals ( "something else" , config . getStringProperty ( CoreConfig . MAX_CASSANDRA_CONNECTIONS ) ) ;
-  }
-  finally {
-    System . clearProperty ( keyName ) ;
-    Configuration . clearProperty ( keyName ) ;
-  }
+// Suggested Revision A
+public IssueOutputView ( Issue issue ) {
+  this ( issue , null , null ) ;
 }
 
 
-public void testSystemPropertiesOverrideConfigurationValues ( ) {
-  final String keyName = CoreConfig . MAX_CASSANDRA_CONNECTIONS . toString ( ) ;
-  Configuration config = Configuration . getInstance ( ) ;
-  try {
-    Assert . assertEquals ( "75" , config . getStringProperty ( CoreConfig . MAX_CASSANDRA_CONNECTIONS ) ) ;
-    System . setProperty ( keyName , "something else" ) ;
-    Assert . assertEquals ( "something else" , config . getStringProperty ( CoreConfig . MAX_CASSANDRA_CONNECTIONS ) ) ;
-  }
-  finally {
-    System . clearProperty ( keyName ) ;
-    Configuration . clearProperty ( keyName ) ;
-  }
+// Suggested Revision B
+public IssueOutputView ( Issue issue ) {
+  this ( issue ) ;
 }
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -542,52 +564,27 @@ public void testSystemPropertiesOverrideConfigurationValues ( ) {
 
 /** not 100% sure, but this breaks binary compatibility, right? */
 
-public void testSystemPropertiesOverrideConfigurationValues ( ) {
-  final String keyName = CoreConfig . MAX_CASSANDRA_CONNECTIONS . toString ( ) ;
-  Configuration config = Configuration . getInstance ( ) ;
-  try {
-    Assert . assertEquals ( "75" , config . getStringProperty ( CoreConfig . MAX_CASSANDRA_CONNECTIONS ) ) ;
-    System . setProperty ( keyName , "something else" ) ;
-    Assert . assertEquals ( "something else" , config . getStringProperty ( CoreConfig . MAX_CASSANDRA_CONNECTIONS ) ) ;
-  }
-  finally {
-    System . clearProperty ( keyName ) ;
-    config . clearProperty ( keyName ) ;
-  }
+// Manual revision
+public void setDefaultNumberOfRetries ( int defaultNumberOfRetries ) {
+  this . defaultNumberOfRetries = defaultNumberOfRetries ;
 }
 
 
-public void testSystemPropertiesOverrideConfigurationValues ( ) {
-  final String keyName = CoreConfig . MAX_CASSANDRA_CONNECTIONS . toString ( ) ;
-  Configuration config = Configuration . getInstance ( ) ;
-  try {
-    Assert . assertEquals ( "75" , config . getStringProperty ( CoreConfig . MAX_CASSANDRA_CONNECTIONS ) ) ;
-    System . setProperty ( keyName , "something else" ) ;
-    Assert . assertEquals ( "something else" , config . getStringProperty ( CoreConfig . MAX_CASSANDRA_CONNECTIONS ) ) ;
-  }
-  finally {
-    System . clearProperty ( keyName ) ;
-    config . clearProperty ( keyName ) ;
-  }
+// Suggested Revision A
+public ProcessEngineConfiguration setDefaultNumberOfRetries ( int defaultNumberOfRetries ) {
+  this . defaultNumberOfRetries = defaultNumberOfRetries ;
+  return this ;
 }
 
 
-public void testSystemPropertiesOverrideConfigurationValues ( ) {
-  final String keyName = CoreConfig . MAX_CASSANDRA_CONNECTIONS . toString ( ) ;
-  Configuration config = Configuration . getInstance ( ) ;
-  try {
-    Assert . assertEquals ( "75" , config . getStringProperty ( CoreConfig . MAX_CASSANDRA_CONNECTIONS ) ) ;
-    System . setProperty ( keyName , "something else" ) ;
-    Assert . assertEquals ( "something else" , config . getStringProperty ( CoreConfig . MAX_CASSANDRA_CONNECTIONS ) ) ;
-  }
-  finally {
-    System . clearProperty ( keyName ) ;
-    config . clearProperty ( keyName ) ;
-  }
+// Suggested Revision B
+private ProcessEngineConfiguration setDefaultNumberOfRetries ( int defaultNumberOfRetries ) {
+  this . defaultNumberOfRetries = defaultNumberOfRetries ;
+  return this ;
 }
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -595,28 +592,48 @@ public void testSystemPropertiesOverrideConfigurationValues ( ) {
 
 /** instead of an early assignment which might be overridden in line 2355, it can be set as the 'else' part of the if statement below (line 2356). */
 
-public void onSubscribe ( Subscription inner ) {
-  SubscriptionHelper . setOnce ( this , inner ) ;
-  o . onSubscribe ( this ) ;
-  inner . request ( Long . MAX_VALUE ) ;
+// Manual revision
+public long getSessionSeqId ( ) {
+  if ( sessionSeqId == null ) {
+    String sessionId = getContext ( ) . getEngineContext ( ) . getSessionId ( ) ;
+    sessionSeqId = getSessionDataContainer ( ) . isSessionExists ( sessionId ) ? getSessionDataContainer ( ) . getEngineSessionSeqId ( sessionId ) : - 1L ;
+  }
+  return sessionSeqId ;
 }
 
 
-public void onSubscribe ( Subscription inner ) {
-  SubscriptionHelper . setOnce ( this , inner ) ;
-  o . onSubscribe ( this ) ;
-  inner . request ( Long . MAX_VALUE ) ;
+// Suggested Revision A
+public long getSessionSeqId ( ) {
+  if ( sessionSeqId == - 1L ) {
+    String sessionId = getContext ( ) . getEngineContext ( ) . getSessionId ( ) ;
+    if ( getSessionDataContainer ( ) . isSessionExists ( sessionId ) ) {
+      sessionSeqId = getSessionDataContainer ( ) . getEngineSessionSeqId ( sessionId ) ;
+    }
+    else {
+      sessionSeqId = getSessionDataContainer ( ) . getEngineSessionSeqId ( sessionId ) ;
+    }
+  }
+  return sessionSeqId ;
 }
 
 
-public void onSubscribe ( Subscription inner ) {
-  SubscriptionHelper . setOnce ( this , inner ) ;
-  o . onSubscribe ( this ) ;
-  inner . request ( Long . MAX_VALUE ) ;
+// Suggested Revision B
+public long getSessionSeqId ( ) {
+  if ( sessionSeqId == null ) {
+    sessionSeqId = - 1L ;
+    String sessionId = getContext ( ) . getEngineContext ( ) . getSessionId ( ) ;
+    if ( getSessionDataContainer ( ) . isSessionExists ( sessionId ) ) {
+      sessionSeqId = getSessionDataContainer ( ) . getEngineSessionSeqId ( sessionId ) ;
+    }
+    else {
+      sessionSeqId = - 1L ;
+    }
+  }
+  return sessionSeqId ;
 }
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -624,28 +641,25 @@ public void onSubscribe ( Subscription inner ) {
 
 /** Allocate write ID is a DB/table related event and should be ignored if not lookup on this DB/table. */
 
-public void onSubscribe ( Subscription inner ) {
-  this . inner = inner ;
-  o . onSubscribe ( this ) ;
-  inner . request ( Long . MAX_VALUE ) ;
+// Manual revision
+private boolean isTxnRelatedEvent ( final NotificationEvent event ) {
+  return ( ( event . getEventType ( ) . equals ( MessageFactory . OPEN_TXN_EVENT ) ) || ( event . getEventType ( ) . equals ( MessageFactory . COMMIT_TXN_EVENT ) ) || ( event . getEventType ( ) . equals ( MessageFactory . ABORT_TXN_EVENT ) ) ) ;
 }
 
 
-public void onSubscribe ( Subscription inner ) {
-  this . inner = inner ;
-  o . onSubscribe ( this ) ;
-  inner . request ( Long . MAX_VALUE ) ;
+// Suggested Revision A
+private boolean isTxnRelatedEvent ( final NotificationEvent event ) {
+  return ( ( event . getEventType ( ) . equals ( MessageFactory . OPEN_TXN_EVENT ) ) || ( event . getEventType ( ) . equals ( MessageFactory . COMMIT_TXN_EVENT ) ) || ( event . getEventType ( ) . equals ( MessageFactory . ABORT_TXN_EVENT ) ) || ( event . getEventType ( ) . equals ( MessageFactory . ALLOC_WRITE_ID_EVENT ) ) ) ;
 }
 
 
-public void onSubscribe ( Subscription inner ) {
-  this . inner = inner ;
-  o . onSubscribe ( this ) ;
-  inner . request ( Long . MAX_VALUE ) ;
+// Suggested Revision B
+private boolean isTxnRelatedEvent ( final NotificationEvent event ) {
+  return ( ( event . getEventType ( ) . equals ( MessageFactory . OPEN_TXN_EVENT ) ) || ( event . getEventType ( ) . equals ( MessageFactory . COMMIT_TXN_EVENT ) ) || ( event . getEventType ( ) . equals ( MessageFactory . ABORT_TXN_EVENT ) ) ) ;
 }
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -653,37 +667,25 @@ public void onSubscribe ( Subscription inner ) {
 
 /** Can't we have this static flag on FS instead? Then we wouldn't need to make FileStoreAttributeCache public. */
 
-public static Color getSystemForegroundColor ( Display display ) {
-  ColorRegistry colorRegistry = JFaceResources . getColorRegistry ( ) ;
-  Color foreground = colorRegistry . get ( JFacePreferences . INFORMATION_FOREGROUND_COLOR ) ;
-  if ( foreground == null ) {
-    return JFaceColors . getInformationViewerForegroundColor ( display ) ;
-  }
-  return foreground ;
+// Manual revision
+private static void setBackground ( boolean async ) {
+  background . set ( async ) ;
 }
 
 
-public static Color getSystemForegroundColor ( Display display ) {
-  ColorRegistry colorRegistry = JFaceResources . getColorRegistry ( ) ;
-  Color foreground = colorRegistry . get ( JFacePreferences . INFORMATION_FOREGROUND_COLOR ) ;
-  if ( foreground == null ) {
-    return JFaceColors . getInformationViewerForegroundColor ( display ) ;
-  }
-  return foreground ;
+// Suggested Revision A
+static void setBackground ( boolean async ) {
+  background = async ;
 }
 
 
-public static Color getSystemForegroundColor ( Display display ) {
-  ColorRegistry colorRegistry = JFaceResources . getColorRegistry ( ) ;
-  Color foreground = colorRegistry . get ( JFacePreferences . INFORMATION_FOREGROUND_COLOR ) ;
-  if ( foreground == null ) {
-    return JFaceColors . getInformationViewerForegroundColor ( display ) ;
-  }
-  return foreground ;
+// Suggested Revision B
+private static void setBackground ( boolean async ) {
+  background = async ;
 }
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
@@ -691,37 +693,37 @@ public static Color getSystemForegroundColor ( Display display ) {
 
 /** For a small maximuSize, like 1, it may be more reasonable to check for:  map.size() > maximumSize */
 
-private static Color getSystemForegroundColor ( Display display ) {
-  ColorRegistry colorRegistry = JFaceResources . getColorRegistry ( ) ;
-  Color foreground = colorRegistry . get ( JFacePreferences . INFORMATION_FOREGROUND_COLOR ) ;
-  if ( foreground == null ) {
-    return JFaceColors . getInformationViewerForegroundColor ( display ) ;
+// Manual revision
+public V put ( @ NonNull K key , @ NonNull V value ) {
+  map . put ( key , new Entry < > ( key , value , ++ time ) ) ;
+  if ( map . size ( ) > maximumSize ) {
+    purge ( ) ;
   }
-  return foreground ;
+  return value ;
 }
 
 
-private static Color getSystemForegroundColor ( Display display ) {
-  ColorRegistry colorRegistry = JFaceResources . getColorRegistry ( ) ;
-  Color foreground = colorRegistry . get ( JFacePreferences . INFORMATION_FOREGROUND_COLOR ) ;
-  if ( foreground == null ) {
-    return JFaceColors . getInformationViewerForegroundColor ( display ) ;
+// Suggested Revision A
+public V put ( @ NonNull K key , @ NonNull V value ) {
+  if ( map . size ( ) > maximumSize ) {
+    purge ( ) ;
   }
-  return foreground ;
+  map . put ( key , new Entry < > ( key , value , ++ time ) ) ;
+  return value ;
 }
 
 
-private static Color getSystemForegroundColor ( Display display ) {
-  ColorRegistry colorRegistry = JFaceResources . getColorRegistry ( ) ;
-  Color foreground = colorRegistry . get ( JFacePreferences . INFORMATION_FOREGROUND_COLOR ) ;
-  if ( foreground == null ) {
-    return JFaceColors . getInformationViewerForegroundColor ( display ) ;
+// Suggested Revision B
+public V put ( @ NonNull K key , @ NonNull V value ) {
+  map . put ( key , new Entry < > ( key , value , ++ time ) ) ;
+  if ( map . size ( ) > maximumSize ) {
+    purge ( ) ;
   }
-  return foreground ;
+  return value ;
 }
 
 
-*************************this is the dividing line*****************************
+==========================this is the dividing line=============================
 
 
 
