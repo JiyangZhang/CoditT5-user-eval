@@ -1,793 +1,724 @@
 /** Example 0 */
 
-/** maybe you need a specific Exception Type */
+/** if repository is null, this will throw an NPE. */
 
-// Manual revision
-void verifyMetadata ( MessageMetadata metadata ) throws Exception {
-  if ( metadata . getMessageMetadataType ( ) != MessageType . LOG_ENTRY_MESSAGE ) {
-    log . error ( "Wrong message metadata {
-}, expecting  type {
-}
- snapshot {
-}" , metadata , MessageType . LOG_ENTRY_MESSAGE , srcGlobalSnapshot ) ;
-  throw new Exception ( "wrong type of message" ) ;
-}
+boolean isProjectStyle ( ) {
+  if ( myIsFrameworkStyle ) {
+    return false ;
+  }
+  ProjectResourceRepository repository = ProjectResourceRepository . getProjectResources ( myConfiguration . getModule ( ) , true ) ;
+  assert repository != null : repository . getDisplayName ( ) ;
+  return repository . hasResourceItem ( ResourceType . STYLE , myStyleName ) ;
 }
 
 
-// Suggested Revision A
-void verifyMetadata ( MessageMetadata metadata ) {
-  if ( metadata . getMessageMetadataType ( ) != MessageType . LOG_ENTRY_MESSAGE || metadata . getSnapshotTimestamp ( ) != srcGlobalSnapshot ) {
-    log . error ( "Wrong message metadata {
-}, expecting  type {
-}
- snapshot {
-}" , metadata , MessageType . LOG_ENTRY_MESSAGE , srcGlobalSnapshot ) ;
-  throw new Exception ( "wrong type of message" ) ;
-}
+boolean isProjectStyle ( ) {
+  if ( myIsFrameworkStyle ) {
+    return false ;
+  }
+  ProjectResourceRepository repository = ProjectResourceRepository . getProjectResources ( myConfiguration . getModule ( ) , true ) ;
+  assert repository != null : repository . getDisplayName ( ) ;
+  return repository . hasResourceItem ( ResourceType . STYLE , myStyleName ) ;
 }
 
 
-// Suggested Revision B
-void verifyMetadata ( MessageMetadata metadata ) throws Exception {
-  if ( metadata . getMessageMetadataType ( ) != MessageType . LOG_ENTRY_MESSAGE || metadata . getSnapshotTimestamp ( ) != srcGlobalSnapshot ) {
-    log . error ( "Wrong message metadata {
-}, expecting  type {
-}
- snapshot {
-}" , metadata , MessageType . LOG_ENTRY_MESSAGE , srcGlobalSnapshot ) ;
-  throw new Exception ( "wrong type of message" ) ;
-}
+boolean isProjectStyle ( ) {
+  if ( myIsFrameworkStyle ) {
+    return false ;
+  }
+  ProjectResourceRepository repository = ProjectResourceRepository . getProjectResources ( myConfiguration . getModule ( ) , true ) ;
+  assert repository != null : repository . getDisplayName ( ) ;
+  return repository . hasResourceItem ( ResourceType . STYLE , myStyleName ) ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 1 */
 
-/** what is this part for? you are not checking throw statements. */
+/** Should this be done in `OutputCommitter#setupTask` instead of here? This method could be called more than once, but we want to ensure we set up the environment config just one time per task. The `setupTask` methods seems like a good place, unless you have a reason to do it here? */
 
-// Manual revision
-public void setPrice1 ( int price3 ) {
-  if ( true ) {
-    assert price3 > 1000 ;
-  }
+private static < E > View < E > load ( JobContext jobContext ) {
+  Configuration conf = Hadoop . JobContext . getConfiguration . invoke ( jobContext ) ;
+  Class < E > type = getType ( jobContext ) ;
+  String outputUri = conf . get ( KITE_OUTPUT_URI ) ;
+  DefaultConfiguration . set ( conf ) ;
+  return Datasets . < E , View < E >> load ( outputUri , type ) ;
 }
 
 
-// Suggested Revision A
-public void setPrice1 ( int price3 ) {
-  if ( price3 < 0 || price3 > 10000 ) {
-    throw new IllegalArgumentException ( "Invalid price: " + price3 ) ;
-  }
-  if ( true ) {
-    assert price3 > 1000 ;
-  }
+private static < E > View < E > load ( JobContext jobContext ) {
+  Configuration conf = Hadoop . JobContext . getConfiguration . invoke ( jobContext ) ;
+  Class < E > type = getType ( jobContext ) ;
+  String outputUri = conf . get ( KITE_OUTPUT_URI ) ;
+  DefaultConfiguration . set ( conf ) ;
+  return Datasets . < E , View < E >> load ( outputUri , type ) ;
 }
 
 
-// Suggested Revision B
-public void setPrice1 ( int price3 ) {
-  if ( price3 < 0 || price3 > 10000 ) {
-    throw new IllegalArgumentException ( "Invalid price: " + price3 ) ;
-  }
-  assert price3 > 1000 ;
+private static < E > View < E > load ( JobContext jobContext ) {
+  Configuration conf = Hadoop . JobContext . getConfiguration . invoke ( jobContext ) ;
+  Class < E > type = getType ( jobContext ) ;
+  String outputUri = conf . get ( KITE_OUTPUT_URI ) ;
+  DefaultConfiguration . set ( conf ) ;
+  return Datasets . < E , View < E >> load ( outputUri , type ) ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 2 */
 
-/** This will fail on `null` */
+/** redundant */
 
-// Manual revision
-public String evaluate ( TransactionContext txnCtx , Input < Object > [ ] args ) {
-  assert args . length == 2 : "repeat takes exactly two arguments" ;
-  var text = ( String ) args [ 0 ] . value ( ) ;
-  var repetitions = ( Integer ) args [ 1 ] . value ( ) ;
-  if ( text == null || repetitions == null ) {
-    return null ;
-  }
-  if ( repetitions <= 0 ) {
-    return "" ;
+ShardRewriter createShardRewriter ( FileSystemContext fileSystemContext , FileSystem fileSystem , long transactionId , OptionalInt bucketNumber , UUID shardUuid , int shardRowCount , Optional < UUID > deltaShardUuid , boolean tableSupportsDeltaDelete , Map < String , Type > columns ) {
+  if ( tableSupportsDeltaDelete ) {
+    return new DeltaShardRewriter ( shardUuid , shardRowCount , deltaShardUuid , deletionExecutor , transactionId , bucketNumber , this , fileSystemContext , fileSystem ) ;
   }
   else {
-    return text . repeat ( repetitions ) ;
+    return new InplaceShardRewriter ( shardUuid , columns , deletionExecutor , transactionId , bucketNumber , nodeId , this , fileSystem , storageService , shardRecorder , backupManager ) ;
   }
 }
 
 
-// Suggested Revision A
-public String evaluate ( TransactionContext txnCtx , Input < Object > [ ] args ) {
-  assert args . length == 2 : "repeat takes exactly two arguments" ;
-  var text = ( String ) args [ 0 ] . value ( ) ;
-  var repetitions = ( int ) args [ 1 ] . value ( ) ;
-  if ( repetitions <= 0 ) {
-    return "" ;
+ShardRewriter createShardRewriter ( FileSystemContext fileSystemContext , FileSystem fileSystem , long transactionId , OptionalInt bucketNumber , UUID shardUuid , int shardRowCount , Optional < UUID > deltaShardUuid , boolean tableSupportsDeltaDelete , Map < String , Type > columns ) {
+  if ( tableSupportsDeltaDelete ) {
+    return new DeltaShardRewriter ( shardUuid , shardRowCount , deltaShardUuid , deletionExecutor , transactionId , bucketNumber , this , fileSystemContext , fileSystem ) ;
   }
   else {
-    return text . repeat ( repetitions ) ;
+    return new InplaceShardRewriter ( shardUuid , columns , deletionExecutor , transactionId , bucketNumber , nodeId , this , fileSystem , storageService , shardRecorder , backupManager ) ;
   }
 }
 
 
-// Suggested Revision B
-public String evaluate ( TransactionContext txnCtx , Input < Object > [ ] args ) {
-  assert args . length == 2 : "repeat takes exactly two arguments" ;
-  var text = ( String ) args [ 0 ] . value ( ) ;
-  if ( text == null ) {
-    return "" ;
-  }
-  var repetitions = ( int ) args [ 1 ] . value ( ) ;
-  if ( repetitions <= 0 ) {
-    return "" ;
+ShardRewriter createShardRewriter ( FileSystemContext fileSystemContext , FileSystem fileSystem , long transactionId , OptionalInt bucketNumber , UUID shardUuid , int shardRowCount , Optional < UUID > deltaShardUuid , boolean tableSupportsDeltaDelete , Map < String , Type > columns ) {
+  if ( tableSupportsDeltaDelete ) {
+    return new DeltaShardRewriter ( shardUuid , shardRowCount , deltaShardUuid , deletionExecutor , transactionId , bucketNumber , this , fileSystemContext , fileSystem ) ;
   }
   else {
-    return text . repeat ( repetitions ) ;
+    return new InplaceShardRewriter ( shardUuid , columns , deletionExecutor , transactionId , bucketNumber , nodeId , this , fileSystem , storageService , shardRecorder , backupManager ) ;
   }
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 3 */
 
-/** Please use {} for every if/else/for/etc. block. */
+/** Instanceof nightmare? */
 
-// Manual revision
-public static ProjectBuildType getProjectType ( IProject project ) {
-  if ( isAutoTools ( project ) ) {
-    return ProjectBuildType . AUTO_TOOLS ;
-  }
-  IConfiguration defaultConfiguration = helper_getActiveConfiguration ( project ) ;
-  IBuilder builder = defaultConfiguration . getBuilder ( ) ;
-  Boolean projIsManaged = builder . isManagedBuildOn ( ) ;
-  if ( projIsManaged ) {
-    return ProjectBuildType . MANAGED_MAKEFILE ;
-  }
-  else {
-    return ProjectBuildType . OTHER ;
-  }
+protected IMicroblockContainerTile getMicroblockTile ( IBlockAccess world , BlockPos pos ) {
+  TileEntity tile = world . getTileEntity ( pos ) ;
+  return tile instanceof IMicroblockContainerTile ? ( IMicroblockContainerTile ) tile : null ;
 }
 
 
-// Suggested Revision A
-public static ProjectBuildType getProjectType ( IProject project ) {
-  if ( isAutoTools ( project ) ) {
-    return ProjectBuildType . AUTO_TOOLS ;
-  }
-  IConfiguration defaultConfiguration = helper_getActiveConfiguration ( project ) ;
-  IBuilder builder = defaultConfiguration . getBuilder ( ) ;
-  Boolean projIsManaged = builder . isManagedBuildOn ( ) ;
-  if ( projIsManaged ) {
-    return ProjectBuildType . MANAGED_MAKEFILE ;
-  }
-  else {
-    return ProjectBuildType . OTHER ;
-  }
+protected IMicroblockContainerTile getMicroblockTile ( IBlockAccess world , BlockPos pos ) {
+  TileEntity tile = world . getTileEntity ( pos ) ;
+  return tile instanceof IMicroblockContainerTile ? ( IMicroblockContainerTile ) tile : null ;
 }
 
 
-// Suggested Revision B
-public static ProjectBuildType getProjectType ( IProject project ) {
-  if ( isAutoTools ( project ) ) {
-    return ProjectBuildType . AUTO_TOOLS ;
-  }
-  IConfiguration defaultConfiguration = helper_getActiveConfiguration ( project ) ;
-  IBuilder builder = defaultConfiguration . getBuilder ( ) ;
-  Boolean projIsManaged = builder . isManagedBuildOn ( ) ;
-  if ( projIsManaged ) {
-    return ProjectBuildType . MANAGED_MAKEFILE ;
-  }
-  return ProjectBuildType . OTHER ;
+protected IMicroblockContainerTile getMicroblockTile ( IBlockAccess world , BlockPos pos ) {
+  TileEntity tile = world . getTileEntity ( pos ) ;
+  return tile instanceof IMicroblockContainerTile ? ( IMicroblockContainerTile ) tile : null ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 4 */
 
-/** public */
+/** This will always return true, did you want cuEinvoiceDao instead of null here */
 
-// Manual revision
-public PinotQueryGeneratorContext visitFilter ( FilterNode node , PinotQueryGeneratorContext context ) {
-  context = node . getSource ( ) . accept ( this , context ) ;
-  requireNonNull ( context , "context is null" ) ;
-  LinkedHashMap < VariableReferenceExpression , Selection > selections = context . getSelections ( ) ;
-  String filter = node . getPredicate ( ) . accept ( pinotFilterExpressionConverter , selections :: get ) . getDefinition ( ) ;
-  return context . withFilter ( filter ) . withOutputColumns ( node . getOutputVariables ( ) ) ;
+private CuEinvoiceDao getCuEinvoiceDao ( ) {
+  if ( ObjectUtils . isNull ( null ) ) {
+    cuEinvoiceDao = SpringContext . getBean ( CuEinvoiceDaoOjb . class ) ;
+  }
+  return cuEinvoiceDao ;
 }
 
 
-// Suggested Revision A
-public PinotQueryGeneratorContext visitFilter ( FilterNode node , PinotQueryGeneratorContext context ) {
-  context = node . getSource ( ) . accept ( this , context ) ;
-  requireNonNull ( context , "context is null" ) ;
-  LinkedHashMap < VariableReferenceExpression , Selection > selections = context . getSelections ( ) ;
-  String filter = node . getPredicate ( ) . accept ( pinotFilterExpressionConverter , ( var ) -> selections . get ( var ) ) . getDefinition ( ) ;
-  return context . withFilter ( filter ) . withOutputColumns ( node . getOutputVariables ( ) ) ;
+private CuEinvoiceDao getCuEinvoiceDao ( ) {
+  if ( ObjectUtils . isNull ( null ) ) {
+    cuEinvoiceDao = SpringContext . getBean ( CuEinvoiceDaoOjb . class ) ;
+  }
+  return cuEinvoiceDao ;
 }
 
 
-// Suggested Revision B
-private PinotQueryGeneratorContext visitFilter ( FilterNode node , PinotQueryGeneratorContext context ) {
-  context = node . getSource ( ) . accept ( this , context ) ;
-  requireNonNull ( context , "context is null" ) ;
-  LinkedHashMap < VariableReferenceExpression , Selection > selections = context . getSelections ( ) ;
-  String filter = node . getPredicate ( ) . accept ( pinotFilterExpressionConverter , ( var ) -> selections . get ( var ) ) . getDefinition ( ) ;
-  return context . withFilter ( filter ) . withOutputColumns ( node . getOutputVariables ( ) ) ;
+private CuEinvoiceDao getCuEinvoiceDao ( ) {
+  if ( ObjectUtils . isNull ( null ) ) {
+    cuEinvoiceDao = SpringContext . getBean ( CuEinvoiceDaoOjb . class ) ;
+  }
+  return cuEinvoiceDao ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 5 */
 
-/** JavaDoc and method signature did not match. Please update the JavaDoc! */
+/** ```suggestion requestData = request; ``` */
 
-// Manual revision
-Space ( String enumeratedValue ) {
-  this . enumeratedValue = enumeratedValue ;
+protected String contentFrom ( FitNesseContext context , Request request , WikiPage requestedPage ) {
+  requestData = request ;
+  return prepareResponseDocument ( context ) . html ( ) ;
 }
 
 
-// Suggested Revision A
-private Space ( String enumeratedValue ) {
-  this . enumeratedValue = enumeratedValue ;
+protected String contentFrom ( FitNesseContext context , Request request , WikiPage requestedPage ) {
+  requestData = request ;
+  return prepareResponseDocument ( context ) . html ( ) ;
 }
 
 
-// Suggested Revision B
-public Space ( String enumeratedValue ) {
-  this . enumeratedValue = enumeratedValue ;
+protected String contentFrom ( FitNesseContext context , Request request , WikiPage requestedPage ) {
+  requestData = request ;
+  return prepareResponseDocument ( context ) . html ( ) ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 6 */
 
-/** For this it's better to do:  ``` threadsLocked.inc(); try { // other stuff } finally { threadsLocked.dec(); } ```  This way if an exception is thrown we still decrement the threadsLocked counter. */
+/** Currently when the test fails with any error then there is no stacktrace to the original failure, which I think makes pinpointing the culprit easier?  That being said, this is just preference, so feel free to ignore :) */
 
-// Manual revision
-public void lock ( T id ) throws InterruptedException {
-  threadsLocked . inc ( ) ;
+public void testValidateDataStreamsNoConflicts ( ) {
+  Metadata metadata = createIndices ( 5 , 10 , "foo-datastream" ) . metadata ;
   try {
-    idsLocked . update ( 1 ) ;
-    lockInternal ( id ) ;
+    validateDataStreams ( metadata . getIndicesLookup ( ) , ( DataStreamMetadata ) metadata . customs ( ) . get ( DataStreamMetadata . TYPE ) ) ;
   }
-  finally {
-    threadsLocked . dec ( ) ;
+  catch ( Exception e ) {
+    fail ( "did not expect exception when validating a system without indices that would conflict with future backing indices: " + e . getMessage ( ) ) ;
   }
 }
 
 
-// Suggested Revision A
-public void lock ( T id ) throws InterruptedException {
-  threadsLocked . inc ( ) ;
-  idsLocked . update ( 1 ) ;
-  lockInternal ( id ) ;
-}
-
-
-// Suggested Revision B
-public void lock ( T id ) throws InterruptedException {
+public void testValidateDataStreamsNoConflicts ( ) {
+  Metadata metadata = createIndices ( 5 , 10 , "foo-datastream" ) . metadata ;
   try {
-    threadsLocked . inc ( ) ;
-    idsLocked . update ( 1 ) ;
-    lockInternal ( id ) ;
+    validateDataStreams ( metadata . getIndicesLookup ( ) , ( DataStreamMetadata ) metadata . customs ( ) . get ( DataStreamMetadata . TYPE ) ) ;
   }
-  finally {
-    threadsLocked . dec ( ) ;
+  catch ( Exception e ) {
+    fail ( "did not expect exception when validating a system without indices that would conflict with future backing indices: " + e . getMessage ( ) ) ;
   }
 }
 
 
-==========================this is the dividing line=============================
+public void testValidateDataStreamsNoConflicts ( ) {
+  Metadata metadata = createIndices ( 5 , 10 , "foo-datastream" ) . metadata ;
+  try {
+    validateDataStreams ( metadata . getIndicesLookup ( ) , ( DataStreamMetadata ) metadata . customs ( ) . get ( DataStreamMetadata . TYPE ) ) ;
+  }
+  catch ( Exception e ) {
+    fail ( "did not expect exception when validating a system without indices that would conflict with future backing indices: " + e . getMessage ( ) ) ;
+  }
+}
+
+
+*************************this is the dividing line*****************************
 
 
 
 /** Example 7 */
 
-/** looks like syntax typo  (`Add position checks in RunLenghtEncodedBlock` commit) */
+/** if you use AppiumDriver<?> driver = (AppiumDriver<?>) getDriverSafe(); then there is no sense in if (driver instanceof AppiumDriver) */
 
-// Manual revision
-public RunLengthEncodedBlock ( Block value , int positionCount ) {
-  requireNonNull ( value , "value is null" ) ;
-  if ( value . getPositionCount ( ) != 1 ) {
-    throw new IllegalArgumentException ( format ( "Expected value to contain a single position but has %s positions" , value . getPositionCount ( ) ) ) ;
+private AppiumDriver getDriverSafe ( ) {
+  WebDriver driver = getDriver ( ) ;
+  if ( driver instanceof EventFiringWebDriver ) {
+    driver = ( ( EventFiringWebDriver ) driver ) . getWrappedDriver ( ) ;
+    if ( driver instanceof AppiumDriver ) {
+      return ( AppiumDriver ) driver ;
+    }
   }
-  if ( value instanceof RunLengthEncodedBlock ) {
-    this . value = ( ( RunLengthEncodedBlock ) value ) . getValue ( ) ;
-  }
-  else {
-    this . value = value ;
-  }
-  if ( positionCount < 0 ) {
-    throw new IllegalArgumentException ( "positionCount is negative" ) ;
-  }
-  this . positionCount = positionCount ;
+  throw new ClassCastException ( "Appium Driver can not be casted from the actual driver." ) ;
 }
 
 
-// Suggested Revision A
-public RunLengthEncodedBlock ( Block value , int positionCount ) {
-  requireNonNull ( value , "value is null" ) ;
-  if ( value . getPositionCount ( ) != 1 ) {
-    throw new IllegalArgumentException ( format ( "Expected value to contain a single position but has %s positions" , value . getPositionCount ( ) ) ) ;
+private AppiumDriver getDriverSafe ( ) {
+  WebDriver driver = getDriver ( ) ;
+  if ( driver instanceof EventFiringWebDriver ) {
+    driver = ( ( EventFiringWebDriver ) driver ) . getWrappedDriver ( ) ;
+    if ( driver instanceof AppiumDriver ) {
+      return ( AppiumDriver ) driver ;
+    }
   }
-  if ( value instanceof RunLengthEncodedBlock ) {
-    throw new IllegalArgumentException ( format ( "Value can not be an instance of a %s" , getClass ( ) . getName ( ) ) ) ;
-  }
-  this . value = value ;
-  this . positionCount = positionCount ;
+  throw new ClassCastException ( "Appium Driver can not be casted from the actual driver." ) ;
 }
 
 
-// Suggested Revision B
-public RunLengthEncodedBlock ( Block value , int positionCount ) {
-  if ( value . getPositionCount ( ) != 1 ) {
-    throw new IllegalArgumentException ( format ( "Expected value to contain a single position but has %s positions" , value . getPositionCount ( ) ) ) ;
+private AppiumDriver getDriverSafe ( ) {
+  WebDriver driver = getDriver ( ) ;
+  if ( driver instanceof EventFiringWebDriver ) {
+    driver = ( ( EventFiringWebDriver ) driver ) . getWrappedDriver ( ) ;
+    if ( driver instanceof AppiumDriver ) {
+      return ( AppiumDriver ) driver ;
+    }
   }
-  if ( value instanceof RunLengthEncodedBlock ) {
-    throw new IllegalArgumentException ( format ( "Value can not be an instance of a %s" , getClass ( ) . getName ( ) ) ) ;
-  }
-  if ( positionCount < 0 ) {
-    throw new IllegalArgumentException ( "positionCount is negative" ) ;
-  }
-  this . value = value this . positionCount = positionCount ;
+  throw new ClassCastException ( "Appium Driver can not be casted from the actual driver." ) ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 8 */
 
-/** I would prefer to use full words. For example `directoryAllow`. */
+/** return immediately, no need to store it in a local var */
 
-// Manual revision
-public void init ( FilterConfig filterConfig ) throws ServletException {
+private Optional < Cookie > findCookieWithName ( String cookieName , HttpClient httpClient ) {
+  Optional < Cookie > cookie = Arrays . stream ( httpClient . getState ( ) . getCookies ( ) ) . filter ( c -> cookieName . equals ( c . getName ( ) ) ) . findFirst ( ) ;
+  return cookie ;
 }
 
 
-// Suggested Revision A
-public void init ( FilterConfig filterConfig ) throws ServletException {
-  directoryAllow = Context . getConfig ( ) . getBoolean ( "media.dirAllowed" ) ;
+private Optional < Cookie > findCookieWithName ( String cookieName , HttpClient httpClient ) {
+  Optional < Cookie > cookie = Arrays . stream ( httpClient . getState ( ) . getCookies ( ) ) . filter ( c -> cookieName . equals ( c . getName ( ) ) ) . findFirst ( ) ;
+  return cookie ;
 }
 
 
-// Suggested Revision B
-public void init ( FilterConfig filterConfig ) throws ServletException {
-  dirAllowed = Context . getConfig ( ) . getBoolean ( "media.dirAllowed" ) ;
+private Optional < Cookie > findCookieWithName ( String cookieName , HttpClient httpClient ) {
+  Optional < Cookie > cookie = Arrays . stream ( httpClient . getState ( ) . getCookies ( ) ) . filter ( c -> cookieName . equals ( c . getName ( ) ) ) . findFirst ( ) ;
+  return cookie ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 9 */
 
-/** Another extra space, can you plese cleanup all these similar things? There're a few others, some functions have spaces in parameters, some don't like `queryPos( APPBARDATA ABData )` vs. `dwABM.setValue(ShellAPI.ABM_QUERYPOS);`. Sorry to be a pest, just looks messy and inconsistent. */
+/** The expected value should be 1st, it affects error messages by junit */
 
-// Manual revision
-private void removeAppBar ( ) {
-  APPBARDATA data = new APPBARDATA . ByReference ( ) ;
-  data . cbSize . setValue ( data . size ( ) ) ;
-  UINT_PTR result = Shell32 . INSTANCE . SHAppBarMessage ( new DWORD ( ShellAPI . ABM_REMOVE ) , data ) ;
-  assertNotNull ( result ) ;
+public void checkIPAdress ( ) {
+  Set < ConstraintViolation < IPAdress >> validate = validator . validate ( new IPAdress ( address ) ) ;
+  assertEquals ( validate . isEmpty ( ) , expectedResult ) ;
 }
 
 
-// Suggested Revision A
-
-
-// Suggested Revision B
-private void removeAppBar ( ) {
-  APPBARDATA data = new APPBARDATA . ByReference ( ) ;
-  data . cbSize . setValue ( data . size ( ) ) ;
-  data . cbSize . setValue ( data . size ( ) ) ;
-  UINT_PTR result = Shell32 . INSTANCE . SHAppBarMessage ( new DWORD ( ShellAPI . ABM_REMOVE ) , data ) ;
-  assertNotNull ( result ) ;
+public void checkIPAdress ( ) {
+  Set < ConstraintViolation < IPAdress >> validate = validator . validate ( new IPAdress ( address ) ) ;
+  assertEquals ( validate . isEmpty ( ) , expectedResult ) ;
 }
 
 
-// Suggested Revision C
-private void removeAppBar ( ) {
-  APPBARDATA ABData = new APPBARDATA . ByReference ( ) ;
-  ABData . cbSize . setValue ( ABData . size ( ) ) ;
-  dwABM . setValue ( ShellAPI . ABM_REMOVE ) ;
-  UINT_PTR result = Shell32 . INSTANCE . SHAppBarMessage ( dwABM , ABData ) ;
-  assertNotNull ( result ) ;
+public void checkIPAdress ( ) {
+  Set < ConstraintViolation < IPAdress >> validate = validator . validate ( new IPAdress ( address ) ) ;
+  assertEquals ( validate . isEmpty ( ) , expectedResult ) ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 10 */
 
-/** It is always expected that launch would be an instance of GdbLaunch, I don't think the check is required. */
+/** the .contains() should probably be in the synchronized block too */
 
-// Manual revision
-protected Sequence getServicesSequence ( DsfSession session , ILaunch launch , IProgressMonitor rm ) {
-  return new ServicesLaunchSequence ( session , ( GdbLaunch ) launch , rm ) ;
-}
-
-
-// Suggested Revision A
-protected Sequence getServicesSequence ( DsfSession session , ILaunch launch , IProgressMonitor rm ) {
-  if ( launch instanceof GdbLaunch ) {
-    return new ServicesLaunchSequence ( session , ( GdbLaunch ) launch , rm ) ;
+public void notifyParameterChanged ( String name ) {
+  if ( ! fParameterNames . contains ( name ) ) {
+    throw new RuntimeException ( String . format ( Messages . TmfAbstractAnalysisModule_InvalidParameter , name , getName ( ) ) ) ;
   }
-  return null ;
+  synchronized ( fParameters ) {
+    Object oldValue = fParameters . get ( name ) ;
+    Object value = getParameter ( name ) ;
+    if ( ( value != null ) && ! ( value . equals ( oldValue ) ) ) {
+      parameterChanged ( name ) ;
+    }
+  }
 }
 
 
-// Suggested Revision B
-protected Sequence getServicesSequence ( DsfSession session , ILaunch launch , IProgressMonitor rm ) {
-  return new ServicesLaunchSequence ( session , launch , rm ) ;
+public void notifyParameterChanged ( String name ) {
+  if ( ! fParameterNames . contains ( name ) ) {
+    throw new RuntimeException ( String . format ( Messages . TmfAbstractAnalysisModule_InvalidParameter , name , getName ( ) ) ) ;
+  }
+  synchronized ( fParameters ) {
+    Object oldValue = fParameters . get ( name ) ;
+    Object value = getParameter ( name ) ;
+    if ( ( value != null ) && ! ( value . equals ( oldValue ) ) ) {
+      parameterChanged ( name ) ;
+    }
+  }
 }
 
 
-==========================this is the dividing line=============================
+public void notifyParameterChanged ( String name ) {
+  if ( ! fParameterNames . contains ( name ) ) {
+    throw new RuntimeException ( String . format ( Messages . TmfAbstractAnalysisModule_InvalidParameter , name , getName ( ) ) ) ;
+  }
+  synchronized ( fParameters ) {
+    Object oldValue = fParameters . get ( name ) ;
+    Object value = getParameter ( name ) ;
+    if ( ( value != null ) && ! ( value . equals ( oldValue ) ) ) {
+      parameterChanged ( name ) ;
+    }
+  }
+}
+
+
+*************************this is the dividing line*****************************
 
 
 
 /** Example 11 */
 
-/** `MiddlewareQueryException` is now a run time exception so it is not required to be part of the method signature. Not invalid to have it in signature, but Sonar will report it as a _Major_ category violation. */
+/** But we are moving to UNJOINED anyway, so it won't affect the result right? */
 
-// Manual revision
-public AdvanceResult advanceNursery ( final AdvancingNursery advanceInfo , final Workbook workbook ) throws RuleException , FieldbookException {
-  return this . namingConventionService . advanceNursery ( advanceInfo , workbook ) ;
+private synchronized void resetGeneration ( ) {
+  this . generation = Generation . NO_GENERATION ;
+  rejoinNeeded = true ;
+  if ( state != MemberState . REBALANCING ) state = MemberState . UNJOINED ;
 }
 
 
-// Suggested Revision A
-public AdvanceResult advanceNursery ( final AdvancingNursery advanceInfo , final Workbook workbook ) throws RuleException , FieldbookException {
-  return this . namingConventionService . advanceNursery ( advanceInfo , workbook ) ;
+private synchronized void resetGeneration ( ) {
+  this . generation = Generation . NO_GENERATION ;
+  rejoinNeeded = true ;
+  if ( state != MemberState . REBALANCING ) state = MemberState . UNJOINED ;
 }
 
 
-// Suggested Revision B
-public AdvanceResult advanceNursery ( final AdvancingNursery advanceInfo , final Workbook workbook ) throws FieldbookException {
-  return this . namingConventionService . advanceNursery ( advanceInfo , workbook ) ;
+private synchronized void resetGeneration ( ) {
+  this . generation = Generation . NO_GENERATION ;
+  rejoinNeeded = true ;
+  if ( state != MemberState . REBALANCING ) state = MemberState . UNJOINED ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 12 */
 
-/** Please make it non-static, similar to what is done with ManagementNetworkFinder */
+/** please remove redundant brackets (isInter...) */
 
-// Manual revision
-public org . ovirt . engine . api . model . Cluster update ( org . ovirt . engine . api . model . Cluster incoming ) {
-  return performUpdate ( incoming , new QueryIdResolver < > ( VdcQueryType . GetClusterById , IdQueryParameters . class ) , VdcActionType . UpdateCluster , new UpdateParametersProvider ( this ) ) ;
+protected Guid getQuotaId ( ) {
+  if ( getNewDisk ( ) != null && ( isInternalManagedDisk ( ) ) ) {
+    return ( ( DiskImage ) getNewDisk ( ) ) . getQuotaId ( ) ;
+  }
+  return null ;
 }
 
 
-// Suggested Revision A
-public static org . ovirt . engine . api . model . Cluster update ( org . ovirt . engine . api . model . Cluster incoming ) {
-  MacPool macPool = incoming . getMacPool ( ) ;
-  macPool . setId ( MacPoolIdByIdOrName . get ( macPool . getId ( ) , macPool . getName ( ) , this ) ) ;
-  return performUpdate ( incoming , new QueryIdResolver < > ( VdcQueryType . GetClusterById , IdQueryParameters . class ) , VdcActionType . UpdateCluster , new UpdateParametersProvider ( ) ) ;
+protected Guid getQuotaId ( ) {
+  if ( getNewDisk ( ) != null && ( isInternalManagedDisk ( ) ) ) {
+    return ( ( DiskImage ) getNewDisk ( ) ) . getQuotaId ( ) ;
+  }
+  return null ;
 }
 
 
-// Suggested Revision B
-public org . ovirt . engine . api . model . Cluster update ( org . ovirt . engine . api . model . Cluster incoming ) {
-  MacPool macPool = incoming . getMacPool ( ) ;
-  macPool . setId ( MacPoolIdByIdOrName . get ( macPool . getId ( ) , macPool . getName ( ) , this ) ) ;
-  return performUpdate ( incoming , new QueryIdResolver < > ( VdcQueryType . GetClusterById , IdQueryParameters . class ) , VdcActionType . UpdateCluster , new UpdateParametersProvider ( ) ) ;
+protected Guid getQuotaId ( ) {
+  if ( getNewDisk ( ) != null && ( isInternalManagedDisk ( ) ) ) {
+    return ( ( DiskImage ) getNewDisk ( ) ) . getQuotaId ( ) ;
+  }
+  return null ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 13 */
 
-/** I think it makes more sense to omit this assert in the expected exception cases? */
+/** So model change listener will be called twice for single modification? I do not like it. @monperrus Could you explain why it is good? */
 
-// Manual revision
-public void testReservedSkippableBeforeStreamIdentifier ( ) throws Exception {
-  ByteBuf in = Unpooled . wrappedBuffer ( new byte [ ] {
-    - 0x7f , 0x06 , 0x00 , 0x00 , 's' , 'n' , 'e' , 't' , 't' , 'y' }
-    ) ;
-    channel . writeInbound ( in ) ;
+public < C extends CtTypedElement > C setType ( CtTypeReference < T > type ) {
+  if ( type != null ) {
+    type . setParent ( this ) ;
   }
-  
-
-// Suggested Revision A
-public void testReservedSkippableBeforeStreamIdentifier ( ) throws Exception {
-  ByteBuf in = Unpooled . wrappedBuffer ( new byte [ ] {
-    - 0x7f , 0x06 , 0x00 , 0x00 , 's' , 'n' , 'e' , 't' , 't' , 'y' }
-    ) ;
-    assertFalse ( channel . writeInbound ( in ) ) ;
+  getFactory ( ) . getEnvironment ( ) . getModelChangeListener ( ) . onObjectUpdate ( this , TYPE , type , getExecutable ( ) . getType ( ) ) ;
+  if ( getExecutable ( ) != null ) {
+    getExecutable ( ) . setType ( type ) ;
   }
-  
+  return ( C ) this ;
+}
 
-// Suggested Revision B
-public void testReservedSkippableBeforeStreamIdentifier ( ) throws Exception {
-  ByteBuf in = Unpooled . wrappedBuffer ( new byte [ ] {
-    - 0x7f , 0x06 , 0x00 , 0x00 , 's' , 'n' , 'e' , 't' , 't' , 'y' }
-    ) ;
-    channel . writeInbound ( in ) ;
+
+public < C extends CtTypedElement > C setType ( CtTypeReference < T > type ) {
+  if ( type != null ) {
+    type . setParent ( this ) ;
   }
-  
+  getFactory ( ) . getEnvironment ( ) . getModelChangeListener ( ) . onObjectUpdate ( this , TYPE , type , getExecutable ( ) . getType ( ) ) ;
+  if ( getExecutable ( ) != null ) {
+    getExecutable ( ) . setType ( type ) ;
+  }
+  return ( C ) this ;
+}
 
-==========================this is the dividing line=============================
+
+public < C extends CtTypedElement > C setType ( CtTypeReference < T > type ) {
+  if ( type != null ) {
+    type . setParent ( this ) ;
+  }
+  getFactory ( ) . getEnvironment ( ) . getModelChangeListener ( ) . onObjectUpdate ( this , TYPE , type , getExecutable ( ) . getType ( ) ) ;
+  if ( getExecutable ( ) != null ) {
+    getExecutable ( ) . setType ( type ) ;
+  }
+  return ( C ) this ;
+}
+
+
+*************************this is the dividing line*****************************
 
 
 
 /** Example 14 */
 
-/** In the `get` method which calls `getChild` we use `property.getName()` instead of `field.getName().getPrefixedName()` as the key in the `children` map. Can you make this consistent so that we're sure there's no discrepancy between prefixed/unprefixed? */
+/** This should be ROLE_ANONYMOUS. However given the defaults in AnonymousSpec you should just delete it */
 
-// Manual revision
-public void set ( String name , Property property ) throws PropertyNotFoundException {
-  Field field = getType ( ) . getField ( name ) ;
-  if ( field == null ) {
-    Property removedProperty = computeRemovedProperty ( name ) ;
-    if ( removedProperty != null ) {
-      removedProperty . set ( name , property ) ;
-    }
-    return ;
+public AnonymousSpec anonymous ( ) {
+  if ( this . anonymous == null ) {
+    this . anonymous = new AnonymousSpec ( ) ;
   }
-  children . put ( property . getName ( ) , property ) ;
-  setIsModified ( ) ;
+  return this . anonymous . authorities ( "ROLE_USER" ) ;
 }
 
 
-// Suggested Revision A
-public void set ( String name , Property property ) throws PropertyNotFoundException {
-  Field field = getType ( ) . getField ( name ) ;
-  if ( field == null ) {
-    Property removedProperty = computeRemovedProperty ( name ) ;
-    if ( removedProperty != null ) {
-      removedProperty . set ( name , property ) ;
-    }
-    return ;
+public AnonymousSpec anonymous ( ) {
+  if ( this . anonymous == null ) {
+    this . anonymous = new AnonymousSpec ( ) ;
   }
-  children . put ( field . getName ( ) , property ) ;
-  setIsModified ( ) ;
+  return this . anonymous . authorities ( "ROLE_USER" ) ;
 }
 
 
-// Suggested Revision B
-public void set ( String name , Property property ) throws PropertyNotFoundException {
-  Field field = getType ( ) . getField ( name ) ;
-  if ( field == null ) {
-    Property removedProperty = computeRemovedProperty ( name ) ;
-    if ( removedProperty != null ) {
-      removedProperty . set ( name , property ) ;
-    }
-    return ;
+public AnonymousSpec anonymous ( ) {
+  if ( this . anonymous == null ) {
+    this . anonymous = new AnonymousSpec ( ) ;
   }
-  children . put ( property . getName ( ) , property ) ;
-  setIsModified ( ) ;
+  return this . anonymous . authorities ( "ROLE_USER" ) ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 15 */
 
-/** `andCardinality(Container)` should be called here instead of `and(Container).getCardinality()` */
+/** We still need to account for the probe batch size here when we are processing a spilled partition. If we try to account for it in he PostBuildCalculator it will already be too late, because we will have already prefetched the probe side batch. */
 
-// Manual revision
-public int andCardinality ( Container x ) {
-  if ( this . getCardinality ( ) == 0 ) return 0 ;
-  else if ( x . getCardinality ( ) == 0 ) return 0 ;
-  else {
-    if ( x instanceof ArrayContainer ) return andCardinality ( ( ArrayContainer ) x ) ;
-    else if ( x instanceof BitmapContainer ) return andCardinality ( ( BitmapContainer ) x ) ;
-    return andCardinality ( ( RunContainer ) x ) ;
-  }
+public boolean shouldSpill ( ) {
+  long batchSize = ( batchMemoryManager . getRecordBatchSizer ( RIGHT_INDEX ) . getRowAllocWidth ( ) + 4 ) * recordsPerBatch ;
+  long reserveForOutgoing = batchMemoryManager . getOutputBatchSize ( ) ;
+  long memoryAvailableNow = allocator . getLimit ( ) - allocator . getAllocatedMemory ( ) - reserveForOutgoing ;
+  boolean needsSpill = minBatchesInAvailableMemory * batchSize > memoryAvailableNow ;
+  if ( needsSpill ) {
+    logger . debug ( "should spill now - batch size {
+}, mem avail {
+}, reserved for outgoing {
+}" , batchSize , memoryAvailableNow , reserveForOutgoing ) ;
+}
+return needsSpill ;
 }
 
 
-// Suggested Revision A
-public int andCardinality ( Container x ) {
-  if ( this . getCardinality ( ) == 0 ) return 0 ;
-  else if ( x . getCardinality ( ) == 0 ) return 0 ;
-  else {
-    if ( x instanceof ArrayContainer ) return and ( ( ArrayContainer ) x ) . getCardinality ( ) ;
-    else if ( x instanceof BitmapContainer ) return and ( ( BitmapContainer ) x ) . getCardinality ( ) ;
-    return and ( ( RunContainer ) x ) . getCardinality ( ) ;
-  }
+public boolean shouldSpill ( ) {
+  long batchSize = ( batchMemoryManager . getRecordBatchSizer ( RIGHT_INDEX ) . getRowAllocWidth ( ) + 4 ) * recordsPerBatch ;
+  long reserveForOutgoing = batchMemoryManager . getOutputBatchSize ( ) ;
+  long memoryAvailableNow = allocator . getLimit ( ) - allocator . getAllocatedMemory ( ) - reserveForOutgoing ;
+  boolean needsSpill = minBatchesInAvailableMemory * batchSize > memoryAvailableNow ;
+  if ( needsSpill ) {
+    logger . debug ( "should spill now - batch size {
+}, mem avail {
+}, reserved for outgoing {
+}" , batchSize , memoryAvailableNow , reserveForOutgoing ) ;
+}
+return needsSpill ;
 }
 
 
-// Suggested Revision B
-public int andCardinality ( Container x ) {
-  if ( this . getCardinality ( ) == 0 ) return 0 ;
-  else if ( x . getCardinality ( ) == 0 ) return 0 ;
-  else {
-    return and ( ( Container ) x ) . getCardinality ( ) ;
-  }
+public boolean shouldSpill ( ) {
+  long batchSize = ( batchMemoryManager . getRecordBatchSizer ( RIGHT_INDEX ) . getRowAllocWidth ( ) + 4 ) * recordsPerBatch ;
+  long reserveForOutgoing = batchMemoryManager . getOutputBatchSize ( ) ;
+  long memoryAvailableNow = allocator . getLimit ( ) - allocator . getAllocatedMemory ( ) - reserveForOutgoing ;
+  boolean needsSpill = minBatchesInAvailableMemory * batchSize > memoryAvailableNow ;
+  if ( needsSpill ) {
+    logger . debug ( "should spill now - batch size {
+}, mem avail {
+}, reserved for outgoing {
+}" , batchSize , memoryAvailableNow , reserveForOutgoing ) ;
+}
+return needsSpill ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 16 */
 
-/** public @Nullable String... */
+/** Oh please, no! Don't ship a null object! :cry: */
 
-// Manual revision
-public @ Nullable String getAttributeValue ( @ Nullable String name ) {
-  return name ;
+SlackService getSlackService ( final String baseUrl , final String teamDomain , final String authTokenCredentialId , final boolean botUser , final String room ) {
+  return new StandardSlackService ( baseUrl , teamDomain , null , authTokenCredentialId , botUser , room ) ;
 }
 
 
-// Suggested Revision A
-public String getAttributeValue ( @ Nullable String name ) {
-  return name ;
+SlackService getSlackService ( final String baseUrl , final String teamDomain , final String authTokenCredentialId , final boolean botUser , final String room ) {
+  return new StandardSlackService ( baseUrl , teamDomain , null , authTokenCredentialId , botUser , room ) ;
 }
 
 
-// Suggested Revision B
-public String getAttributeValue ( String name ) {
-  return name ;
+SlackService getSlackService ( final String baseUrl , final String teamDomain , final String authTokenCredentialId , final boolean botUser , final String room ) {
+  return new StandardSlackService ( baseUrl , teamDomain , null , authTokenCredentialId , botUser , room ) ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 17 */
 
-/** This logic will obviously need updated once we change `this.cookiesToClear`. */
+/** TEXT datatype would be more appropriate. */
 
-// Manual revision
-public void logout ( HttpServletRequest request , HttpServletResponse response , Authentication authentication ) {
-  cookiesToClear . forEach ( f -> response . addCookie ( f . apply ( request ) ) ) ;
+public void init ( ) {
+  setLabel ( "Plugin" ) ;
+  addAttribute ( ID , ROLE_ID ) . setLabel ( "Identifier" ) ;
+  addAttribute ( LABEL , ROLE_LABEL , ROLE_LOOKUP ) . setNillable ( false ) . setUnique ( true ) . setLabel ( "Label" ) ;
+  addAttribute ( DESCRIPTION , ROLE_LOOKUP ) . setLabel ( "Description" ) . setDataType ( HTML ) ;
 }
 
 
-// Suggested Revision A
-public void logout ( HttpServletRequest request , HttpServletResponse response , Authentication authentication ) {
-  for ( Object cookie : cookiesToClear ) {
-    Cookie realCookie = null ;
-    if ( cookie instanceof String ) {
-      realCookie = new Cookie ( ( String ) cookie , null ) ;
-      String cookiePath = request . getContextPath ( ) + "/" ;
-      realCookie . setPath ( cookiePath ) ;
-      realCookie . setMaxAge ( 0 ) ;
-    }
-    else {
-      realCookie = ( Cookie ) cookie ;
-    }
-    response . addCookie ( realCookie ) ;
-  }
+public void init ( ) {
+  setLabel ( "Plugin" ) ;
+  addAttribute ( ID , ROLE_ID ) . setLabel ( "Identifier" ) ;
+  addAttribute ( LABEL , ROLE_LABEL , ROLE_LOOKUP ) . setNillable ( false ) . setUnique ( true ) . setLabel ( "Label" ) ;
+  addAttribute ( DESCRIPTION , ROLE_LOOKUP ) . setLabel ( "Description" ) . setDataType ( HTML ) ;
 }
 
 
-// Suggested Revision B
-public void logout ( HttpServletRequest request , HttpServletResponse response , Authentication authentication ) {
-  for ( Object cookie : cookiesToClear ) {
-    Cookie realCookie = null ;
-    if ( cookie instanceof String ) {
-      realCookie = new Cookie ( ( String ) cookie , null ) ;
-      String cookiePath = request . getContextPath ( ) + "/" ;
-      realCookie . setPath ( request . getContextPath ( ) + "/" ) ;
-      realCookie . setMaxAge ( 0 ) ;
-    }
-    else if ( cookie instanceof Cookie ) {
-      realCookie = ( Cookie ) cookie ;
-    }
-    response . addCookie ( realCookie ) ;
-  }
+public void init ( ) {
+  setLabel ( "Plugin" ) ;
+  addAttribute ( ID , ROLE_ID ) . setLabel ( "Identifier" ) ;
+  addAttribute ( LABEL , ROLE_LABEL , ROLE_LOOKUP ) . setNillable ( false ) . setUnique ( true ) . setLabel ( "Label" ) ;
+  addAttribute ( DESCRIPTION , ROLE_LOOKUP ) . setLabel ( "Description" ) . setDataType ( HTML ) ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 18 */
 
-/** won't this be a double-decrement? */
+/** Even though these two are "CMAS Severe Alerts", shouldn't getCmasSeverity() still return CMAS_SEVERITY_EXTREME? Spec says "Severity of Extreme, Urgency of Expected..." */
 
-// Manual revision
-public void channelOpen ( ChannelHandlerContext ctx , ChannelStateEvent e ) throws Exception {
-  if ( maxConnections > 0 ) {
-    if ( numConnections . incrementAndGet ( ) > maxConnections ) {
-      ctx . getChannel ( ) . close ( ) ;
-      log . info ( "Accepted connection above limit ({
-}
-). Dropping." , maxConnections ) ;
-    }
+private int getCmasSeverity ( ) {
+  switch ( messageIdentifier ) {
+    case SmsCbConstants . MESSAGE_ID_CMAS_ALERT_EXTREME_IMMEDIATE_OBSERVED : case SmsCbConstants . MESSAGE_ID_CMAS_ALERT_EXTREME_IMMEDIATE_LIKELY : return SmsCbCmasInfo . CMAS_SEVERITY_EXTREME ;
+    case SmsCbConstants . MESSAGE_ID_CMAS_ALERT_EXTREME_EXPECTED_OBSERVED : case SmsCbConstants . MESSAGE_ID_CMAS_ALERT_EXTREME_EXPECTED_LIKELY : case SmsCbConstants . MESSAGE_ID_CMAS_ALERT_SEVERE_IMMEDIATE_OBSERVED : case SmsCbConstants . MESSAGE_ID_CMAS_ALERT_SEVERE_IMMEDIATE_LIKELY : case SmsCbConstants . MESSAGE_ID_CMAS_ALERT_SEVERE_EXPECTED_OBSERVED : case SmsCbConstants . MESSAGE_ID_CMAS_ALERT_SEVERE_EXPECTED_LIKELY : return SmsCbCmasInfo . CMAS_SEVERITY_SEVERE ;
+    default : return SmsCbCmasInfo . CMAS_SEVERITY_UNKNOWN ;
   }
-  super . channelOpen ( ctx , e ) ;
 }
 
 
-// Suggested Revision A
-public void channelOpen ( ChannelHandlerContext ctx , ChannelStateEvent e ) throws Exception {
-  if ( maxConnections > 0 ) {
-    if ( numConnections . incrementAndGet ( ) > maxConnections ) {
-      ctx . getChannel ( ) . close ( ) ;
-      numConnections . decrementAndGet ( ) ;
-      log . info ( "Accepted connection above limit ({
-}
-). Dropping." , maxConnections ) ;
-    }
+private int getCmasSeverity ( ) {
+  switch ( messageIdentifier ) {
+    case SmsCbConstants . MESSAGE_ID_CMAS_ALERT_EXTREME_IMMEDIATE_OBSERVED : case SmsCbConstants . MESSAGE_ID_CMAS_ALERT_EXTREME_IMMEDIATE_LIKELY : return SmsCbCmasInfo . CMAS_SEVERITY_EXTREME ;
+    case SmsCbConstants . MESSAGE_ID_CMAS_ALERT_EXTREME_EXPECTED_OBSERVED : case SmsCbConstants . MESSAGE_ID_CMAS_ALERT_EXTREME_EXPECTED_LIKELY : case SmsCbConstants . MESSAGE_ID_CMAS_ALERT_SEVERE_IMMEDIATE_OBSERVED : case SmsCbConstants . MESSAGE_ID_CMAS_ALERT_SEVERE_IMMEDIATE_LIKELY : case SmsCbConstants . MESSAGE_ID_CMAS_ALERT_SEVERE_EXPECTED_OBSERVED : case SmsCbConstants . MESSAGE_ID_CMAS_ALERT_SEVERE_EXPECTED_LIKELY : return SmsCbCmasInfo . CMAS_SEVERITY_SEVERE ;
+    default : return SmsCbCmasInfo . CMAS_SEVERITY_UNKNOWN ;
   }
-  super . channelOpen ( ctx , e ) ;
 }
 
 
-// Suggested Revision B
-public void channelOpen ( ChannelHandlerContext ctx , ChannelStateEvent e ) throws Exception {
-  if ( maxConnections > 0 ) {
-    if ( numConnections . decrementAndGet ( ) > maxConnections ) {
-      ctx . getChannel ( ) . close ( ) ;
-      numConnections . decrementAndGet ( ) ;
-      log . info ( "Accepted connection above limit ({
-}
-). Dropping." , maxConnections ) ;
-    }
+private int getCmasSeverity ( ) {
+  switch ( messageIdentifier ) {
+    case SmsCbConstants . MESSAGE_ID_CMAS_ALERT_EXTREME_IMMEDIATE_OBSERVED : case SmsCbConstants . MESSAGE_ID_CMAS_ALERT_EXTREME_IMMEDIATE_LIKELY : return SmsCbCmasInfo . CMAS_SEVERITY_EXTREME ;
+    case SmsCbConstants . MESSAGE_ID_CMAS_ALERT_EXTREME_EXPECTED_OBSERVED : case SmsCbConstants . MESSAGE_ID_CMAS_ALERT_EXTREME_EXPECTED_LIKELY : case SmsCbConstants . MESSAGE_ID_CMAS_ALERT_SEVERE_IMMEDIATE_OBSERVED : case SmsCbConstants . MESSAGE_ID_CMAS_ALERT_SEVERE_IMMEDIATE_LIKELY : case SmsCbConstants . MESSAGE_ID_CMAS_ALERT_SEVERE_EXPECTED_OBSERVED : case SmsCbConstants . MESSAGE_ID_CMAS_ALERT_SEVERE_EXPECTED_LIKELY : return SmsCbCmasInfo . CMAS_SEVERITY_SEVERE ;
+    default : return SmsCbCmasInfo . CMAS_SEVERITY_UNKNOWN ;
   }
-  super . channelOpen ( ctx , e ) ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 19 */
 
-/** @qeesung: nit you can merge the above 2 lines as `checkNotNull` returns `channelClass`. */
+/** This Block can be shortened to `share.setIsFolder(mPath.endsWith(FileUtils.PATH_SEPARATOR))` */
 
-// Manual revision
-public B channel ( Class < ? extends C > channelClass ) {
-  return channelFactory ( new ReflectiveChannelFactory < C > ( ObjectUtil . checkNotNull ( channelClass , "channelClass" ) ) ) ;
+private void updateData ( OCShare share ) {
+  share . setPath ( mPath ) ;
+  if ( mPath . endsWith ( FileUtils . PATH_SEPARATOR ) ) {
+    share . setIsFolder ( true ) ;
+  }
+  else {
+    share . setIsFolder ( false ) ;
+  }
+  share . setPermissions ( READ_ONLY ) ;
+  getStorageManager ( ) . saveShare ( share ) ;
+  OCFile file = getStorageManager ( ) . getFileByPath ( mPath ) ;
+  if ( file != null ) {
+    file . setShareWithSharee ( true ) ;
+    getStorageManager ( ) . saveFile ( file ) ;
+  }
 }
 
 
-// Suggested Revision A
-public B channel ( Class < ? extends C > channelClass ) {
-  channelClass = ObjectUtil . checkNotNull ( channelClass , "channelClass" ) ;
-  return channelFactory ( new ReflectiveChannelFactory < C > ( channelClass ) ) ;
+private void updateData ( OCShare share ) {
+  share . setPath ( mPath ) ;
+  if ( mPath . endsWith ( FileUtils . PATH_SEPARATOR ) ) {
+    share . setIsFolder ( true ) ;
+  }
+  else {
+    share . setIsFolder ( false ) ;
+  }
+  share . setPermissions ( READ_ONLY ) ;
+  getStorageManager ( ) . saveShare ( share ) ;
+  OCFile file = getStorageManager ( ) . getFileByPath ( mPath ) ;
+  if ( file != null ) {
+    file . setShareWithSharee ( true ) ;
+    getStorageManager ( ) . saveFile ( file ) ;
+  }
 }
 
 
-// Suggested Revision B
-public B channel ( Class < ? extends C > channelClass ) {
-  return channelFactory ( new ReflectiveChannelFactory < C > ( channelClass ) ) ;
+private void updateData ( OCShare share ) {
+  share . setPath ( mPath ) ;
+  if ( mPath . endsWith ( FileUtils . PATH_SEPARATOR ) ) {
+    share . setIsFolder ( true ) ;
+  }
+  else {
+    share . setIsFolder ( false ) ;
+  }
+  share . setPermissions ( READ_ONLY ) ;
+  getStorageManager ( ) . saveShare ( share ) ;
+  OCFile file = getStorageManager ( ) . getFileByPath ( mPath ) ;
+  if ( file != null ) {
+    file . setShareWithSharee ( true ) ;
+    getStorageManager ( ) . saveFile ( file ) ;
+  }
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
