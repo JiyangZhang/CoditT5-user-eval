@@ -1,757 +1,784 @@
 /** Example 0 */
 
-/** Shouldn't do this line - it's handled by the ...Optionally... bit in the Encr class. https://github.com/pentaho/pentaho-kettle/blob/master/core/src/org/pentaho/di/core/encryption/KettleTwoWayPasswordEncoder.java#L86-L91 */
+/** Let's avoid `null` and rework to empty string */
 
-// Manual revision
-private static void setIfNotNullOrEmpty ( MongoProperties . Builder builder , MongoProp prop , String value ) {
-  if ( value != null && value . trim ( ) . length ( ) > 0 ) {
-    boolean isPassword = MongoProp . PASSWORD . equals ( prop ) ;
-    if ( isPassword ) {
-      value = Encr . decryptPasswordOptionallyEncrypted ( value ) ;
+public String getLinkAt ( int offset ) {
+  for ( int i = 0 ;
+  i < linkRanges . size ( ) ;
+  i ++ ) {
+    if ( linkRanges . get ( i ) . isOffsetInRange ( offset ) ) {
+      return hrefs . get ( i ) ;
     }
-    builder . set ( prop , value ) ;
   }
+  return null ;
 }
 
 
-// Suggested Revision A
-private static void setIfNotNullOrEmpty ( MongoProperties . Builder builder , MongoProp prop , String value ) {
-  if ( value != null && value . trim ( ) . length ( ) > 0 ) {
-    builder . set ( prop , value ) ;
-  }
-}
-
-
-// Suggested Revision B
-private static void setIfNotNullOrEmpty ( MongoProperties . Builder builder , MongoProp prop , String value ) {
-  if ( value != null && value . trim ( ) . length ( ) > 0 ) {
-    boolean isPassword = MongoProp . PASSWORD . equals ( prop ) ;
-    boolean isEncrypted = value . startsWith ( Encr . PASSWORD_ENCRYPTED_PREFIX ) ;
-    if ( isPassword && isEncrypted ) {
-      value = Encr . decryptPasswordOptionallyEncrypted ( value ) ;
+public String getLinkAt ( int offset ) {
+  for ( int i = 0 ;
+  i < linkRanges . size ( ) ;
+  i ++ ) {
+    if ( linkRanges . get ( i ) . isOffsetInRange ( offset ) ) {
+      return hrefs . get ( i ) ;
     }
-    builder . set ( prop , value ) ;
   }
+  return null ;
 }
 
 
-==========================this is the dividing line=============================
+public String getLinkAt ( int offset ) {
+  for ( int i = 0 ;
+  i < linkRanges . size ( ) ;
+  i ++ ) {
+    if ( linkRanges . get ( i ) . isOffsetInRange ( offset ) ) {
+      return hrefs . get ( i ) ;
+    }
+  }
+  return null ;
+}
+
+
+*************************this is the dividing line*****************************
 
 
 
 /** Example 1 */
 
-/** One use/test case is, a non-serializable pojo (user type) that is encoded as a UTF-8 byte[ ] with some string representation of it. */
+/** Could we merge RESTORING and SUSPENDED? */
 
-// Manual revision
-public Mutation toMutation ( K key ) {
-  return new Mutations . ReadWriteWithValue < > ( value , f ) ;
+private void maybeScheduleCheckpoint ( ) {
+  switch ( state ( ) ) {
+    case RESTORING : this . checkpoint = checkpointableOffsets ( ) ;
+    break ;
+    case RUNNING : if ( ! eosEnabled ) {
+      this . checkpoint = checkpointableOffsets ( ) ;
+    }
+    break ;
+    case SUSPENDED : this . checkpoint = checkpointableOffsets ( ) ;
+    break ;
+    case CREATED : case CLOSED : throw new IllegalStateException ( "Illegal state " + state ( ) + " while scheduling checkpoint for active task " + id ) ;
+    default : throw new IllegalStateException ( "Unknown state " + state ( ) + " while scheduling checkpoint for active task " + id ) ;
+  }
 }
 
 
-// Suggested Revision A
-public Mutation toMutation ( K key ) {
-  return new Mutations . ReadWriteWithValue < > ( valueDataConversion . fromStorage ( value ) , f ) ;
+private void maybeScheduleCheckpoint ( ) {
+  switch ( state ( ) ) {
+    case RESTORING : this . checkpoint = checkpointableOffsets ( ) ;
+    break ;
+    case RUNNING : if ( ! eosEnabled ) {
+      this . checkpoint = checkpointableOffsets ( ) ;
+    }
+    break ;
+    case SUSPENDED : this . checkpoint = checkpointableOffsets ( ) ;
+    break ;
+    case CREATED : case CLOSED : throw new IllegalStateException ( "Illegal state " + state ( ) + " while scheduling checkpoint for active task " + id ) ;
+    default : throw new IllegalStateException ( "Unknown state " + state ( ) + " while scheduling checkpoint for active task " + id ) ;
+  }
 }
 
 
-// Suggested Revision B
-public Mutation toMutation ( K key ) {
-  V valueFromStorage = valueDataConversion . fromStorage ( value ) ;
-  return new Mutations . ReadWriteWithValue < > ( valueFromStorage , f ) ;
+private void maybeScheduleCheckpoint ( ) {
+  switch ( state ( ) ) {
+    case RESTORING : this . checkpoint = checkpointableOffsets ( ) ;
+    break ;
+    case RUNNING : if ( ! eosEnabled ) {
+      this . checkpoint = checkpointableOffsets ( ) ;
+    }
+    break ;
+    case SUSPENDED : this . checkpoint = checkpointableOffsets ( ) ;
+    break ;
+    case CREATED : case CLOSED : throw new IllegalStateException ( "Illegal state " + state ( ) + " while scheduling checkpoint for active task " + id ) ;
+    default : throw new IllegalStateException ( "Unknown state " + state ( ) + " while scheduling checkpoint for active task " + id ) ;
+  }
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 2 */
 
-/** IMHO it does not need to be public */
+/** Edge case of duplicate code ;) It could be extracted to a common private method with two params for id and type. Up to you if you want to change it or not ;) */
 
-// Manual revision
-private Entry ( Map . Entry < String , String > e ) {
-  this ( e . getKey ( ) , e . getValue ( ) ) ;
+public List < Document > getClientDocuments ( String clientId ) throws MambuApiException {
+  if ( clientId == null || clientId . trim ( ) . isEmpty ( ) ) {
+    throw new IllegalArgumentException ( "ClientId ID must not be null or empty" ) ;
+  }
+  return DocumentsService . getDocuments ( mambuAPIService , CLIENTS , clientId ) ;
 }
 
 
-// Suggested Revision A
-Entry ( Map . Entry < String , String > e ) {
-  this ( e . getKey ( ) , e . getValue ( ) ) ;
+public List < Document > getClientDocuments ( String clientId ) throws MambuApiException {
+  if ( clientId == null || clientId . trim ( ) . isEmpty ( ) ) {
+    throw new IllegalArgumentException ( "ClientId ID must not be null or empty" ) ;
+  }
+  return DocumentsService . getDocuments ( mambuAPIService , CLIENTS , clientId ) ;
 }
 
 
-// Suggested Revision B
-private Entry ( Map . Entry < String , String > e ) {
-  this ( e . getKey ( ) , e . getValue ( ) ) ;
+public List < Document > getClientDocuments ( String clientId ) throws MambuApiException {
+  if ( clientId == null || clientId . trim ( ) . isEmpty ( ) ) {
+    throw new IllegalArgumentException ( "ClientId ID must not be null or empty" ) ;
+  }
+  return DocumentsService . getDocuments ( mambuAPIService , CLIENTS , clientId ) ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 3 */
 
-/** parts[1].isEmpty */
+/** Rollback should be done after each test case (i.e., with an @After notation, not an @AfterClass notataion), and I think we should preserve the current behavior od tearDownTestCase().  I suggest creating a new tearDown() method for performing the rollback. */
 
-// Manual revision
-private String parsePath ( ) throws URISyntaxException {
-  String [ ] parts = uri . split ( "\\?" ) [ 0 ] . split ( ":" , 2 ) ;
-  if ( parts . length < 2 || parts [ 1 ] . isEmpty ( ) ) throw new URISyntaxException ( uri , "invalid path" ) ;
-  else return parts [ 1 ] ;
+public static void tearDownTestCase ( ) throws Exception {
+  if ( dataSource != null ) {
+    Connection con = dataSource . getConnection ( ) ;
+    if ( con != null ) {
+      con . rollback ( ) ;
+    }
+  }
 }
 
 
-// Suggested Revision A
-private String parsePath ( ) throws URISyntaxException {
-  String [ ] parts = uri . split ( "\\?" ) [ 0 ] . split ( ":" , 2 ) ;
-  if ( parts . length < 2 || parts [ 1 ] . isEmpty ( ) ) throw new URISyntaxException ( uri , "invalid path" ) ;
-  else return parts [ 1 ] ;
+public static void tearDownTestCase ( ) throws Exception {
+  if ( dataSource != null ) {
+    Connection con = dataSource . getConnection ( ) ;
+    if ( con != null ) {
+      con . rollback ( ) ;
+    }
+  }
 }
 
 
-// Suggested Revision B
-private String parsePath ( ) throws URISyntaxException {
-  String [ ] parts = uri . split ( "\\?" ) [ 0 ] . split ( ":" , 2 ) ;
-  if ( parts . length < 2 || parts [ 1 ] . isEmpty ( ) || parts [ 1 ] . length ( ) < 1 ) throw new URISyntaxException ( uri , "invalid path" ) ;
-  else return parts [ 1 ] ;
+public static void tearDownTestCase ( ) throws Exception {
+  if ( dataSource != null ) {
+    Connection con = dataSource . getConnection ( ) ;
+    if ( con != null ) {
+      con . rollback ( ) ;
+    }
+  }
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 4 */
 
-/** this will affect the sorting also on the webadmin - but on webadmin we support sortable columns.  Please move this logic to UserPortalTemplateListModel. */
+/** I would use a couple of assert equals since they give better output in case of failure.  (Remember that the expected value should be the first one) */
 
-// Manual revision
-public void setItems ( Collection value ) {
-  genVersionToBaseTemplate ( value ) ;
-  super . setItems ( value ) ;
+private void testUpdateInterface ( Guid interface_id ) {
+  VdsNetworkInterface iface = dao . get ( interface_id ) ;
+  iface . setName ( iface . getName ( ) . toUpperCase ( ) ) ;
+  iface . setQos ( newQos ) ;
+  dao . updateInterfaceForVds ( iface ) ;
+  VdsNetworkInterface ifaced = dao . get ( interface_id ) ;
+  assertTrue ( ifaced . getName ( ) . equals ( iface . getName ( ) ) && ifaced . getQos ( ) . equals ( iface . getQos ( ) ) ) ;
 }
 
 
-// Suggested Revision A
-public void setItems ( Collection value ) {
-  genVersionToBaseTemplate ( value ) ;
-  super . setItems ( sortTemplates ( value ) ) ;
+private void testUpdateInterface ( Guid interface_id ) {
+  VdsNetworkInterface iface = dao . get ( interface_id ) ;
+  iface . setName ( iface . getName ( ) . toUpperCase ( ) ) ;
+  iface . setQos ( newQos ) ;
+  dao . updateInterfaceForVds ( iface ) ;
+  VdsNetworkInterface ifaced = dao . get ( interface_id ) ;
+  assertTrue ( ifaced . getName ( ) . equals ( iface . getName ( ) ) && ifaced . getQos ( ) . equals ( iface . getQos ( ) ) ) ;
 }
 
 
-// Suggested Revision B
-public void setItems ( Collection value ) {
-  genVersionToBaseTemplate ( value ) ;
-  super . setItems ( sortedValues ) ;
+private void testUpdateInterface ( Guid interface_id ) {
+  VdsNetworkInterface iface = dao . get ( interface_id ) ;
+  iface . setName ( iface . getName ( ) . toUpperCase ( ) ) ;
+  iface . setQos ( newQos ) ;
+  dao . updateInterfaceForVds ( iface ) ;
+  VdsNetworkInterface ifaced = dao . get ( interface_id ) ;
+  assertTrue ( ifaced . getName ( ) . equals ( iface . getName ( ) ) && ifaced . getQos ( ) . equals ( iface . getQos ( ) ) ) ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 5 */
 
-/** why you need this line? table.setRowData(new ArrayList<ListModel>()); */
+/** It seems this could be changed to `return !command.hasFlag(Flag.SKIP_REMOTE_LOOKUP))` */
 
-// Manual revision
-public void edit ( VolumeBrickModel object ) {
-  table . edit ( object . getBricks ( ) ) ;
-  Driver . driver . edit ( object ) ;
+protected boolean writeNeedsRemoteValue ( InvocationContext ctx , WriteCommand command , Object key ) {
+  if ( command . hasFlag ( Flag . CACHE_MODE_LOCAL ) ) {
+    return false ;
+  }
+  if ( ctx . isOriginLocal ( ) ) {
+    if ( ! command . readsExistingValues ( ) ) {
+      return false ;
+    }
+    if ( command . hasFlag ( Flag . SKIP_REMOTE_LOOKUP ) ) {
+      return false ;
+    }
+  }
+  else {
+    if ( ! command . alwaysReadsExistingValues ( ) ) {
+      return false ;
+    }
+  }
+  return true ;
 }
 
 
-// Suggested Revision A
-public void edit ( VolumeBrickModel object ) {
-  table . setRowData ( new ArrayList < ListModel > ( ) ) ;
-  table . edit ( object . getBricks ( ) ) ;
-  Driver . driver . edit ( object ) ;
+protected boolean writeNeedsRemoteValue ( InvocationContext ctx , WriteCommand command , Object key ) {
+  if ( command . hasFlag ( Flag . CACHE_MODE_LOCAL ) ) {
+    return false ;
+  }
+  if ( ctx . isOriginLocal ( ) ) {
+    if ( ! command . readsExistingValues ( ) ) {
+      return false ;
+    }
+    if ( command . hasFlag ( Flag . SKIP_REMOTE_LOOKUP ) ) {
+      return false ;
+    }
+  }
+  else {
+    if ( ! command . alwaysReadsExistingValues ( ) ) {
+      return false ;
+    }
+  }
+  return true ;
 }
 
 
-// Suggested Revision B
-public void edit ( VolumeBrickModel object ) {
-  table . setRowData ( new ArrayList < ListModel > ( ) ) ;
-  Driver . driver . edit ( object ) ;
+protected boolean writeNeedsRemoteValue ( InvocationContext ctx , WriteCommand command , Object key ) {
+  if ( command . hasFlag ( Flag . CACHE_MODE_LOCAL ) ) {
+    return false ;
+  }
+  if ( ctx . isOriginLocal ( ) ) {
+    if ( ! command . readsExistingValues ( ) ) {
+      return false ;
+    }
+    if ( command . hasFlag ( Flag . SKIP_REMOTE_LOOKUP ) ) {
+      return false ;
+    }
+  }
+  else {
+    if ( ! command . alwaysReadsExistingValues ( ) ) {
+      return false ;
+    }
+  }
+  return true ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 6 */
 
-/** why not directly assertEquals(LOW, fCondition.min()); ? */
+/** Declare the logger at the top of the class: ```java private static final Logger log = Logger.get(GlueHiveMetastore.class); ``` (you might see the inline `Logger.get()` pattern in some tests, but it's not the normal way) */
 
-// Manual revision
-public void testBounds ( ) {
-  assertEquals ( LOW , ( int ) fCondition . min ( ) ) ;
-  assertEquals ( HIGH , ( int ) fCondition . max ( ) ) ;
+private static void deleteDir ( HdfsContext context , HdfsEnvironment hdfsEnvironment , Path path , boolean recursive ) {
+  try {
+    hdfsEnvironment . getFileSystem ( context , path ) . delete ( path , recursive ) ;
+  }
+  catch ( Exception e ) {
+    Logger . get ( GlueHiveMetastore . class ) . warn ( e , "Failed to delete path: " + path . toString ( ) ) ;
+  }
 }
 
 
-// Suggested Revision A
-public void testBounds ( ) {
-  assertEquals ( LOW , fCondition . min ( ) ) ;
+private static void deleteDir ( HdfsContext context , HdfsEnvironment hdfsEnvironment , Path path , boolean recursive ) {
+  try {
+    hdfsEnvironment . getFileSystem ( context , path ) . delete ( path , recursive ) ;
+  }
+  catch ( Exception e ) {
+    Logger . get ( GlueHiveMetastore . class ) . warn ( e , "Failed to delete path: " + path . toString ( ) ) ;
+  }
 }
 
 
-// Suggested Revision B
-public void testBounds ( ) {
-  assertEquals ( LOW , fCondition . min ( ) ) ;
-  assertEquals ( HIGH , fCondition . max ( ) ) ;
+private static void deleteDir ( HdfsContext context , HdfsEnvironment hdfsEnvironment , Path path , boolean recursive ) {
+  try {
+    hdfsEnvironment . getFileSystem ( context , path ) . delete ( path , recursive ) ;
+  }
+  catch ( Exception e ) {
+    Logger . get ( GlueHiveMetastore . class ) . warn ( e , "Failed to delete path: " + path . toString ( ) ) ;
+  }
 }
 
 
-// Suggested Revision C
-
-
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 7 */
 
-/** Let's move this into an EnablementTester.evaluate(...) method. */
+/** I think I saw multiple ppc types in the enum: ppc, ppc64, ppcle, ppc64le */
 
-// Manual revision
-public boolean isExtensionEnabled ( ) {
-  return enablement != null ? enablement . evaluate ( ) : true ;
+private boolean clusterHasPpcArchitecture ( ) {
+  Cluster cluster = getModel ( ) . getSelectedCluster ( ) ;
+  return cluster != null && cluster . getArchitecture ( ) != null && ArchitectureType . ppc . getFamily ( ) == cluster . getArchitecture ( ) . getFamily ( ) ;
 }
 
 
-// Suggested Revision A
-public boolean isExtensionEnabled ( ) {
-  if ( enablement != null ) {
-    return enablement . getExpression ( ) . evaluate ( new EvaluationContext ( null , new Object ( ) ) ) . equals ( EvaluationResult . TRUE ) ;
-  }
-  return true ;
+private boolean clusterHasPpcArchitecture ( ) {
+  Cluster cluster = getModel ( ) . getSelectedCluster ( ) ;
+  return cluster != null && cluster . getArchitecture ( ) != null && ArchitectureType . ppc . getFamily ( ) == cluster . getArchitecture ( ) . getFamily ( ) ;
 }
 
 
-// Suggested Revision B
-public boolean isExtensionEnabled ( ) {
-  if ( enablement != null ) {
-    try {
-      return enablement . getExpression ( ) . evaluate ( ) ;
-    }
-    catch ( CoreException e ) {
-    }
-  }
-  return true ;
+private boolean clusterHasPpcArchitecture ( ) {
+  Cluster cluster = getModel ( ) . getSelectedCluster ( ) ;
+  return cluster != null && cluster . getArchitecture ( ) != null && ArchitectureType . ppc . getFamily ( ) == cluster . getArchitecture ( ) . getFamily ( ) ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 8 */
 
-/** 'null' must be first operande */
+/** Shouldn't this line be something like AssertTrue(allergy.hasSameValues(allergy())); ? */
 
-// Manual revision
-public ProviderNotificationManager createProviderNotificationManager ( final DiagramEventBroker diagramEventBroker , final EObject view , final NotificationListener notificationListener ) {
-  if ( null != manager ) {
-    return manager ;
-  }
-  manager = new ProviderNotificationManager ( diagramEventBroker , view , notificationListener ) {
-    @ Override protected void registerListeners ( ) {
-    }
-  };
-  return manager ;
+public void hasSameValues_checkingAgainstSameInstanceOfAllergy_shouldInterpretAsSameValues ( ) {
+  Allergy allergy = allergy ( ) ;
+  allergy . hasSameValues ( allergy ( ) ) ;
 }
 
 
-// Suggested Revision A
-public ProviderNotificationManager createProviderNotificationManager ( final DiagramEventBroker diagramEventBroker , final EObject view , final NotificationListener notificationListener ) {
-  if ( manager != null ) {
-    return manager ;
-  }
-  manager = new ProviderNotificationManager ( diagramEventBroker , view , notificationListener ) {
-    @ Override protected void registerListeners ( ) {
-    }
-  };
-  return manager ;
+public void hasSameValues_checkingAgainstSameInstanceOfAllergy_shouldInterpretAsSameValues ( ) {
+  Allergy allergy = allergy ( ) ;
+  allergy . hasSameValues ( allergy ( ) ) ;
 }
 
 
-// Suggested Revision B
-public ProviderNotificationManager createProviderNotificationManager ( final DiagramEventBroker diagramEventBroker , final EObject view , final NotificationListener notificationListener ) {
-  if ( null != manager ) {
-    return manager ;
-  }
-  manager = new ProviderNotificationManager ( diagramEventBroker , view , notificationListener ) {
-    @ Override protected void registerListeners ( ) {
-    }
-  };
-  return manager ;
+public void hasSameValues_checkingAgainstSameInstanceOfAllergy_shouldInterpretAsSameValues ( ) {
+  Allergy allergy = allergy ( ) ;
+  allergy . hasSameValues ( allergy ( ) ) ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 9 */
 
-/** This method can be`private`. */
+/** same as above. we shouldn't be throwing run-time exceptions when close is called. */
 
-// Manual revision
-private void startSyncFolderOperation ( OCFile folder ) {
-  long currentSyncTime = System . currentTimeMillis ( ) ;
-  mSyncInProgress = true ;
-  RemoteOperation synchFolderOp = new RefreshFolderOperation ( folder , currentSyncTime , false , false , false , getStorageManager ( ) , getAccount ( ) , getApplicationContext ( ) ) ;
-  synchFolderOp . execute ( getAccount ( ) , this , null , null ) ;
+public void close ( ) {
+  try {
+    Await . result ( beam . close ( ) ) ;
+  }
+  catch ( Exception e ) {
+    final String errorMsg = "Error while closing Druid beam client" ;
+    LOG . error ( errorMsg , e ) ;
+    throw new RuntimeException ( errorMsg ) ;
+  }
 }
 
 
-// Suggested Revision A
-private void startSyncFolderOperation ( OCFile folder ) {
-  long currentSyncTime = System . currentTimeMillis ( ) ;
-  mSyncInProgress = true ;
-  RemoteOperation synchFolderOp = new RefreshFolderOperation ( folder , currentSyncTime , false , false , getStorageManager ( ) , getAccount ( ) , getApplicationContext ( ) ) ;
-  synchFolderOp . execute ( getAccount ( ) , this , null , null ) ;
+public void close ( ) {
+  try {
+    Await . result ( beam . close ( ) ) ;
+  }
+  catch ( Exception e ) {
+    final String errorMsg = "Error while closing Druid beam client" ;
+    LOG . error ( errorMsg , e ) ;
+    throw new RuntimeException ( errorMsg ) ;
+  }
 }
 
 
-// Suggested Revision B
-private void startSyncFolderOperation ( OCFile folder ) {
-  long currentSyncTime = System . currentTimeMillis ( ) ;
-  mSyncInProgress = true ;
-  RemoteOperation synchFolderOp = new RefreshFolderOperation ( folder , currentSyncTime , false , false , false , getStorageManager ( ) , getAccount ( ) , getApplicationContext ( ) ) ;
-  synchFolderOp . execute ( getAccount ( ) , this , null , null ) ;
+public void close ( ) {
+  try {
+    Await . result ( beam . close ( ) ) ;
+  }
+  catch ( Exception e ) {
+    final String errorMsg = "Error while closing Druid beam client" ;
+    LOG . error ( errorMsg , e ) ;
+    throw new RuntimeException ( errorMsg ) ;
+  }
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 10 */
 
-/** forgotten line of code? */
+/** If we're all agreed on letting users choose system protocols in the browser, then I suppose we should not have this condition. */
 
-// Manual revision
-public String getAuthorizationUrl ( OAuthConfig config ) {
-  String url = String . format ( AUTHORIZE_URL , OAuthEncoder . encode ( config . getApiKey ( ) ) , OAuthEncoder . encode ( config . getCallback ( ) ) , OAuthEncoder . encode ( config . getScope ( ) ) , OAuthEncoder . encode ( config . getState ( ) ) ) ;
-  return url ;
+public boolean isValidValue ( final Object element ) {
+  boolean result = super . isValidValue ( element ) ;
+  if ( result ) {
+    EObject eObject = EMFHelper . getEObject ( element ) ;
+    result = ( ProtocolUtils . isProtocol ( eObject ) && ! SystemElementsUtils . isSystemProtocol ( ( Collaboration ) eObject ) && ! SystemElementsUtils . isBaseProtocol ( ( Collaboration ) eObject ) ) ;
+  }
+  return result ;
 }
 
 
-// Suggested Revision A
-public String getAuthorizationUrl ( OAuthConfig config ) {
-  String url = String . format ( AUTHORIZE_URL , OAuthEncoder . encode ( config . getApiKey ( ) ) , OAuthEncoder . encode ( config . getCallback ( ) ) , OAuthEncoder . encode ( config . getScope ( ) ) , OAuthEncoder . encode ( config . getState ( ) ) ) ;
-  return url ;
+public boolean isValidValue ( final Object element ) {
+  boolean result = super . isValidValue ( element ) ;
+  if ( result ) {
+    EObject eObject = EMFHelper . getEObject ( element ) ;
+    result = ( ProtocolUtils . isProtocol ( eObject ) && ! SystemElementsUtils . isSystemProtocol ( ( Collaboration ) eObject ) && ! SystemElementsUtils . isBaseProtocol ( ( Collaboration ) eObject ) ) ;
+  }
+  return result ;
 }
 
 
-// Suggested Revision B
-public String getAuthorizationUrl ( OAuthConfig config ) {
-  return String . format ( AUTHORIZE_URL , OAuthEncoder . encode ( config . getApiKey ( ) ) , OAuthEncoder . encode ( config . getCallback ( ) ) , OAuthEncoder . encode ( config . getScope ( ) ) , OAuthEncoder . encode ( config . getState ( ) ) ) ;
+public boolean isValidValue ( final Object element ) {
+  boolean result = super . isValidValue ( element ) ;
+  if ( result ) {
+    EObject eObject = EMFHelper . getEObject ( element ) ;
+    result = ( ProtocolUtils . isProtocol ( eObject ) && ! SystemElementsUtils . isSystemProtocol ( ( Collaboration ) eObject ) && ! SystemElementsUtils . isBaseProtocol ( ( Collaboration ) eObject ) ) ;
+  }
+  return result ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 11 */
 
-/** This code here should be inside the if, because we don't need to do anything if the parameter request is not PARAM_WORKER */
+/** I wouldn't implement this (just return null). A long has a fixed size, and we can use putLong() in HTInterval to write them to the file.  This method was more for string, structs, etc. that we want to serialize. */
 
-// Manual revision
-public Object getParameter ( String name ) {
-  if ( name . equals ( CriticalPathModule . PARAM_WORKER ) ) {
-    final HostThread currentHostThread = fCurrentHostThread ;
-    if ( currentHostThread == null ) {
-      return null ;
-    }
-    IAnalysisModule mod = getModule ( ) ;
-    if ( ( mod != null ) && ( mod instanceof CriticalPathModule ) ) {
-      LttngWorker worker = new LttngWorker ( currentHostThread , "" , 0 ) ;
-      return worker ;
-    }
-    return currentHostThread ;
-  }
-  return null ;
+public byte [ ] toByteArray ( ) {
+  return ByteBuffer . allocate ( 8 ) . putLong ( valueLong ) . array ( ) ;
 }
 
 
-// Suggested Revision A
-public Object getParameter ( String name ) {
-  final HostThread currentHostThread = fCurrentHostThread ;
-  if ( currentHostThread == null ) {
-    return null ;
-  }
-  if ( name . equals ( CriticalPathModule . PARAM_WORKER ) ) {
-    IAnalysisModule mod = getModule ( ) ;
-    if ( ( mod != null ) && ( mod instanceof CriticalPathModule ) ) {
-      LttngWorker worker = new LttngWorker ( currentHostThread , "" , 0 ) ;
-      return worker ;
-    }
-  }
-  return null ;
+public byte [ ] toByteArray ( ) {
+  return ByteBuffer . allocate ( 8 ) . putLong ( valueLong ) . array ( ) ;
 }
 
 
-// Suggested Revision B
-public Object getParameter ( String name ) {
-  if ( name . equals ( CriticalPathModule . PARAM_WORKER ) ) {
-    IAnalysisModule mod = getModule ( ) ;
-    if ( ( mod != null ) && ( mod instanceof CriticalPathModule ) ) {
-      LttngWorker worker = new LttngWorker ( currentHostThread , "" , 0 ) ;
-      return worker ;
-    }
-    return currentHostThread ;
-  }
-  return null ;
+public byte [ ] toByteArray ( ) {
+  return ByteBuffer . allocate ( 8 ) . putLong ( valueLong ) . array ( ) ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 12 */
 
-/** Maybe `expectThrowable` for consistency? */
+/** why not calling isAppConfiguredInSourceServerXml(fileName) to make sure the app installed to the dropins location is not configured? */
 
-// Manual revision
-public static ExceptionThrowingSubTest expectThrowable ( Runnable runnable ) {
-  return expectThrowable ( runnable . toString ( ) , runnable ) ;
+private void validateAppConfig ( String fileName ) throws Exception {
+  String appsDir = getAppsDirectory ( ) ;
+  if ( appsDir . equalsIgnoreCase ( "apps" ) && ! isAppConfiguredInSourceServerXml ( fileName ) ) {
+    applicationXml . createWebApplicationElement ( fileName ) ;
+  }
+  else if ( appsDir . equalsIgnoreCase ( "dropins" ) && isAnyAppConfiguredInSourceServerXml ( ) ) throw new MojoExecutionException ( messages . getString ( "error.install.app.dropins.directory" ) ) ;
 }
 
 
-// Suggested Revision A
-public static ExceptionThrowingSubTest expectThrowable ( Runnable runnable ) {
-  return expectException ( runnable . toString ( ) , runnable ) ;
+private void validateAppConfig ( String fileName ) throws Exception {
+  String appsDir = getAppsDirectory ( ) ;
+  if ( appsDir . equalsIgnoreCase ( "apps" ) && ! isAppConfiguredInSourceServerXml ( fileName ) ) {
+    applicationXml . createWebApplicationElement ( fileName ) ;
+  }
+  else if ( appsDir . equalsIgnoreCase ( "dropins" ) && isAnyAppConfiguredInSourceServerXml ( ) ) throw new MojoExecutionException ( messages . getString ( "error.install.app.dropins.directory" ) ) ;
 }
 
 
-// Suggested Revision B
-public static ExceptionThrowingSubTest expectThrowable ( Runnable runnable ) {
-  return expectThrowable ( runnable ) ;
+private void validateAppConfig ( String fileName ) throws Exception {
+  String appsDir = getAppsDirectory ( ) ;
+  if ( appsDir . equalsIgnoreCase ( "apps" ) && ! isAppConfiguredInSourceServerXml ( fileName ) ) {
+    applicationXml . createWebApplicationElement ( fileName ) ;
+  }
+  else if ( appsDir . equalsIgnoreCase ( "dropins" ) && isAnyAppConfiguredInSourceServerXml ( ) ) throw new MojoExecutionException ( messages . getString ( "error.install.app.dropins.directory" ) ) ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 13 */
 
-/** Can we add the name of the setting in there somewhere as well? */
+/** I'd just assert that it contains the created VM. */
 
-// Manual revision
-public < V > Setting < V > get ( SimpleUri id , Class < V > valueType ) {
-  Setting setting = settings . get ( id ) ;
-  if ( setting == null ) {
-    return null ;
+public void testList ( ) {
+  List < VirtualMachine > list = api ( ) . list ( ) ;
+  for ( VirtualMachine machine : list ) {
+    assertTrue ( ! machine . name ( ) . isEmpty ( ) ) ;
   }
-  Class settingValueClass = setting . getValueClass ( ) ;
-  if ( ! settingValueClass . equals ( valueType ) ) {
-    throw new ClassCastException ( "Expected a Setting of type " + valueType . getName ( ) + ", found a Setting of type " + settingValueClass . getName ( ) ) ;
-  }
-  return ( Setting < V > ) setting ;
 }
 
 
-// Suggested Revision A
-public < V > Setting < V > get ( SimpleUri id , Class < V > valueType ) {
-  Setting < V > setting = settings . get ( id ) ;
-  Class settingValueClass = setting . getValueClass ( ) ;
-  if ( ! settingValueClass . equals ( valueType ) ) {
-    throw new ClassCastException ( "Expected a Setting of type " + valueType . getName ( ) + ", found a Setting of type " + settingValueClass . getName ( ) ) ;
+public void testList ( ) {
+  List < VirtualMachine > list = api ( ) . list ( ) ;
+  for ( VirtualMachine machine : list ) {
+    assertTrue ( ! machine . name ( ) . isEmpty ( ) ) ;
   }
-  return ( Setting < V > ) setting ;
 }
 
 
-// Suggested Revision B
-public < V > Setting < V > get ( SimpleUri id , Class < V > valueType ) {
-  Setting setting = settings . get ( id ) ;
-  Class settingValueClass = setting . getValueClass ( ) ;
-  if ( ! settingValueClass . equals ( valueType ) ) {
-    throw new ClassCastException ( "Expected a Setting of type " + valueType + ", found a Setting of type " + settingValueClass ) ;
+public void testList ( ) {
+  List < VirtualMachine > list = api ( ) . list ( ) ;
+  for ( VirtualMachine machine : list ) {
+    assertTrue ( ! machine . name ( ) . isEmpty ( ) ) ;
   }
-  return ( Setting < V > ) setting ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 14 */
 
-/** Any way we can clean this up? It seems to only be needed for example commands, but hard to check what the command is here since it's wrapped in decorators. */
+/** These two logs could be `Logger.v()`. That's all, good to go! */
 
-// Manual revision
-private CommandCall duplicateCommandForDifferentElement ( CommandCall commandCall , Element element ) {
-  return new CommandCall ( null , commandCall . getCommand ( ) , element , commandCall . getExpression ( ) , commandCall . getResource ( ) ) ;
-}
-
-
-// Suggested Revision A
-private CommandCall duplicateCommandForDifferentElement ( CommandCall commandCall , Element element ) {
-  String expression = commandCall . getExpression ( ) ;
-  if ( expression . equals ( "" ) ) {
-    expression = element . getText ( ) ;
+public synchronized boolean isLastMQNotifLongAgo ( ) {
+  long delay = 18 * 3600 ;
+  long threshold = sharedPreferences . getLong ( getCurrentModeName ( ) + LAST_MORNING_Q_TIMESTAMP , - delay ) + delay ;
+  if ( threshold < Calendar . getInstance ( ) . getTimeInMillis ( ) ) {
+    Logger . d ( TAG , "{}
+ - Last MQ notif was yesterday" , getCurrentModeName ( ) ) ;
+    return true ;
   }
-  return new CommandCall ( null , commandCall . getCommand ( ) , element , expression , commandCall . getResource ( ) ) ;
+  else {
+    Logger . d ( TAG , "{}
+ - Last MQ notif was recent, do not notify" , getCurrentModeName ( ) ) ;
+    return false ;
+  }
 }
 
 
-// Suggested Revision B
-private CommandCall duplicateCommandForDifferentElement ( CommandCall commandCall , Element element ) {
-  return new CommandCall ( null , commandCall . getCommand ( ) , element , expression , commandCall . getResource ( ) ) ;
+public synchronized boolean isLastMQNotifLongAgo ( ) {
+  long delay = 18 * 3600 ;
+  long threshold = sharedPreferences . getLong ( getCurrentModeName ( ) + LAST_MORNING_Q_TIMESTAMP , - delay ) + delay ;
+  if ( threshold < Calendar . getInstance ( ) . getTimeInMillis ( ) ) {
+    Logger . d ( TAG , "{}
+ - Last MQ notif was yesterday" , getCurrentModeName ( ) ) ;
+    return true ;
+  }
+  else {
+    Logger . d ( TAG , "{}
+ - Last MQ notif was recent, do not notify" , getCurrentModeName ( ) ) ;
+    return false ;
+  }
 }
 
 
-==========================this is the dividing line=============================
+public synchronized boolean isLastMQNotifLongAgo ( ) {
+  long delay = 18 * 3600 ;
+  long threshold = sharedPreferences . getLong ( getCurrentModeName ( ) + LAST_MORNING_Q_TIMESTAMP , - delay ) + delay ;
+  if ( threshold < Calendar . getInstance ( ) . getTimeInMillis ( ) ) {
+    Logger . d ( TAG , "{}
+ - Last MQ notif was yesterday" , getCurrentModeName ( ) ) ;
+    return true ;
+  }
+  else {
+    Logger . d ( TAG , "{}
+ - Last MQ notif was recent, do not notify" , getCurrentModeName ( ) ) ;
+    return false ;
+  }
+}
+
+
+*************************this is the dividing line*****************************
 
 
 
 /** Example 15 */
 
-/** TException is throwable, too, and treated the same -- combine the catch clauses? */
+/** these fields are already set by AOP in RetireSaveHandler and this needs to delegate to saveOrderType instead of calling the DAO just in case there is extra logic in the save method we don't want to by pass */
 
-// Manual revision
-public M fromBytes ( byte [ ] messageBuffer ) {
-  if ( deserializer == null ) deserializer = new ThriftBinaryDeserializer ( ) ;
-  try {
-    M message = typeRef . safeNewInstance ( ) ;
-    deserializer . deserialize ( message , messageBuffer ) ;
-    return message ;
-  }
-  catch ( Throwable e ) {
-    logWarning ( "failed to deserialize" , e ) ;
-    return null ;
-  }
+public OrderType retireOrderType ( OrderType orderType , String reason ) {
+  orderType . setRetired ( true ) ;
+  orderType . setRetireReason ( reason ) ;
+  return dao . saveOrderType ( orderType ) ;
 }
 
 
-// Suggested Revision A
-public M fromBytes ( byte [ ] messageBuffer ) {
-  if ( deserializer == null ) deserializer = new ThriftBinaryDeserializer ( ) ;
-  try {
-    M message = typeRef . safeNewInstance ( ) ;
-    deserializer . deserialize ( message , messageBuffer ) ;
-    return message ;
-  }
-  catch ( Throwable e ) {
-    logWarning ( "failed to deserialize" , e ) ;
-    return null ;
-  }
+public OrderType retireOrderType ( OrderType orderType , String reason ) {
+  orderType . setRetired ( true ) ;
+  orderType . setRetireReason ( reason ) ;
+  return dao . saveOrderType ( orderType ) ;
 }
 
 
-// Suggested Revision B
-public M fromBytes ( byte [ ] messageBuffer ) {
-  if ( deserializer == null ) deserializer = new ThriftBinaryDeserializer ( ) ;
-  try {
-    M message = typeRef . safeNewInstance ( ) ;
-    deserializer . deserialize ( message , messageBuffer ) ;
-    return message ;
-  }
-  catch ( TException e ) {
-    logWarning ( "failed to deserialize" , e ) ;
-    return null ;
-  }
-  catch ( TException e ) {
-    logWarning ( "failed to deserialize" , e ) ;
-    return null ;
-  }
+public OrderType retireOrderType ( OrderType orderType , String reason ) {
+  orderType . setRetired ( true ) ;
+  orderType . setRetireReason ( reason ) ;
+  return dao . saveOrderType ( orderType ) ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 16 */
 
-/** remove */
+/** You can change the 28 case to a default case, and remove this. */
 
-// Manual revision
-public void showPage ( Control page ) {
-  if ( page . isDisposed ( ) || page . getParent ( ) != this ) {
-    return ;
+public static int mapApiToArtVersion ( int api ) {
+  if ( api < 19 ) {
+    return NO_VERSION ;
   }
-  currentPage = page ;
-  page . setVisible ( true ) ;
-  layout ( true ) ;
-  for ( Control child : getChildren ( ) ) {
-    if ( child != page && ! child . isDisposed ( ) ) {
-      child . setVisible ( false ) ;
-    }
+  switch ( api ) {
+    case 19 : case 20 : return 7 ;
+    case 21 : return 39 ;
+    case 22 : return 45 ;
+    case 23 : return 64 ;
+    case 24 : case 25 : return 79 ;
+    case 26 : return 124 ;
+    case 27 : return 131 ;
+    case 28 : return 144 ;
   }
+  return 143 ;
 }
 
 
-// Suggested Revision A
-public void showPage ( Control page ) {
-  if ( page . isDisposed ( ) || page . getParent ( ) != this ) {
-    return ;
+public static int mapApiToArtVersion ( int api ) {
+  if ( api < 19 ) {
+    return NO_VERSION ;
   }
-  currentPage = page ;
-  page . setVisible ( true ) ;
-  layout ( true ) ;
-  Control [ ] children = getChildren ( ) ;
-  for ( Control element : children ) {
-    Control child = element ;
-    if ( child != page && ! child . isDisposed ( ) ) {
-      child . setVisible ( false ) ;
-    }
+  switch ( api ) {
+    case 19 : case 20 : return 7 ;
+    case 21 : return 39 ;
+    case 22 : return 45 ;
+    case 23 : return 64 ;
+    case 24 : case 25 : return 79 ;
+    case 26 : return 124 ;
+    case 27 : return 131 ;
+    case 28 : return 144 ;
   }
+  return 143 ;
 }
 
 
-// Suggested Revision B
-public void showPage ( Control page ) {
-  currentPage = page ;
-  page . setVisible ( true ) ;
-  layout ( true ) ;
-  Control [ ] children = getChildren ( ) ;
-  for ( Control element : children ) {
-    Control child = element ;
-    if ( child != page && ! child . isDisposed ( ) ) {
-      child . setVisible ( false ) ;
-    }
+public static int mapApiToArtVersion ( int api ) {
+  if ( api < 19 ) {
+    return NO_VERSION ;
   }
+  switch ( api ) {
+    case 19 : case 20 : return 7 ;
+    case 21 : return 39 ;
+    case 22 : return 45 ;
+    case 23 : return 64 ;
+    case 24 : case 25 : return 79 ;
+    case 26 : return 124 ;
+    case 27 : return 131 ;
+    case 28 : return 144 ;
+  }
+  return 143 ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 17 */
 
-/** Let's avoid `null` and rework to empty string */
+/** I think that it is ok, although I am not sure how I feel about including the "\n". */
 
-// Manual revision
-public Optional < String > getLinkAt ( int offset ) {
-  for ( int i = 0 ;
-  i < linkRanges . size ( ) ;
-  i ++ ) {
-    if ( linkRanges . get ( i ) . contains ( offset ) ) {
-      return Optional . of ( hrefs . get ( i ) ) ;
+private String extractDefinitionLine ( String typeDeclaration ) {
+  String typeLine = "" ;
+  String [ ] lines = typeDeclaration . split ( "\n" ) ;
+  for ( String line : lines ) {
+    typeLine = typeLine + "\n" + line ;
+    if ( line . contains ( "{" ) ) {
+      break ;
     }
   }
-  return Optional . empty ( ) ;
+  return typeLine ;
 }
 
 
-// Suggested Revision A
-public String getLinkAt ( int offset ) {
-  if ( offset < 0 ) {
-    return "" ;
-  }
-  for ( int i = 0 ;
-  i < linkRanges . size ( ) ;
-  i ++ ) {
-    if ( linkRanges . get ( i ) . isOffsetInRange ( offset ) ) {
-      return hrefs . get ( i ) ;
+private String extractDefinitionLine ( String typeDeclaration ) {
+  String typeLine = "" ;
+  String [ ] lines = typeDeclaration . split ( "\n" ) ;
+  for ( String line : lines ) {
+    typeLine = typeLine + "\n" + line ;
+    if ( line . contains ( "{" ) ) {
+      break ;
     }
   }
-  return "" ;
+  return typeLine ;
 }
 
 
-// Suggested Revision B
-public String getLinkAt ( int offset ) {
-  for ( int i = 0 ;
-  i < linkRanges . size ( ) ;
-  i ++ ) {
-    if ( linkRanges . get ( i ) . isOffsetInRange ( offset ) ) {
-      return hrefs . get ( i ) ;
+private String extractDefinitionLine ( String typeDeclaration ) {
+  String typeLine = "" ;
+  String [ ] lines = typeDeclaration . split ( "\n" ) ;
+  for ( String line : lines ) {
+    typeLine = typeLine + "\n" + line ;
+    if ( line . contains ( "{" ) ) {
+      break ;
     }
   }
-  return "" ;
+  return typeLine ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 18 */
 
-/** Please not here. This is not a standard SWT table. */
+/** We can slightly simplify: ```java return result != null && Objects.equals(CommandResult.Type.ERROR, result.getType()); ``` */
 
-// Manual revision
-protected Control createControl ( Composite parent ) {
-  CTConfiguration config = new CTConfiguration ( parent , CTConfiguration . STYLE_GRID ) ;
-  config . setHorizontalAlignment ( SWT . CENTER ) ;
-  config . setCellSelectionEnabled ( false ) ;
-  config . setColumnSelectionEnabled ( false ) ;
-  config . setRowSelectionEnabled ( false ) ;
-  config . setColumnHeaderLayout ( CTConfiguration . COLUMN_HEADER_LAYOUT_FILL_EQUAL ) ;
-  config . setRowHeaderLayout ( CTConfiguration . ROW_HEADER_LAYOUT_DEFAULT ) ;
-  this . table = new ComponentTable ( parent , SWT . NONE , config ) ;
-  return this . table . getControl ( ) ;
+public boolean hasError ( ) {
+  return result != null && result . getType ( ) != null && CommandResult . Type . ERROR . equals ( result . getType ( ) ) ;
 }
 
 
-// Suggested Revision A
-protected Control createControl ( Composite parent ) {
-  CTConfiguration config = new CTConfiguration ( parent , CTConfiguration . STYLE_GRID ) ;
-  config . setHorizontalAlignment ( SWT . CENTER ) ;
-  config . setCellSelectionEnabled ( false ) ;
-  config . setColumnSelectionEnabled ( false ) ;
-  config . setRowSelectionEnabled ( false ) ;
-  this . table = new ComponentTable ( parent , SWT . FULL_SELECTION , config ) ;
-  return this . table . getControl ( ) ;
+public boolean hasError ( ) {
+  return result != null && result . getType ( ) != null && CommandResult . Type . ERROR . equals ( result . getType ( ) ) ;
 }
 
 
-// Suggested Revision B
-protected Control createControl ( Composite parent ) {
-  CTConfiguration config = new CTConfiguration ( parent , CTConfiguration . STYLE_GRID ) ;
-  config . setHorizontalAlignment ( SWT . CENTER ) ;
-  config . setCellSelectionEnabled ( false ) ;
-  config . setColumnSelectionEnabled ( false ) ;
-  config . setRowSelectionEnabled ( false ) ;
-  config . setColumnHeaderLayout ( CTConfiguration . COLUMN_HEADER_LAYOUT_FILL_EQUAL ) ;
-  config . setRowHeaderLayout ( CTConfiguration . ROW_HEADER_LAYOUT_DEFAULT ) ;
-  this . table = new ComponentTable ( parent , SWT . FULL_SELECTION , config ) ;
-  return this . table . getControl ( ) ;
+public boolean hasError ( ) {
+  return result != null && result . getType ( ) != null && CommandResult . Type . ERROR . equals ( result . getType ( ) ) ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 19 */
 
-/** return 'true' */
+/** Technically, you should `queryRunner.close()` (or t-w-r). This would ensure proper cleanup of any temp files (or whatevers) it might have created */
 
-// Manual revision
-public boolean isEnabled ( ) {
-  return true ;
+public static void main ( String [ ] args ) {
+  LocalQueryRunner queryRunner = createLocalQueryRunner ( ImmutableMap . of ( "reorder_joins" , "false" ) ) ;
+  new SqlConsecutiveJoinBenchmark ( queryRunner ) . runBenchmark ( new SimpleLineBenchmarkResultWriter ( System . out ) ) ;
 }
 
 
-// Suggested Revision A
-public boolean isEnabled ( ) {
-  return true ;
+public static void main ( String [ ] args ) {
+  LocalQueryRunner queryRunner = createLocalQueryRunner ( ImmutableMap . of ( "reorder_joins" , "false" ) ) ;
+  new SqlConsecutiveJoinBenchmark ( queryRunner ) . runBenchmark ( new SimpleLineBenchmarkResultWriter ( System . out ) ) ;
 }
 
 
-// Suggested Revision B
-public boolean isEnabled ( ) {
-  return getActiveTextEditor ( ) != null ;
+public static void main ( String [ ] args ) {
+  LocalQueryRunner queryRunner = createLocalQueryRunner ( ImmutableMap . of ( "reorder_joins" , "false" ) ) ;
+  new SqlConsecutiveJoinBenchmark ( queryRunner ) . runBenchmark ( new SimpleLineBenchmarkResultWriter ( System . out ) ) ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
