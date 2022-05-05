@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for tsk in 1 2 3 4
+for tsk in 1 2 3 4 5 6
 do
     cp ../moedit/results/user-study/tasks/code-review/old-task-7-${tsk}.java ./code-review/task-7-${tsk}.java
     git add .

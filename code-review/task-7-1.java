@@ -1,729 +1,790 @@
 /** Example 0 */
 
-/** ChangeDetailEditor_EGerriTipValue has no more arguments, should we just use it directly , no need to set the arguments ? */
+/** Looks good to me, but worth to protect `getFirstDrId()` and `getLastDrId()` too, they'll throw `NoSuchElementException` also if `m_map` is empty. */
 
-// Manual revision
-private void activateMarkers ( ) {
-  if ( ! fGerritClient . getRepository ( ) . getServerInfo ( ) . isAnonymous ( ) ) {
-    UIUtils . showDialogTip ( MARKERS_KEY , headerSection . getShell ( ) , Messages . EGerriTip , Messages . ChangeDetailEditor_EGerriTipValue ) ;
+public long getSafePointDrId ( ) {
+  synchronized ( m_map ) {
+    assert ( ! m_map . isEmpty ( ) ) ;
+    return end ( m_map . asRanges ( ) . iterator ( ) . next ( ) ) ;
   }
 }
 
 
-// Suggested Revision A
-private void activateMarkers ( ) {
-  if ( ! fGerritClient . getRepository ( ) . getServerInfo ( ) . isAnonymous ( ) ) {
-    String value = NLS . bind ( Messages . ChangeDetailEditor_EGerriTipValue , fChangeInfo . getUserSelectedRevision ( ) . get_number ( ) ) ;
-    UIUtils . showDialogTip ( MARKERS_KEY , headerSection . getShell ( ) , Messages . EGerriTip , value ) ;
+public long getSafePointDrId ( ) {
+  synchronized ( m_map ) {
+    assert ( ! m_map . isEmpty ( ) ) ;
+    return end ( m_map . asRanges ( ) . iterator ( ) . next ( ) ) ;
   }
 }
 
 
-// Suggested Revision B
-private void activateMarkers ( ) {
-  if ( ! fGerritClient . getRepository ( ) . getServerInfo ( ) . isAnonymous ( ) ) {
-    String value = ChangeDetailEditor_EGerriTipValue . bind ( fChangeInfo . getUserSelectedRevision ( ) . get_number ( ) ) ;
-    UIUtils . showDialogTip ( MARKERS_KEY , headerSection . getShell ( ) , Messages . EGerriTip , value ) ;
+public long getSafePointDrId ( ) {
+  synchronized ( m_map ) {
+    assert ( ! m_map . isEmpty ( ) ) ;
+    return end ( m_map . asRanges ( ) . iterator ( ) . next ( ) ) ;
   }
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 1 */
 
-/** should be called `resource` */
+/** `super.children().forEach(res::add);` ? */
 
-// Manual revision
-public void testCreate ( ) throws StripeException {
-  final Map < String , Object > params = new HashMap < String , Object > ( ) ;
-  params . put ( "currency" , "usd" ) ;
-  final Order order = Order . create ( params ) ;
-  assertNotNull ( order ) ;
-  verifyRequest ( APIResource . RequestMethod . POST , "/v1/orders" , params ) ;
+public Iterable < Tree > children ( ) {
+  List < Tree > result = new ArrayList < > ( ) ;
+  if ( openParenToken != null ) {
+    result . add ( openParenToken ) ;
+  }
+  for ( Tree tree : super . children ( ) ) {
+    result . add ( tree ) ;
+  }
+  if ( closeParenToken != null ) {
+    result . add ( closeParenToken ) ;
+  }
+  return result ;
 }
 
 
-// Suggested Revision A
-public void testCreate ( ) throws StripeException {
-  final Order order = Order . create ( new HashMap < String , Object > ( ) ) ;
-  assertNotNull ( order ) ;
-  verifyRequest ( APIResource . RequestMethod . POST , "/v1/orders" , params ) ;
+public Iterable < Tree > children ( ) {
+  List < Tree > result = new ArrayList < > ( ) ;
+  if ( openParenToken != null ) {
+    result . add ( openParenToken ) ;
+  }
+  for ( Tree tree : super . children ( ) ) {
+    result . add ( tree ) ;
+  }
+  if ( closeParenToken != null ) {
+    result . add ( closeParenToken ) ;
+  }
+  return result ;
 }
 
 
-// Suggested Revision B
-public void testCreate ( ) throws StripeException {
-  final Map < String , Object > params = new HashMap < String , Object > ( ) ;
-  params . put ( "currency" , "usd" ) ;
-  final Order order = Order . create ( params ) ;
-  assertNotNull ( order ) ;
-  verifyRequest ( APIResource . RequestMethod . POST , "/v1/orders" , params ) ;
+public Iterable < Tree > children ( ) {
+  List < Tree > result = new ArrayList < > ( ) ;
+  if ( openParenToken != null ) {
+    result . add ( openParenToken ) ;
+  }
+  for ( Tree tree : super . children ( ) ) {
+    result . add ( tree ) ;
+  }
+  if ( closeParenToken != null ) {
+    result . add ( closeParenToken ) ;
+  }
+  return result ;
 }
 
 
-==========================this is the dividing line=============================
+public Iterable < Tree > children ( ) {
+  List < Tree > result = new ArrayList < > ( ) ;
+  if ( openParenToken != null ) {
+    result . add ( openParenToken ) ;
+  }
+  for ( Tree tree : super . children ( ) ) {
+    result . add ( tree ) ;
+  }
+  if ( closeParenToken != null ) {
+    result . add ( closeParenToken ) ;
+  }
+  return result ;
+}
+
+
+*************************this is the dividing line*****************************
 
 
 
 /** Example 2 */
 
-/** Should probably use a Set<String> instead of a List<String> so that the intention of the code is clear by first glance. */
+/** lambda? */
 
-// Manual revision
-public void addDownload ( String download ) {
-  downloads . add ( download ) ;
-}
-
-
-// Suggested Revision A
-private void addDownload ( String download ) {
-  if ( ! downloads . contains ( download ) ) {
-    downloads . add ( download ) ;
+public PatternScatterGraphView ( ) {
+  super ( ID ) ;
+  this . addPartPropertyListener ( new IPropertyChangeListener ( ) {
+    @ Override public void propertyChange ( PropertyChangeEvent event ) {
+      if ( event . getProperty ( ) . equals ( TmfXmlStrings . XML_LATENCY_OUTPUT_DATA ) ) {
+        Object newValue = event . getNewValue ( ) ;
+        if ( newValue instanceof String ) {
+          String data = ( String ) newValue ;
+          fViewInfo . setViewData ( data ) ;
+          setPartName ( fViewInfo . getLabel ( ) ) ;
+          loadLatencyView ( ) ;
+        }
+      }
+    }
   }
+  ) ;
 }
 
 
-// Suggested Revision B
-public void addDownload ( String download ) {
-  if ( ! downloads . contains ( download ) ) {
-    downloads . add ( download ) ;
+public PatternScatterGraphView ( ) {
+  super ( ID ) ;
+  this . addPartPropertyListener ( new IPropertyChangeListener ( ) {
+    @ Override public void propertyChange ( PropertyChangeEvent event ) {
+      if ( event . getProperty ( ) . equals ( TmfXmlStrings . XML_LATENCY_OUTPUT_DATA ) ) {
+        Object newValue = event . getNewValue ( ) ;
+        if ( newValue instanceof String ) {
+          String data = ( String ) newValue ;
+          fViewInfo . setViewData ( data ) ;
+          setPartName ( fViewInfo . getLabel ( ) ) ;
+          loadLatencyView ( ) ;
+        }
+      }
+    }
   }
+  ) ;
 }
 
 
-==========================this is the dividing line=============================
+public PatternScatterGraphView ( ) {
+  super ( ID ) ;
+  this . addPartPropertyListener ( new IPropertyChangeListener ( ) {
+    @ Override public void propertyChange ( PropertyChangeEvent event ) {
+      if ( event . getProperty ( ) . equals ( TmfXmlStrings . XML_LATENCY_OUTPUT_DATA ) ) {
+        Object newValue = event . getNewValue ( ) ;
+        if ( newValue instanceof String ) {
+          String data = ( String ) newValue ;
+          fViewInfo . setViewData ( data ) ;
+          setPartName ( fViewInfo . getLabel ( ) ) ;
+          loadLatencyView ( ) ;
+        }
+      }
+    }
+  }
+  ) ;
+}
+
+
+*************************this is the dividing line*****************************
 
 
 
 /** Example 3 */
 
-/** Should this be 1 or null instead of 0? */
+/** Please post the examples of content for new metadata cache files to the Jira description */
 
-// Manual revision
-public void copyDetailsFromOtherCuObjectCodeActivationGlobal ( CuObjectCodeActivationGlobal oldGlobal ) {
-  for ( CuObjectCodeGlobalDetail oldDetail : oldGlobal . getObjectCodeGlobalDetails ( ) ) {
-    CuObjectCodeGlobalDetail newDetail = ( CuObjectCodeGlobalDetail ) ObjectUtils . deepCopy ( oldDetail ) ;
-    newDetail . setObjectId ( null ) ;
-    newDetail . setDocumentNumber ( getDocumentNumber ( ) ) ;
-    newDetail . setVersionNumber ( new Long ( 1 ) ) ;
-    getObjectCodeGlobalDetails ( ) . add ( newDetail ) ;
-  }
+public ColumnMetadata_v4 ( String [ ] name , PrimitiveType . PrimitiveTypeName primitiveType , Object minValue , Object maxValue , Long nulls ) {
+  this . name = name ;
+  this . minValue = minValue ;
+  this . maxValue = maxValue ;
+  this . nulls = nulls ;
+  this . primitiveType = primitiveType ;
 }
 
 
-// Suggested Revision A
-public void copyDetailsFromOtherCuObjectCodeActivationGlobal ( CuObjectCodeActivationGlobal oldGlobal ) {
-  for ( CuObjectCodeGlobalDetail oldDetail : oldGlobal . getObjectCodeGlobalDetails ( ) ) {
-    CuObjectCodeGlobalDetail newDetail = ( CuObjectCodeGlobalDetail ) ObjectUtils . deepCopy ( oldDetail ) ;
-    newDetail . setObjectId ( null ) ;
-    newDetail . setDocumentNumber ( getDocumentNumber ( ) ) ;
-    newDetail . setVersionNumber ( 1 ) ;
-    getObjectCodeGlobalDetails ( ) . add ( newDetail ) ;
-  }
+public ColumnMetadata_v4 ( String [ ] name , PrimitiveType . PrimitiveTypeName primitiveType , Object minValue , Object maxValue , Long nulls ) {
+  this . name = name ;
+  this . minValue = minValue ;
+  this . maxValue = maxValue ;
+  this . nulls = nulls ;
+  this . primitiveType = primitiveType ;
 }
 
 
-// Suggested Revision B
-public void copyDetailsFromOtherCuObjectCodeActivationGlobal ( CuObjectCodeActivationGlobal oldGlobal ) {
-  for ( CuObjectCodeGlobalDetail oldDetail : oldGlobal . getObjectCodeGlobalDetails ( ) ) {
-    CuObjectCodeGlobalDetail newDetail = ( CuObjectCodeGlobalDetail ) ObjectUtils . deepCopy ( oldDetail ) ;
-    newDetail . setObjectId ( null ) ;
-    newDetail . setDocumentNumber ( getDocumentNumber ( ) ) ;
-    newDetail . setVersionNumber ( null ) ;
-    getObjectCodeGlobalDetails ( ) . add ( newDetail ) ;
-  }
+public ColumnMetadata_v4 ( String [ ] name , PrimitiveType . PrimitiveTypeName primitiveType , Object minValue , Object maxValue , Long nulls ) {
+  this . name = name ;
+  this . minValue = minValue ;
+  this . maxValue = maxValue ;
+  this . nulls = nulls ;
+  this . primitiveType = primitiveType ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 4 */
 
-/** These arguments can all go on the same line */
+/** no need for isNotNull nor isInstanceOf(String.class). They are both implicit with .isEqualTo("1.0.0.0") */
 
-// Manual revision
-private RuleApplication applyRule ( ) {
-  SymbolAllocator symbolAllocator = new SymbolAllocator ( symbols ) ;
-  Memo memo = new Memo ( idAllocator , plan ) ;
-  Lookup lookup = Lookup . from ( memo :: resolve ) ;
-  Optional < PlanNode > result = inTransaction ( session -> rule . apply ( memo . getNode ( memo . getRootGroup ( ) ) , lookup , idAllocator , symbolAllocator , session ) ) ;
-  return new RuleApplication ( lookup , symbolAllocator . getTypes ( ) , result ) ;
+public void registerSonarQubeVersion_publishes_version_on_first_call ( ) {
+  ClusterProperties clusterProperties = new ClusterProperties ( newClusterSettings ( ) ) ;
+  try ( HazelcastCluster hzCluster = HazelcastCluster . builder ( clusterProperties ) . build ( ) ) {
+    hzCluster . registerSonarQubeVersion ( "1.0.0.0" ) ;
+    HazelcastInstance hzInstance = createHazelcastClient ( hzCluster ) ;
+    assertThat ( hzInstance . getAtomicReference ( SONARQUBE_VERSION ) . get ( ) ) . isNotNull ( ) . isInstanceOf ( String . class ) . isEqualTo ( "1.0.0.0" ) ;
+  }
 }
 
 
-// Suggested Revision A
-private RuleApplication applyRule ( ) {
-  SymbolAllocator symbolAllocator = new SymbolAllocator ( symbols ) ;
-  Memo memo = new Memo ( idAllocator , plan ) ;
-  Lookup lookup = Lookup . from ( memo :: resolve ) ;
-  Optional < PlanNode > result = inTransaction ( session -> rule . apply ( memo . getNode ( memo . getRootGroup ( ) ) , lookup , idAllocator , symbolAllocator , session ) ) ;
-  return new RuleApplication ( memo , lookup , symbolAllocator . getTypes ( ) , result ) ;
+public void registerSonarQubeVersion_publishes_version_on_first_call ( ) {
+  ClusterProperties clusterProperties = new ClusterProperties ( newClusterSettings ( ) ) ;
+  try ( HazelcastCluster hzCluster = HazelcastCluster . builder ( clusterProperties ) . build ( ) ) {
+    hzCluster . registerSonarQubeVersion ( "1.0.0.0" ) ;
+    HazelcastInstance hzInstance = createHazelcastClient ( hzCluster ) ;
+    assertThat ( hzInstance . getAtomicReference ( SONARQUBE_VERSION ) . get ( ) ) . isNotNull ( ) . isInstanceOf ( String . class ) . isEqualTo ( "1.0.0.0" ) ;
+  }
 }
 
 
-// Suggested Revision B
-private RuleApplication applyRule ( ) {
-  Memo memo = new Memo ( idAllocator , plan ) ;
-  Lookup lookup = Lookup . from ( memo :: resolve ) ;
-  Optional < PlanNode > result = inTransaction ( session -> rule . apply ( memo . getNode ( memo . getRootGroup ( ) ) , lookup , idAllocator , symbolAllocator , session ) ) ;
-  return new RuleApplication ( memo , lookup , symbolAllocator . getTypes ( ) , result ) ;
+public void registerSonarQubeVersion_publishes_version_on_first_call ( ) {
+  ClusterProperties clusterProperties = new ClusterProperties ( newClusterSettings ( ) ) ;
+  try ( HazelcastCluster hzCluster = HazelcastCluster . builder ( clusterProperties ) . build ( ) ) {
+    hzCluster . registerSonarQubeVersion ( "1.0.0.0" ) ;
+    HazelcastInstance hzInstance = createHazelcastClient ( hzCluster ) ;
+    assertThat ( hzInstance . getAtomicReference ( SONARQUBE_VERSION ) . get ( ) ) . isNotNull ( ) . isInstanceOf ( String . class ) . isEqualTo ( "1.0.0.0" ) ;
+  }
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 5 */
 
-/** Why the expected output was changed? */
+/** Is CouchbaseLiteException thrown from anything in this method? Or it should return void but throw CouchbaseLiteException instead? */
 
-// Manual revision
-public void testPushDownArray ( ) throws Exception {
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] = 1" , 3 , 2 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] = 100" , 0 , 1 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] <> 1" , 8 , 6 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[2] > 20" , 5 , 3 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] between 10 and 20" , 5 , 4 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[4] = 15" , 1 , 3 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[2] is not null" , 11 , 6 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[3] is null" , 11 , 7 ) ;
+boolean selectCommonAncestor ( ReadOnlyDocument doc1 , ReadOnlyDocument doc2 ) throws CouchbaseLiteException {
+  if ( ! c4doc . getRawDoc ( ) . selectCommonAncestorRevision ( doc1 . getRevID ( ) , doc2 . getRevID ( ) ) ) return false ;
+  setC4Doc ( c4doc ) ;
+  return true ;
 }
 
 
-// Suggested Revision A
-public void testPushDownArray ( ) throws Exception {
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] = 1" , 3 , 2 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] = 100" , 0 , 1 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] <> 1" , 8 , 7 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[2] > 20" , 5 , 4 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] between 10 and 20" , 5 , 5 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[4] = 15" , 1 , 3 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[3] is not null" , 11 , 6 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[4] is null" , 11 , 7 ) ;
+boolean selectCommonAncestor ( ReadOnlyDocument doc1 , ReadOnlyDocument doc2 ) throws CouchbaseLiteException {
+  if ( ! c4doc . getRawDoc ( ) . selectCommonAncestorRevision ( doc1 . getRevID ( ) , doc2 . getRevID ( ) ) ) return false ;
+  setC4Doc ( c4doc ) ;
+  return true ;
 }
 
 
-// Suggested Revision B
-public void testPushDownArray ( ) throws Exception {
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] = 1" , 3 , 2 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] = 100" , 0 , 1 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] <> 1" , 8 , 7 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[0] <> 1" , 8 , 7 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[2] > 20" , 5 , 4 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[4] = 15" , 1 , 3 ) ;
-  testParquetFilterPushDown ( "t.`user`.hobby_ids[3] is null" ) ;
+boolean selectCommonAncestor ( ReadOnlyDocument doc1 , ReadOnlyDocument doc2 ) throws CouchbaseLiteException {
+  if ( ! c4doc . getRawDoc ( ) . selectCommonAncestorRevision ( doc1 . getRevID ( ) , doc2 . getRevID ( ) ) ) return false ;
+  setC4Doc ( c4doc ) ;
+  return true ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 6 */
 
-/** This logic should be in the default implementation. */
+/** Missing assertNotNull for executionSet here. */
 
-// Manual revision
-default Direction getBubbleElevatorDirection ( ) {
-  return this . getBlockState ( ) . getBlock ( ) . getBubbleElevatorDirection ( this . getBlockState ( ) ) ;
+public void testUnmarshallSubprocessLevelEventEmptyProperties ( ) throws Exception {
+  Diagram < Graph , Metadata > diagram = unmarshall ( marshaller , BPMN_START_EVENT_FILE_PATH ) ;
+  assertDiagram ( diagram , AMOUNT_OF_NODES_IN_DIAGRAM ) ;
+  StartNoneEvent emptySubprocess = getStartNodeById ( diagram , EMPTY_SUBPROCESS_LEVEL_EVENT_ID , StartNoneEvent . class ) ;
+  assertGeneralSet ( emptySubprocess . getGeneral ( ) , EMPTY_VALUE , EMPTY_VALUE ) ;
+  assertStartEventSlaDueDate ( emptySubprocess . getExecutionSet ( ) , EMPTY_VALUE ) ;
 }
 
 
-// Suggested Revision A
-default Direction getBubbleElevatorDirection ( ) {
-  Block block = this . getBlockState ( ) . getBlock ( ) ;
-  if ( block == Blocks . BUBBLE_COLUMN ) {
-    return this . getBlockState ( ) . get ( BubbleColumnBlock . DRAG ) ? Direction . DOWN : Direction . UP ;
-  }
-  return block . getBubbleElevatorDirection ( this . getBlockState ( ) ) ;
+public void testUnmarshallSubprocessLevelEventEmptyProperties ( ) throws Exception {
+  Diagram < Graph , Metadata > diagram = unmarshall ( marshaller , BPMN_START_EVENT_FILE_PATH ) ;
+  assertDiagram ( diagram , AMOUNT_OF_NODES_IN_DIAGRAM ) ;
+  StartNoneEvent emptySubprocess = getStartNodeById ( diagram , EMPTY_SUBPROCESS_LEVEL_EVENT_ID , StartNoneEvent . class ) ;
+  assertGeneralSet ( emptySubprocess . getGeneral ( ) , EMPTY_VALUE , EMPTY_VALUE ) ;
+  assertStartEventSlaDueDate ( emptySubprocess . getExecutionSet ( ) , EMPTY_VALUE ) ;
 }
 
 
-// Suggested Revision B
-default Direction getBubbleElevatorDirection ( ) {
-  Block block = this . getBlockState ( ) . getBlock ( ) ;
-  return block . getBubbleElevatorDirection ( this . getBlockState ( ) ) ;
+public void testUnmarshallSubprocessLevelEventEmptyProperties ( ) throws Exception {
+  Diagram < Graph , Metadata > diagram = unmarshall ( marshaller , BPMN_START_EVENT_FILE_PATH ) ;
+  assertDiagram ( diagram , AMOUNT_OF_NODES_IN_DIAGRAM ) ;
+  StartNoneEvent emptySubprocess = getStartNodeById ( diagram , EMPTY_SUBPROCESS_LEVEL_EVENT_ID , StartNoneEvent . class ) ;
+  assertGeneralSet ( emptySubprocess . getGeneral ( ) , EMPTY_VALUE , EMPTY_VALUE ) ;
+  assertStartEventSlaDueDate ( emptySubprocess . getExecutionSet ( ) , EMPTY_VALUE ) ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 7 */
 
-/** Why access this method staticly? */
+/** fix name */
 
-// Manual revision
-public void testSystemPropertiesOverrideConfigurationValues ( ) {
-  final String keyName = CoreConfig . MAX_CASSANDRA_CONNECTIONS . toString ( ) ;
-  Configuration config = Configuration . getInstance ( ) ;
-  try {
-    Assert . assertEquals ( "75" , config . getStringProperty ( CoreConfig . MAX_CASSANDRA_CONNECTIONS ) ) ;
-    System . setProperty ( keyName , "something else" ) ;
-    Assert . assertEquals ( "something else" , config . getStringProperty ( CoreConfig . MAX_CASSANDRA_CONNECTIONS ) ) ;
+public void testGenerateXpathSuppressionOptionEmptyConfig ( ) throws Exception {
+  final String expected = " < ? xml SPACETOKEN version = \ " 1.0\ " SPACETOKEN encoding = \ " UTF - 8\ " ? > \n " + " < ! DOCTYPE SPACETOKEN suppressions SPACETOKEN PUBLIC \n " + " SPACETOKEN SPACETOKEN SPACETOKEN SPACETOKEN \ " - // Puppy SPACETOKEN Crawl // DTD SPACETOKEN Suppressions SPACETOKEN Xpath SPACETOKEN Experimental SPACETOKEN 1.2 // EN\ " \n " + " SPACETOKEN SPACETOKEN SPACETOKEN SPACETOKEN \ " http : // checkstyle . sourceforge . net / dtds / " + " suppressions _ 1_2 _ xpath _ experimental . dtd\ " > \n " + " < suppressions > \n " + " < / suppressions > \n " ;
+  exit . checkAssertionAfterwards ( ( ) -> {
+    assertEquals ( " Unexpected SPACETOKEN output SPACETOKEN log " , expected , systemOut . getLog ( ) ) ;
+    assertEquals ( " Unexpected SPACETOKEN system SPACETOKEN error SPACETOKEN log " , " " , systemErr . getLog ( ) ) ;
   }
-  finally {
-    System . clearProperty ( keyName ) ;
-    config . clearProperty ( keyName ) ;
-  }
+  ) ;
+  Main . main ( " - c " , getPath ( " InputMainConfig - empty . xml " ) , " - - generate - xpath - suppression " , getPath ( " InputMainComplexityOverflow . java " ) ) ;
 }
 
 
-// Suggested Revision A
-public static void testSystemPropertiesOverrideConfigurationValues ( ) {
-  final String keyName = CoreConfig . MAX_CASSANDRA_CONNECTIONS . toString ( ) ;
-  Configuration config = Configuration . getInstance ( ) ;
-  try {
-    Assert . assertEquals ( "75" , config . getStringProperty ( CoreConfig . MAX_CASSANDRA_CONNECTIONS ) ) ;
-    System . setProperty ( keyName , "something else" ) ;
-    Assert . assertEquals ( "something else" , config . getStringProperty ( CoreConfig . MAX_CASSANDRA_CONNECTIONS ) ) ;
+public void testGenerateXpathSuppressionOptionEmptyConfig ( ) throws Exception {
+  final String expected = " < ? xml SPACETOKEN version = \ " 1.0\ " SPACETOKEN encoding = \ " UTF - 8\ " ? > \n " + " < ! DOCTYPE SPACETOKEN suppressions SPACETOKEN PUBLIC \n " + " SPACETOKEN SPACETOKEN SPACETOKEN SPACETOKEN \ " - // Puppy SPACETOKEN Crawl // DTD SPACETOKEN Suppressions SPACETOKEN Xpath SPACETOKEN Experimental SPACETOKEN 1.2 // EN\ " \n " + " SPACETOKEN SPACETOKEN SPACETOKEN SPACETOKEN \ " http : // checkstyle . sourceforge . net / dtds / " + " suppressions _ 1_2 _ xpath _ experimental . dtd\ " > \n " + " < suppressions > \n " + " < / suppressions > \n " ;
+  exit . checkAssertionAfterwards ( ( ) -> {
+    assertEquals ( " Unexpected SPACETOKEN output SPACETOKEN log " , expected , systemOut . getLog ( ) ) ;
+    assertEquals ( " Unexpected SPACETOKEN system SPACETOKEN error SPACETOKEN log " , " " , systemErr . getLog ( ) ) ;
   }
-  finally {
-    System . clearProperty ( keyName ) ;
-    Configuration . clearProperty ( keyName ) ;
-  }
+  ) ;
+  Main . main ( " - c " , getPath ( " InputMainConfig - empty . xml " ) , " - - generate - xpath - suppression " , getPath ( " InputMainComplexityOverflow . java " ) ) ;
 }
 
 
-// Suggested Revision B
-public void testSystemPropertiesOverrideConfigurationValues ( ) {
-  final String keyName = CoreConfig . MAX_CASSANDRA_CONNECTIONS . toString ( ) ;
-  Configuration config = Configuration . getInstance ( ) ;
-  try {
-    Assert . assertEquals ( "75" , config . getStringProperty ( CoreConfig . MAX_CASSANDRA_CONNECTIONS ) ) ;
-    System . setProperty ( keyName , "something else" ) ;
-    Assert . assertEquals ( "something else" , config . getStringProperty ( CoreConfig . MAX_CASSANDRA_CONNECTIONS ) ) ;
+public void testGenerateXpathSuppressionOptionEmptyConfig ( ) throws Exception {
+  final String expected = " < ? xml SPACETOKEN version = \ " 1.0\ " SPACETOKEN encoding = \ " UTF - 8\ " ? > \n " + " < ! DOCTYPE SPACETOKEN suppressions SPACETOKEN PUBLIC \n " + " SPACETOKEN SPACETOKEN SPACETOKEN SPACETOKEN \ " - // Puppy SPACETOKEN Crawl // DTD SPACETOKEN Suppressions SPACETOKEN Xpath SPACETOKEN Experimental SPACETOKEN 1.2 // EN\ " \n " + " SPACETOKEN SPACETOKEN SPACETOKEN SPACETOKEN \ " http : // checkstyle . sourceforge . net / dtds / " + " suppressions _ 1_2 _ xpath _ experimental . dtd\ " > \n " + " < suppressions > \n " + " < / suppressions > \n " ;
+  exit . checkAssertionAfterwards ( ( ) -> {
+    assertEquals ( " Unexpected SPACETOKEN output SPACETOKEN log " , expected , systemOut . getLog ( ) ) ;
+    assertEquals ( " Unexpected SPACETOKEN system SPACETOKEN error SPACETOKEN log " , " " , systemErr . getLog ( ) ) ;
   }
-  finally {
-    System . clearProperty ( keyName ) ;
-    Configuration . clearProperty ( keyName ) ;
-  }
+  ) ;
+  Main . main ( " - c " , getPath ( " InputMainConfig - empty . xml " ) , " - - generate - xpath - suppression " , getPath ( " InputMainComplexityOverflow . java " ) ) ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 8 */
 
-/** You can set it on a plain field, no need for atomics:  ``` java this.inner = inner; o.onSubscribe(this); inner.request(Long.MAX_VALUE); ``` */
+/** I would turn this `&&` around. A simple deadlineName check is a lot cheaper than the full parameter assignment verification. */
 
-// Manual revision
-public void onSubscribe ( Subscription inner ) {
-  this . inner = inner ;
-  o . onSubscribe ( this ) ;
-  inner . request ( Long . MAX_VALUE ) ;
+public boolean canHandle ( Message < ? > message ) {
+  return super . canHandle ( message ) && deadlineNameMatch ( ( DeadlineMessage ) message ) ;
 }
 
 
-// Suggested Revision A
-public void onSubscribe ( Subscription inner ) {
-  SubscriptionHelper . setOnce ( this , inner ) ;
-  o . onSubscribe ( this ) ;
-  inner . request ( Long . MAX_VALUE ) ;
+public boolean canHandle ( Message < ? > message ) {
+  return super . canHandle ( message ) && deadlineNameMatch ( ( DeadlineMessage ) message ) ;
 }
 
 
-// Suggested Revision B
-public void onSubscribe ( Subscription inner ) {
-  o . onSubscribe ( this ) ;
-  inner . request ( Long . MAX_VALUE ) ;
+public boolean canHandle ( Message < ? > message ) {
+  return super . canHandle ( message ) && deadlineNameMatch ( ( DeadlineMessage ) message ) ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 9 */
 
-/** There's no need to make these public, even if the package is internal. */
+/** Doesn't the InstallReceiver depend on a WikipediaApp instance being created by the system? Since NotificationPollService.start() is already called there, I think this would call it a second time */
 
-// Manual revision
-private static Color getSystemForegroundColor ( Display display ) {
-  ColorRegistry colorRegistry = JFaceResources . getColorRegistry ( ) ;
-  Color foreground = colorRegistry . get ( JFacePreferences . INFORMATION_FOREGROUND_COLOR ) ;
-  if ( foreground == null ) {
-    return JFaceColors . getInformationViewerForegroundColor ( display ) ;
+public void onReceive ( Context ctx , Intent intent ) {
+  String action = intent . getAction ( ) ;
+  switch ( action ) {
+    case INSTALL_ACTION : installReferrer ( ctx , intent ) ;
+    break ;
+    case Intent . ACTION_BOOT_COMPLETED : recordChannelId ( ctx ) ;
+    NotificationPollService . start ( ctx . getApplicationContext ( ) ) ;
+    break ;
+    default : L . d ( "action=" + action ) ;
+    break ;
   }
-  return foreground ;
 }
 
 
-// Suggested Revision A
-private static Color getSystemForegroundColor ( Display display ) {
-  ColorRegistry colorRegistry = JFaceResources . getColorRegistry ( ) ;
-  Color foreground = colorRegistry . get ( JFacePreferences . INFORMATION_FOREGROUND_COLOR ) ;
-  if ( foreground == null ) {
-    return JFaceColors . getInformationViewerForegroundColor ( display ) ;
+public void onReceive ( Context ctx , Intent intent ) {
+  String action = intent . getAction ( ) ;
+  switch ( action ) {
+    case INSTALL_ACTION : installReferrer ( ctx , intent ) ;
+    break ;
+    case Intent . ACTION_BOOT_COMPLETED : recordChannelId ( ctx ) ;
+    NotificationPollService . start ( ctx . getApplicationContext ( ) ) ;
+    break ;
+    default : L . d ( "action=" + action ) ;
+    break ;
   }
-  return foreground ;
 }
 
 
-// Suggested Revision B
-static Color getSystemForegroundColor ( Display display ) {
-  ColorRegistry colorRegistry = JFaceResources . getColorRegistry ( ) ;
-  Color foreground = colorRegistry . get ( JFacePreferences . INFORMATION_FOREGROUND_COLOR ) ;
-  if ( foreground == null ) {
-    return JFaceColors . getInformationViewerForegroundColor ( display ) ;
+public void onReceive ( Context ctx , Intent intent ) {
+  String action = intent . getAction ( ) ;
+  switch ( action ) {
+    case INSTALL_ACTION : installReferrer ( ctx , intent ) ;
+    break ;
+    case Intent . ACTION_BOOT_COMPLETED : recordChannelId ( ctx ) ;
+    NotificationPollService . start ( ctx . getApplicationContext ( ) ) ;
+    break ;
+    default : L . d ( "action=" + action ) ;
+    break ;
   }
-  return foreground ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 10 */
 
-/** You should go one step more in simplifying the rule: Change this method to return a boolean: `hasNoDefault(switchStatementTree)`  ``` return allLabels(switchStatementTree).noneMatch(SwitchLastCaseIsDefaultCheck::isDefault); ``` */
+/** Is the check for trailing Path.SEPARATOR necessary ? We just got the IntroTheme.ATT_ID property which is not supposed to have a trailing Path.SEPARATOR, no ? */
 
-// Manual revision
-public void visitNode ( Tree tree ) {
-  if ( ! hasSemantic ( ) ) {
-    return ;
+private String getThemePrefixedPath ( String path ) {
+  String prefix = themeProperties != null ? themeProperties . get ( IntroTheme . ATT_ID ) : null ;
+  prefix = prefix == null ? "" : prefix . trim ( ) ;
+  if ( prefix . length ( ) == 0 ) {
+    return null ;
   }
-  SwitchStatementTree switchStatementTree = ( SwitchStatementTree ) tree ;
-  if ( getDefaultLabel ( switchStatementTree ) ) {
-    if ( ! isSwitchOnEnum ( switchStatementTree ) ) {
-      reportIssue ( switchStatementTree . switchKeyword ( ) , "Add a default case to this switch." ) ;
-    }
-    else if ( missingCasesOfEnum ( switchStatementTree ) ) {
-      reportIssue ( switchStatementTree . switchKeyword ( ) , "Complete cases by adding the missing enum constants or add a default case to this switch." ) ;
-    }
-  }
+  return prefix . charAt ( prefix . length ( ) - 1 ) == Path . SEPARATOR ? prefix + path : prefix + Path . SEPARATOR + path ;
 }
 
 
-// Suggested Revision A
-public void visitNode ( Tree tree ) {
-  SwitchStatementTree switchStatementTree = ( SwitchStatementTree ) tree ;
-  Optional < CaseLabelTree > defaultLabel = getDefaultLabel ( switchStatementTree ) ;
-  if ( ! defaultLabel . isPresent ( ) ) {
-    if ( ! isSwitchOnEnum ( switchStatementTree ) ) {
-      reportIssue ( switchStatementTree . switchKeyword ( ) , "Add a default case to this switch." ) ;
-    }
-    else if ( missingCasesOfEnum ( switchStatementTree ) ) {
-      reportIssue ( switchStatementTree . switchKeyword ( ) , "Complete cases by adding the missing enum constants or add a default case to this switch." ) ;
-    }
+private String getThemePrefixedPath ( String path ) {
+  String prefix = themeProperties != null ? themeProperties . get ( IntroTheme . ATT_ID ) : null ;
+  prefix = prefix == null ? "" : prefix . trim ( ) ;
+  if ( prefix . length ( ) == 0 ) {
+    return null ;
   }
+  return prefix . charAt ( prefix . length ( ) - 1 ) == Path . SEPARATOR ? prefix + path : prefix + Path . SEPARATOR + path ;
 }
 
 
-// Suggested Revision B
-public void visitNode ( Tree tree ) {
-  if ( ! hasSemantic ( ) ) {
-    return ;
+private String getThemePrefixedPath ( String path ) {
+  String prefix = themeProperties != null ? themeProperties . get ( IntroTheme . ATT_ID ) : null ;
+  prefix = prefix == null ? "" : prefix . trim ( ) ;
+  if ( prefix . length ( ) == 0 ) {
+    return null ;
   }
-  SwitchStatementTree switchStatementTree = ( SwitchStatementTree ) tree ;
-  Optional < CaseLabelTree > defaultLabel = getDefaultLabel ( switchStatementTree ) ;
-  if ( ! defaultLabel . isPresent ( ) ) {
-    reportIssue ( switchStatementTree . switchKeyword ( ) , "Add a default case to this switch." ) ;
-  }
-  else if ( missingCasesOfEnum ( switchStatementTree ) ) {
-    reportIssue ( switchStatementTree . switchKeyword ( ) , "Complete cases by adding the missing enum constants or add a default case to this switch." ) ;
-  }
+  return prefix . charAt ( prefix . length ( ) - 1 ) == Path . SEPARATOR ? prefix + path : prefix + Path . SEPARATOR + path ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 11 */
 
-/** style nit: no braces around single line blocks */
+/** Multi return is forbidden. */
 
-// Manual revision
-private void createIndex ( ) {
-  lastFoundElementPosition = 0 ;
-  filteredPlan . clear ( ) ;
-  for ( PlanElement element : plan . getList ( ) ) {
-    if ( ! element . isComment ( ) ) filteredPlan . add ( element ) ;
+public Dimension getFloatingItemOffset ( ) {
+  if ( editPart instanceof FloatingLabelEditPart ) {
+    return ( ( FloatingLabelEditPart ) editPart ) . getFloatingItemOffset ( ) ;
   }
+  return new Dimension ( ) ;
 }
 
 
-// Suggested Revision A
-private void createIndex ( ) {
-  lastFoundElementPosition = 0 ;
-  filteredPlan . clear ( ) ;
-  for ( PlanElement element : plan . getList ( ) ) {
-    if ( ! element . isComment ( ) ) filteredPlan . add ( element ) ;
+public Dimension getFloatingItemOffset ( ) {
+  if ( editPart instanceof FloatingLabelEditPart ) {
+    return ( ( FloatingLabelEditPart ) editPart ) . getFloatingItemOffset ( ) ;
   }
+  return new Dimension ( ) ;
 }
 
 
-// Suggested Revision B
-private void createIndex ( ) {
-  lastFoundElementPosition = 0 ;
-  filteredPlan . clear ( ) ;
-  for ( PlanElement element : plan . getList ( ) ) if ( ! element . isComment ( ) ) filteredPlan . add ( element ) ;
+public Dimension getFloatingItemOffset ( ) {
+  if ( editPart instanceof FloatingLabelEditPart ) {
+    return ( ( FloatingLabelEditPart ) editPart ) . getFloatingItemOffset ( ) ;
+  }
+  return new Dimension ( ) ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 12 */
 
-/** is there a difference between parallelStream() and entryStream().parallel() ? */
+/** This block is useless. */
 
-// Manual revision
-public Collection < Map . Entry < K , V >> scanAndFilterByEntry ( Predicate < ? super Map . Entry < K , V >> entryPredicate ) {
-  return mainMap . entryStream ( ) . filter ( entryPredicate ) . collect ( Collectors . toCollection ( ArrayList :: new ) ) ;
+public boolean areEqual ( MapObject o1 , MapObject o2 ) {
+  if ( o1 == null ^ o2 == null ) {
+    return false ;
+  }
+  else if ( o1 == o2 ) {
+    return true ;
+  }
+  else {
+    return o1 . id . equals ( o2 . id ) ;
+  }
 }
 
 
-// Suggested Revision A
-public Collection < Map . Entry < K , V >> scanAndFilterByEntry ( Predicate < ? super Map . Entry < K , V >> entryPredicate ) {
-  return mainMap . entryStream ( ) . filter ( entryPredicate ) . collect ( Collectors . toCollection ( ArrayList :: new ) ) ;
+public boolean areEqual ( MapObject o1 , MapObject o2 ) {
+  if ( o1 == null ^ o2 == null ) {
+    return false ;
+  }
+  else if ( o1 == o2 ) {
+    return true ;
+  }
+  else {
+    return o1 . id . equals ( o2 . id ) ;
+  }
 }
 
 
-// Suggested Revision B
-public Collection < Map . Entry < K , V >> scanAndFilterByEntry ( Predicate < ? super Map . Entry < K , V >> entryPredicate ) {
-  return mainMap . entryStream ( ) . parallel ( ) . filter ( entryPredicate ) . collect ( Collectors . toCollection ( ArrayList :: new ) ) ;
+public boolean areEqual ( MapObject o1 , MapObject o2 ) {
+  if ( o1 == null ^ o2 == null ) {
+    return false ;
+  }
+  else if ( o1 == o2 ) {
+    return true ;
+  }
+  else {
+    return o1 . id . equals ( o2 . id ) ;
+  }
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 13 */
 
-/** Toni, could we please choose better variable names here? `equals` and `equals1` do not say much for newcomer to the codebase.  Or we could avoid storing partial results by: ```java if(!Objects.equals(editorPlaceRequest, event.getPlace())) { return false; }  if (!Objects.equals(getEditorIdentifier(), event.getPlace().getIdentifier())) { return false; } return true; ```  Please let me know what do you think. */
+/** please change to setSucceeded */
 
-// Manual revision
-public boolean verifyEventIdentifier ( AbstractPlaceEvent event ) {
-  return ( Objects . equals ( getEditorIdentifier ( ) , event . getPlace ( ) . getIdentifier ( ) ) && Objects . equals ( editorPlaceRequest , event . getPlace ( ) ) ) ;
-}
-
-
-// Suggested Revision A
-public boolean verifyEventIdentifier ( AbstractPlaceEvent event ) {
-  if ( ! Objects . equals ( editorPlaceRequest , event . getPlace ( ) ) ) {
-    return false ;
+public void endSuccessfully ( ) {
+  super . endSuccessfully ( ) ;
+  if ( getParameters ( ) . getImportAsTemplate ( ) ) {
+    Guid newTemplateId = createTemplate ( ) ;
+    if ( newTemplateId != null ) {
+      attachDiskToTemplate ( newTemplateId ) ;
+    }
   }
-  if ( ! Objects . equals ( getEditorIdentifier ( ) , event . getPlace ( ) . getIdentifier ( ) ) ) {
-    return false ;
+  updateDiskStatus ( ImageStatus . OK ) ;
+  getReturnValue ( ) . setSucceeded ( true ) ;
+}
+
+
+public void endSuccessfully ( ) {
+  super . endSuccessfully ( ) ;
+  if ( getParameters ( ) . getImportAsTemplate ( ) ) {
+    Guid newTemplateId = createTemplate ( ) ;
+    if ( newTemplateId != null ) {
+      attachDiskToTemplate ( newTemplateId ) ;
+    }
   }
-  return true ;
+  updateDiskStatus ( ImageStatus . OK ) ;
+  getReturnValue ( ) . setSucceeded ( true ) ;
 }
 
 
-// Suggested Revision B
-public boolean verifyEventIdentifier ( AbstractPlaceEvent event ) {
-  return ! Objects . equals ( getEditorIdentifier ( ) , event . getPlace ( ) . getIdentifier ( ) ) ;
+public void endSuccessfully ( ) {
+  super . endSuccessfully ( ) ;
+  if ( getParameters ( ) . getImportAsTemplate ( ) ) {
+    Guid newTemplateId = createTemplate ( ) ;
+    if ( newTemplateId != null ) {
+      attachDiskToTemplate ( newTemplateId ) ;
+    }
+  }
+  updateDiskStatus ( ImageStatus . OK ) ;
+  getReturnValue ( ) . setSucceeded ( true ) ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 14 */
 
-/** What is the need to make `issueArticles` nullable? It would be easier to understand this view class if we required it.  If that's totally impractical, we should consider having a separate view class to capture the difference. */
+/** why do you need to wrap it in a new `ArrayList`? Seems wasteful. */
 
-// Manual revision
-public IssueOutputView ( Issue issue ) {
-  this ( issue , null ) ;
+public ByteBufferReadableStreamChannel ( List < ByteBuffer > bufferList ) {
+  if ( bufferList == null || bufferList . isEmpty ( ) ) {
+    throw new IllegalArgumentException ( "Input List of ByteBuffer cannot be null/empty for ByteBufferReadableStreamChannel" ) ;
+  }
+  buffers = new ArrayList < > ( bufferList ) ;
+  size = computeSize ( bufferList ) ;
 }
 
 
-// Suggested Revision A
-public IssueOutputView ( Issue issue ) {
-  this ( issue , null , null ) ;
+public ByteBufferReadableStreamChannel ( List < ByteBuffer > bufferList ) {
+  if ( bufferList == null || bufferList . isEmpty ( ) ) {
+    throw new IllegalArgumentException ( "Input List of ByteBuffer cannot be null/empty for ByteBufferReadableStreamChannel" ) ;
+  }
+  buffers = new ArrayList < > ( bufferList ) ;
+  size = computeSize ( bufferList ) ;
 }
 
 
-// Suggested Revision B
-public IssueOutputView ( Issue issue ) {
-  this ( issue ) ;
+public ByteBufferReadableStreamChannel ( List < ByteBuffer > bufferList ) {
+  if ( bufferList == null || bufferList . isEmpty ( ) ) {
+    throw new IllegalArgumentException ( "Input List of ByteBuffer cannot be null/empty for ByteBufferReadableStreamChannel" ) ;
+  }
+  buffers = new ArrayList < > ( bufferList ) ;
+  size = computeSize ( bufferList ) ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 15 */
 
-/** not 100% sure, but this breaks binary compatibility, right? */
+/** I don't see why I need this cast. The group and artifact IDs are accessible even at interface level. Also the version is accessible, but I don't think you should add it here: this is for multimodule project compilaton and afaik you cannot have different modules with same GA and different version in the same project. */
 
-// Manual revision
-public void setDefaultNumberOfRetries ( int defaultNumberOfRetries ) {
-  this . defaultNumberOfRetries = defaultNumberOfRetries ;
+public static String getModelFileWithGAV ( ReleaseId releaseId ) {
+  ReleaseIdImpl releaseIdImpl = ( ReleaseIdImpl ) releaseId ;
+  return Paths . get ( MODEL_FILE_DIRECTORY , releaseIdImpl . getGroupId ( ) , releaseIdImpl . getArtifactId ( ) , releaseIdImpl . getVersion ( ) , MODEL_FILE_NAME ) . toString ( ) ;
 }
 
 
-// Suggested Revision A
-public ProcessEngineConfiguration setDefaultNumberOfRetries ( int defaultNumberOfRetries ) {
-  this . defaultNumberOfRetries = defaultNumberOfRetries ;
-  return this ;
+public static String getModelFileWithGAV ( ReleaseId releaseId ) {
+  ReleaseIdImpl releaseIdImpl = ( ReleaseIdImpl ) releaseId ;
+  return Paths . get ( MODEL_FILE_DIRECTORY , releaseIdImpl . getGroupId ( ) , releaseIdImpl . getArtifactId ( ) , releaseIdImpl . getVersion ( ) , MODEL_FILE_NAME ) . toString ( ) ;
 }
 
 
-// Suggested Revision B
-private ProcessEngineConfiguration setDefaultNumberOfRetries ( int defaultNumberOfRetries ) {
-  this . defaultNumberOfRetries = defaultNumberOfRetries ;
-  return this ;
+public static String getModelFileWithGAV ( ReleaseId releaseId ) {
+  ReleaseIdImpl releaseIdImpl = ( ReleaseIdImpl ) releaseId ;
+  return Paths . get ( MODEL_FILE_DIRECTORY , releaseIdImpl . getGroupId ( ) , releaseIdImpl . getArtifactId ( ) , releaseIdImpl . getVersion ( ) , MODEL_FILE_NAME ) . toString ( ) ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 16 */
 
-/** instead of an early assignment which might be overridden in line 2355, it can be set as the 'else' part of the if statement below (line 2356). */
+/** can you explain why this is necessary? */
 
-// Manual revision
-public long getSessionSeqId ( ) {
-  if ( sessionSeqId == null ) {
-    String sessionId = getContext ( ) . getEngineContext ( ) . getSessionId ( ) ;
-    sessionSeqId = getSessionDataContainer ( ) . isSessionExists ( sessionId ) ? getSessionDataContainer ( ) . getEngineSessionSeqId ( sessionId ) : - 1L ;
-  }
-  return sessionSeqId ;
+public int hashCode ( ) {
+  return getClass ( ) . hashCode ( ) ;
 }
 
 
-// Suggested Revision A
-public long getSessionSeqId ( ) {
-  if ( sessionSeqId == - 1L ) {
-    String sessionId = getContext ( ) . getEngineContext ( ) . getSessionId ( ) ;
-    if ( getSessionDataContainer ( ) . isSessionExists ( sessionId ) ) {
-      sessionSeqId = getSessionDataContainer ( ) . getEngineSessionSeqId ( sessionId ) ;
-    }
-    else {
-      sessionSeqId = getSessionDataContainer ( ) . getEngineSessionSeqId ( sessionId ) ;
-    }
-  }
-  return sessionSeqId ;
+public int hashCode ( ) {
+  return getClass ( ) . hashCode ( ) ;
 }
 
 
-// Suggested Revision B
-public long getSessionSeqId ( ) {
-  if ( sessionSeqId == null ) {
-    sessionSeqId = - 1L ;
-    String sessionId = getContext ( ) . getEngineContext ( ) . getSessionId ( ) ;
-    if ( getSessionDataContainer ( ) . isSessionExists ( sessionId ) ) {
-      sessionSeqId = getSessionDataContainer ( ) . getEngineSessionSeqId ( sessionId ) ;
-    }
-    else {
-      sessionSeqId = - 1L ;
-    }
-  }
-  return sessionSeqId ;
+public int hashCode ( ) {
+  return getClass ( ) . hashCode ( ) ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 17 */
 
-/** Allocate write ID is a DB/table related event and should be ignored if not lookup on this DB/table. */
+/** `==` instead of `.equals` (in both instances) would make this null-safe */
 
-// Manual revision
-private boolean isTxnRelatedEvent ( final NotificationEvent event ) {
-  return ( ( event . getEventType ( ) . equals ( MessageFactory . OPEN_TXN_EVENT ) ) || ( event . getEventType ( ) . equals ( MessageFactory . COMMIT_TXN_EVENT ) ) || ( event . getEventType ( ) . equals ( MessageFactory . ABORT_TXN_EVENT ) ) ) ;
+public boolean respondsTo ( RunEvent event ) {
+  Run r = event . getEventObject ( ) ;
+  if ( event . getEventType ( ) . equals ( MisoEventType . RUN_FAILED ) && r . getHealth ( ) . equals ( HealthType . Failed ) ) {
+    log . info ( "Run " + r . getAlias ( ) + ": " + event . getEventMessage ( ) ) ;
+    return true ;
+  }
+  return false ;
 }
 
 
-// Suggested Revision A
-private boolean isTxnRelatedEvent ( final NotificationEvent event ) {
-  return ( ( event . getEventType ( ) . equals ( MessageFactory . OPEN_TXN_EVENT ) ) || ( event . getEventType ( ) . equals ( MessageFactory . COMMIT_TXN_EVENT ) ) || ( event . getEventType ( ) . equals ( MessageFactory . ABORT_TXN_EVENT ) ) || ( event . getEventType ( ) . equals ( MessageFactory . ALLOC_WRITE_ID_EVENT ) ) ) ;
+public boolean respondsTo ( RunEvent event ) {
+  Run r = event . getEventObject ( ) ;
+  if ( event . getEventType ( ) . equals ( MisoEventType . RUN_FAILED ) && r . getHealth ( ) . equals ( HealthType . Failed ) ) {
+    log . info ( "Run " + r . getAlias ( ) + ": " + event . getEventMessage ( ) ) ;
+    return true ;
+  }
+  return false ;
 }
 
 
-// Suggested Revision B
-private boolean isTxnRelatedEvent ( final NotificationEvent event ) {
-  return ( ( event . getEventType ( ) . equals ( MessageFactory . OPEN_TXN_EVENT ) ) || ( event . getEventType ( ) . equals ( MessageFactory . COMMIT_TXN_EVENT ) ) || ( event . getEventType ( ) . equals ( MessageFactory . ABORT_TXN_EVENT ) ) ) ;
+public boolean respondsTo ( RunEvent event ) {
+  Run r = event . getEventObject ( ) ;
+  if ( event . getEventType ( ) . equals ( MisoEventType . RUN_FAILED ) && r . getHealth ( ) . equals ( HealthType . Failed ) ) {
+    log . info ( "Run " + r . getAlias ( ) + ": " + event . getEventMessage ( ) ) ;
+    return true ;
+  }
+  return false ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 18 */
 
-/** Can't we have this static flag on FS instead? Then we wouldn't need to make FileStoreAttributeCache public. */
+/** You need to keep in mind that the sentence construction in other languages could be different, so the query string doesn't always show at the end. You should use %1$s in your string on values/strings.xml and pass the query term as an extra argument to getString() */
 
-// Manual revision
-private static void setBackground ( boolean async ) {
-  background . set ( async ) ;
+private void onFragmentLoaded ( ) {
+  if ( searchAdapter == null ) {
+    searchAdapter = new SearchlistAdapter ( getActivity ( ) , itemAccess ) ;
+    setListAdapter ( searchAdapter ) ;
+  }
+  searchAdapter . notifyDataSetChanged ( ) ;
+  setListShown ( true ) ;
+  String query = getArguments ( ) . getString ( ARG_QUERY ) ;
+  setEmptyText ( getString ( R . string . no_results_for_query ) + " SPACETOKEN \ " " + query + " \ " " ) ;
 }
 
 
-// Suggested Revision A
-static void setBackground ( boolean async ) {
-  background = async ;
+private void onFragmentLoaded ( ) {
+  if ( searchAdapter == null ) {
+    searchAdapter = new SearchlistAdapter ( getActivity ( ) , itemAccess ) ;
+    setListAdapter ( searchAdapter ) ;
+  }
+  searchAdapter . notifyDataSetChanged ( ) ;
+  setListShown ( true ) ;
+  String query = getArguments ( ) . getString ( ARG_QUERY ) ;
+  setEmptyText ( getString ( R . string . no_results_for_query ) + " SPACETOKEN \ " " + query + " \ " " ) ;
 }
 
 
-// Suggested Revision B
-private static void setBackground ( boolean async ) {
-  background = async ;
+private void onFragmentLoaded ( ) {
+  if ( searchAdapter == null ) {
+    searchAdapter = new SearchlistAdapter ( getActivity ( ) , itemAccess ) ;
+    setListAdapter ( searchAdapter ) ;
+  }
+  searchAdapter . notifyDataSetChanged ( ) ;
+  setListShown ( true ) ;
+  String query = getArguments ( ) . getString ( ARG_QUERY ) ;
+  setEmptyText ( getString ( R . string . no_results_for_query ) + " SPACETOKEN \ " " + query + " \ " " ) ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
 /** Example 19 */
 
-/** For a small maximuSize, like 1, it may be more reasonable to check for:  map.size() > maximumSize */
+/** Please use Java conventions - param */
 
-// Manual revision
-public V put ( @ NonNull K key , @ NonNull V value ) {
-  map . put ( key , new Entry < > ( key , value , ++ time ) ) ;
-  if ( map . size ( ) > maximumSize ) {
-    purge ( ) ;
-  }
-  return value ;
+private List < Disk > manualAggregateSnapshots ( ) {
+  List < Disk > Param = new ArrayList < > ( ) ;
+  DiskImage diskWithSnaps = diskWithSnapshots ;
+  diskWithSnaps . getSnapshots ( ) . addAll ( snapshotsList ) ;
+  Param . add ( diskWithSnapshots ) ;
+  Param . add ( diskWithoutSnapshots ) ;
+  Param . add ( ovfImage ) ;
+  Param . add ( cinderDisk ) ;
+  return Param ;
 }
 
 
-// Suggested Revision A
-public V put ( @ NonNull K key , @ NonNull V value ) {
-  if ( map . size ( ) > maximumSize ) {
-    purge ( ) ;
-  }
-  map . put ( key , new Entry < > ( key , value , ++ time ) ) ;
-  return value ;
+private List < Disk > manualAggregateSnapshots ( ) {
+  List < Disk > Param = new ArrayList < > ( ) ;
+  DiskImage diskWithSnaps = diskWithSnapshots ;
+  diskWithSnaps . getSnapshots ( ) . addAll ( snapshotsList ) ;
+  Param . add ( diskWithSnapshots ) ;
+  Param . add ( diskWithoutSnapshots ) ;
+  Param . add ( ovfImage ) ;
+  Param . add ( cinderDisk ) ;
+  return Param ;
 }
 
 
-// Suggested Revision B
-public V put ( @ NonNull K key , @ NonNull V value ) {
-  map . put ( key , new Entry < > ( key , value , ++ time ) ) ;
-  if ( map . size ( ) > maximumSize ) {
-    purge ( ) ;
-  }
-  return value ;
+private List < Disk > manualAggregateSnapshots ( ) {
+  List < Disk > Param = new ArrayList < > ( ) ;
+  DiskImage diskWithSnaps = diskWithSnapshots ;
+  diskWithSnaps . getSnapshots ( ) . addAll ( snapshotsList ) ;
+  Param . add ( diskWithSnapshots ) ;
+  Param . add ( diskWithoutSnapshots ) ;
+  Param . add ( ovfImage ) ;
+  Param . add ( cinderDisk ) ;
+  return Param ;
 }
 
 
-==========================this is the dividing line=============================
+*************************this is the dividing line*****************************
 
 
 
